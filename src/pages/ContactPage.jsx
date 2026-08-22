@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Mail, Phone, MapPin, Clock, CheckCircle2, ShieldCheck, Send, Sparkles } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, CheckCircle2, Send } from 'lucide-react';
 
 export default function ContactPage() {
-  const { showToast } = useStore();
+  const { showToast, addInquiry, siteContent } = useStore();
   const [tab, setTab] = useState('general'); // 'general' | 'wholesale'
+
+  const brand = siteContent?.brand || {
+    supportEmail: 'care@aesthedermlabs.com',
+    helplinePhone: '+91 1800 233 4567 (Mon-Sat)',
+    headquartersAddress: 'Cyber City, Tower 4B, Gurugram',
+    consultationHours: '9:00 AM – 7:00 PM IST'
+  };
 
   // General Form
   const [genName, setGenName] = useState('');
@@ -28,7 +35,23 @@ export default function ContactPage() {
       showToast('Please fill out all fields.', 'error');
       return;
     }
+
+    addInquiry({
+      type: 'general',
+      name: genName,
+      email: genEmail,
+      subject: genSubject,
+      message: genMsg,
+      phone: '',
+      clinic: '',
+      role: 'Patient / Customer',
+      location: 'India'
+    });
+
     setGenSuccess(true);
+    setGenName('');
+    setGenEmail('');
+    setGenMsg('');
     showToast('Your inquiry has been routed to our dermatological care desk.');
   };
 
@@ -38,7 +61,25 @@ export default function ContactPage() {
       showToast('Please fill out your clinic and professional details.', 'error');
       return;
     }
+
+    addInquiry({
+      type: 'wholesale',
+      name: b2bName,
+      clinic: b2bClinic,
+      role: b2bRole,
+      email: b2bEmail,
+      phone: b2bPhone,
+      location: b2bLocation,
+      message: `Wholesale & backbar partnership application from ${b2bRole} at ${b2bClinic}. Location: ${b2bLocation}. Phone: ${b2bPhone}.`,
+      subject: `Clinic Partner Application: ${b2bClinic}`
+    });
+
     setB2bSuccess(true);
+    setB2bName('');
+    setB2bClinic('');
+    setB2bEmail('');
+    setB2bPhone('');
+    setB2bLocation('');
     showToast('Wholesale application received! Our clinical partnership team will contact you within 24 hours.');
   };
 
@@ -72,7 +113,7 @@ export default function ContactPage() {
               <Mail size={20} />
             </div>
             <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.2rem' }}>Clinical Support Desk</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>care@aesthedermlabs.com</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{brand.supportEmail}</div>
           </div>
 
           <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid #E2E8F0' }}>
@@ -80,7 +121,7 @@ export default function ContactPage() {
               <Phone size={20} />
             </div>
             <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.2rem' }}>Dermatology Helpline</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>+91 1800 233 4567 (Mon-Sat)</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{brand.helplinePhone}</div>
           </div>
 
           <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid #E2E8F0' }}>
@@ -88,7 +129,7 @@ export default function ContactPage() {
               <MapPin size={20} />
             </div>
             <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.2rem' }}>Formulation Headquarters</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cyber City, Tower 4B, Gurugram</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{brand.headquartersAddress}</div>
           </div>
 
           <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid #E2E8F0' }}>
@@ -96,7 +137,7 @@ export default function ContactPage() {
               <Clock size={20} />
             </div>
             <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.2rem' }}>Consultation Hours</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>9:00 AM – 7:00 PM IST</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{brand.consultationHours}</div>
           </div>
         </div>
 

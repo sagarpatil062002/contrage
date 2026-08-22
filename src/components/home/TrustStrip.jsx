@@ -1,13 +1,25 @@
 import React from 'react';
+import { useStore } from '../../context/StoreContext';
 import { ShieldCheck, FlaskConical, Sparkles, Award } from 'lucide-react';
 
 export default function TrustStrip() {
-  const pillars = [
-    { title: 'Dermatologist Led', desc: 'Formulated with clinical advisory expertise', icon: <ShieldCheck size={18} /> },
-    { title: 'Research Focused', desc: 'Informed by peer-reviewed dermatology studies', icon: <FlaskConical size={18} /> },
-    { title: 'Purposeful Formulations', desc: 'Targeted active molecules with zero filler', icon: <Sparkles size={18} /> },
-    { title: 'Premium Ingredients', desc: 'High-purity USP & pharmaceutical grades', icon: <Award size={18} /> }
+  const { siteContent } = useStore();
+
+  const iconLookup = [
+    <ShieldCheck size={18} key="icon-0" />,
+    <FlaskConical size={18} key="icon-1" />,
+    <Sparkles size={18} key="icon-2" />,
+    <Award size={18} key="icon-3" />
   ];
+
+  const defaultTrustBadges = [
+    { title: 'Dermatologist Led', subtitle: 'Formulated with clinical advisory expertise' },
+    { title: 'Research Focused', subtitle: 'Informed by peer-reviewed dermatology studies' },
+    { title: 'Purposeful Formulations', subtitle: 'Targeted active molecules with zero filler' },
+    { title: 'Premium Ingredients', subtitle: 'High-purity USP & pharmaceutical grades' }
+  ];
+
+  const badges = siteContent?.trustStrip || defaultTrustBadges;
 
   return (
     <div style={{
@@ -22,9 +34,9 @@ export default function TrustStrip() {
           gap: '1.5rem',
           alignItems: 'center'
         }}>
-          {pillars.map((p, i) => (
+          {badges.map((p, i) => (
             <div
-              key={i}
+              key={p.id || i}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -43,7 +55,7 @@ export default function TrustStrip() {
                 flexShrink: 0,
                 border: '1px solid rgba(216, 210, 231, 0.8)'
               }}>
-                {p.icon}
+                {iconLookup[i % iconLookup.length]}
               </div>
               <div>
                 <div style={{
@@ -59,7 +71,7 @@ export default function TrustStrip() {
                   color: 'var(--text-secondary)',
                   lineHeight: '1.3'
                 }}>
-                  {p.desc}
+                  {p.subtitle || p.desc}
                 </div>
               </div>
             </div>

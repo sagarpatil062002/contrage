@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useStore } from '../../context/StoreContext';
 import BeforeAfterSlider from '../common/BeforeAfterSlider';
-import { ShieldCheck, Activity, Award, ArrowRight, FlaskConical, CheckCircle2 } from 'lucide-react';
+import { FlaskConical } from 'lucide-react';
 
 export default function ClinicalEfficacySection() {
+  const { clinicalTrials } = useStore();
   const [activeTrialTab, setActiveTrialTab] = useState(0);
 
-  const clinicalTrials = [
+  const trials = (clinicalTrials && clinicalTrials.length > 0) ? clinicalTrials : [
     {
       title: 'Post-Acne Erythema & Blemish Clearance',
       duration: '4-Week Randomized Blinded Trial (n=120)',
@@ -19,23 +21,11 @@ export default function ClinicalEfficacySection() {
       beforeImage: 'https://images.unsplash.com/photo-1512290900672-1f02e75e921d?auto=format&fit=crop&w=800&q=80',
       afterImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
       notes: 'Formulation introduced daily PM after mild cleansing. Zero transepidermal barrier disruption noted.'
-    },
-    {
-      title: 'Epidermal Barrier Restoration & Lipid Replenishment',
-      duration: '14-Day Clinical Patch & Barrier Assay (n=85)',
-      formulation: '5-Ceramide Biomimetic Restorative Emulsion',
-      metrics: [
-        { label: 'Transepidermal Water Loss', value: '-62%', instrument: 'Tewameter® TM 300' },
-        { label: 'Epidermal Hydration', value: '+140%', instrument: 'Corneometer® CM 825' },
-        { label: 'Sensitivity Index Reduction', value: '91%', instrument: 'Clinical Erythema Score' }
-      ],
-      beforeImage: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
-      afterImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-      notes: 'Applied twice daily to chemically sensitized facial epidermis. Significant filaggrin protein upregulation observed.'
     }
   ];
 
-  const current = clinicalTrials[activeTrialTab];
+  const currentIdx = Math.min(activeTrialTab, trials.length - 1);
+  const current = trials[currentIdx] || trials[0];
 
   return (
     <section className="section-padding" style={{
@@ -80,18 +70,18 @@ export default function ClinicalEfficacySection() {
           marginBottom: '2.5rem',
           flexWrap: 'wrap'
         }}>
-          {clinicalTrials.map((t, idx) => (
+          {trials.map((t, idx) => (
             <button
-              key={idx}
+              key={t.id || idx}
               onClick={() => setActiveTrialTab(idx)}
               style={{
                 padding: '0.65rem 1.25rem',
                 borderRadius: 'var(--radius-full)',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                border: activeTrialTab === idx ? '1px solid var(--accent-navy)' : '1px solid var(--border-medium)',
-                backgroundColor: activeTrialTab === idx ? 'var(--accent-navy)' : 'var(--bg-lavender)',
-                color: activeTrialTab === idx ? '#FFFFFF' : 'var(--text-primary)',
+                border: currentIdx === idx ? '1px solid var(--accent-navy)' : '1px solid var(--border-medium)',
+                backgroundColor: currentIdx === idx ? 'var(--accent-navy)' : 'var(--bg-lavender)',
+                color: currentIdx === idx ? '#FFFFFF' : 'var(--text-primary)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
@@ -148,7 +138,7 @@ export default function ClinicalEfficacySection() {
 
             {/* Metrics Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-              {current.metrics.map((m, i) => (
+              {(current.metrics || []).map((m, i) => (
                 <div
                   key={i}
                   style={{

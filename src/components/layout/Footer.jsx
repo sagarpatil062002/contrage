@@ -4,9 +4,15 @@ import { useStore } from '../../context/StoreContext';
 import { ShieldCheck, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
-  const { showToast } = useStore();
+  const { showToast, siteContent } = useStore();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  const brand = siteContent?.brand || {
+    name: 'AESTHEDERM',
+    tagline: 'LABORATOIRES DERMATOLOGIQUES',
+    shortDescription: 'Advanced dermatological skincare formulations developed with global clinical expertise and 100% molecular transparency.'
+  };
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -44,7 +50,7 @@ export default function Footer() {
                 color: '#FFFFFF',
                 display: 'block'
               }}>
-                AESTHEDERM
+                {brand.name}
               </span>
               <span style={{
                 fontSize: '0.65rem',
@@ -53,12 +59,12 @@ export default function Footer() {
                 textTransform: 'uppercase',
                 fontWeight: '700'
               }}>
-                LABORATOIRES DERMATOLOGIQUES
+                {brand.tagline}
               </span>
             </div>
 
             <p style={{ fontSize: '0.85rem', color: '#A3ABB9', lineHeight: '1.65', marginBottom: '1.5rem' }}>
-              Advanced dermatological skincare formulations developed with global clinical expertise and 100% molecular transparency.
+              {brand.shortDescription}
             </p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#D8D2E7' }}>
@@ -118,37 +124,50 @@ export default function Footer() {
               Receive published dermatological studies, formulation updates, and exclusive private release access.
             </p>
 
-            <form onSubmit={handleSubscribe} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{
-                  padding: '0.7rem 1rem',
-                  borderRadius: 'var(--radius-xs)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                  color: '#FFFFFF',
-                  fontSize: '0.85rem',
-                  outline: 'none'
-                }}
-              />
-              <button
-                type="submit"
-                className="btn btn-sm"
-                style={{
-                  backgroundColor: '#EDEAF4',
-                  color: '#17213A',
-                  fontWeight: '700',
-                  padding: '0.65rem',
-                  borderRadius: 'var(--radius-xs)'
-                }}
-              >
-                Subscribe to Dispatch &rarr;
-              </button>
-            </form>
+            {subscribed ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#438E75' }}>
+                <CheckCircle2 size={16} />
+                <span>Subscription Confirmed</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="email"
+                  placeholder="Enter email..."
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '0.6rem 0.85rem',
+                    color: '#FFFFFF',
+                    fontSize: '0.85rem',
+                    width: '100%',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#17213A',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '0.6rem 1rem',
+                    cursor: 'pointer',
+                    fontWeight: '700',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
@@ -157,22 +176,20 @@ export default function Footer() {
           paddingTop: '2rem',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
+          alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
           fontSize: '0.78rem',
-          color: '#848D9F'
+          color: '#6B7280'
         }}>
           <div>
-            © {new Date().getFullYear()} Aesthederm Labs. All rights reserved. Precision cosmetic dermatological preparations.
+            &copy; {new Date().getFullYear()} {brand.name} {brand.tagline}. All Rights Reserved. Formulated under strict cGMP.
           </div>
-
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link to="/legal/privacy" style={{ color: 'inherit' }}>Privacy</Link>
-            <Link to="/legal/terms" style={{ color: 'inherit' }}>Terms</Link>
-            <Link to="/legal/shipping" style={{ color: 'inherit' }}>Shipping</Link>
-            <Link to="/admin" style={{ color: '#D8D2E7', fontWeight: '600' }}>Admin CMS</Link>
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <Link to="/legal/terms" style={{ color: 'inherit' }}>Terms of Service</Link>
+            <Link to="/legal/privacy" style={{ color: 'inherit' }}>Privacy Policy</Link>
+            <Link to="/admin" style={{ color: '#D8D2E7', fontWeight: '700' }}>Admin CMS</Link>
           </div>
         </div>
       </div>

@@ -1,8 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useStore } from '../../context/StoreContext';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 export default function HeroBanner() {
+  const { siteContent } = useStore();
+  const hero = siteContent?.hero || {
+    eyebrow: 'DERMATOLOGIST-LED SKINCARE',
+    titleLine1: 'Advanced Skincare.',
+    titleLine2: 'Guided by Science.',
+    description: 'Premium skincare formulations developed with dermatological expertise and designed around the needs of your skin.',
+    primaryCtaText: 'Explore Products',
+    primaryCtaLink: '/shop',
+    secondaryCtaText: 'Find Your Concern',
+    secondaryCtaLink: '/concerns',
+    badgeText: '100% Active Transparency',
+    leftProductImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
+    centerProductImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80',
+    rightProductImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80'
+  };
+
   return (
     <section style={{
       position: 'relative',
@@ -63,7 +80,7 @@ export default function HeroBanner() {
               gap: '0.5rem'
             }}>
               <span style={{ width: '18px', height: '1px', backgroundColor: 'var(--text-secondary)' }} />
-              DERMATOLOGIST-LED SKINCARE
+              {hero.eyebrow}
             </div>
 
             {/* Large Serif Heading */}
@@ -74,9 +91,9 @@ export default function HeroBanner() {
               marginBottom: '1.5rem',
               fontWeight: '500'
             }}>
-              Advanced Skincare. <br />
+              {hero.titleLine1} <br />
               <span style={{ fontStyle: 'italic', fontWeight: '400' }}>
-                Guided by Science.
+                {hero.titleLine2}
               </span>
             </h1>
 
@@ -88,16 +105,16 @@ export default function HeroBanner() {
               marginBottom: '2.5rem',
               maxWidth: '480px'
             }}>
-              Premium skincare formulations developed with dermatological expertise and designed around the needs of your skin.
+              {hero.description}
             </p>
 
             {/* CTAs */}
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Link to="/shop" className="btn btn-primary btn-lg">
-                Explore Products <ArrowRight size={16} />
+              <Link to={hero.primaryCtaLink || '/shop'} className="btn btn-primary btn-lg">
+                {hero.primaryCtaText} <ArrowRight size={16} />
               </Link>
-              <Link to="/concerns" className="btn btn-secondary btn-lg">
-                Find Your Concern
+              <Link to={hero.secondaryCtaLink || '/concerns'} className="btn btn-secondary btn-lg">
+                {hero.secondaryCtaText}
               </Link>
             </div>
           </div>
@@ -164,7 +181,7 @@ export default function HeroBanner() {
               className="animate-float-slow"
               >
                 <img
-                  src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80"
+                  src={hero.leftProductImage}
                   alt="Clinical Serum Formulation"
                   style={{
                     width: '100%',
@@ -186,7 +203,7 @@ export default function HeroBanner() {
                 transition: 'transform 0.4s ease'
               }}>
                 <img
-                  src="https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80"
+                  src={hero.centerProductImage}
                   alt="Hero Clinical Retinaldehyde Bottle"
                   style={{
                     width: '100%',
@@ -211,7 +228,7 @@ export default function HeroBanner() {
               className="animate-float-alt"
               >
                 <img
-                  src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80"
+                  src={hero.rightProductImage}
                   alt="Ceramide Barrier Repair Cream Jar"
                   style={{
                     width: '100%',
@@ -243,7 +260,7 @@ export default function HeroBanner() {
                 color: 'var(--text-primary)'
               }}>
                 <Sparkles size={14} color="#6C5B8B" />
-                <span>100% Active Transparency</span>
+                <span>{hero.badgeText}</span>
               </div>
             </div>
           </div>

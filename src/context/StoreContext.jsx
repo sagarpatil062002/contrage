@@ -6,6 +6,7 @@ import { initialBlogs } from '../data/seedBlogs';
 import { initialDoctors } from '../data/seedDoctors';
 import { initialTestimonials } from '../data/seedTestimonials';
 import { initialCoupons, initialFAQs } from '../data/seedCoupons';
+import { initialSiteContent, initialClinicalTrials, initialInquiries } from '../data/seedSiteContent';
 
 const StoreContext = createContext();
 
@@ -30,10 +31,35 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : initialConcerns;
   });
 
-  const [ingredients] = useState(initialIngredients);
-  const [doctors] = useState(initialDoctors);
+  const [ingredients, setIngredients] = useState(() => {
+    const saved = localStorage.getItem('aesthederm_ingredients');
+    return saved ? JSON.parse(saved) : initialIngredients;
+  });
 
-  // 3. Blogs & FAQs & Testimonials
+  const [doctors, setDoctors] = useState(() => {
+    const saved = localStorage.getItem('aesthederm_doctors');
+    return saved ? JSON.parse(saved) : initialDoctors;
+  });
+
+  // 3. Clinical Trials
+  const [clinicalTrials, setClinicalTrials] = useState(() => {
+    const saved = localStorage.getItem('aesthederm_clinical_trials');
+    return saved ? JSON.parse(saved) : initialClinicalTrials;
+  });
+
+  // 4. Site CMS Content
+  const [siteContent, setSiteContent] = useState(() => {
+    const saved = localStorage.getItem('aesthederm_site_content');
+    return saved ? JSON.parse(saved) : initialSiteContent;
+  });
+
+  // 5. Inquiries & Contact Submissions
+  const [inquiries, setInquiries] = useState(() => {
+    const saved = localStorage.getItem('aesthederm_inquiries');
+    return saved ? JSON.parse(saved) : initialInquiries;
+  });
+
+  // 6. Blogs & FAQs & Testimonials
   const [blogs, setBlogs] = useState(() => {
     const saved = localStorage.getItem('aesthederm_blogs');
     return saved ? JSON.parse(saved) : initialBlogs;
@@ -49,7 +75,7 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : initialTestimonials;
   });
 
-  // 4. Coupons & Announcement
+  // 7. Coupons & Announcement
   const [coupons, setCoupons] = useState(() => {
     const saved = localStorage.getItem('aesthederm_coupons');
     return saved ? JSON.parse(saved) : initialCoupons;
@@ -69,7 +95,7 @@ export const StoreProvider = ({ children }) => {
     };
   });
 
-  // 5. Cart & Wishlist
+  // 8. Cart & Wishlist
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('aesthederm_cart');
     return saved ? JSON.parse(saved) : [];
@@ -80,11 +106,10 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : ['p-1', 'p-4'];
   });
 
-  // 6. Orders
+  // 9. Orders
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('aesthederm_orders');
     if (saved) return JSON.parse(saved);
-    // Seed initial demo orders
     return [
       {
         id: 'ORD-84920',
@@ -130,7 +155,7 @@ export const StoreProvider = ({ children }) => {
     ];
   });
 
-  // 7. User Profile
+  // 10. User Profile
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('aesthederm_user');
     return saved ? JSON.parse(saved) : {
@@ -156,13 +181,13 @@ export const StoreProvider = ({ children }) => {
     };
   });
 
-  // 8. Skin Quiz Diagnostic State
+  // 11. Skin Quiz Diagnostic State
   const [quizResult, setQuizResult] = useState(() => {
     const saved = localStorage.getItem('aesthederm_quiz_result');
     return saved ? JSON.parse(saved) : null;
   });
 
-  // 9. UI Modals
+  // 12. UI Modals
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
@@ -176,6 +201,26 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('aesthederm_concerns', JSON.stringify(concerns));
   }, [concerns]);
+
+  useEffect(() => {
+    localStorage.setItem('aesthederm_ingredients', JSON.stringify(ingredients));
+  }, [ingredients]);
+
+  useEffect(() => {
+    localStorage.setItem('aesthederm_doctors', JSON.stringify(doctors));
+  }, [doctors]);
+
+  useEffect(() => {
+    localStorage.setItem('aesthederm_clinical_trials', JSON.stringify(clinicalTrials));
+  }, [clinicalTrials]);
+
+  useEffect(() => {
+    localStorage.setItem('aesthederm_site_content', JSON.stringify(siteContent));
+  }, [siteContent]);
+
+  useEffect(() => {
+    localStorage.setItem('aesthederm_inquiries', JSON.stringify(inquiries));
+  }, [inquiries]);
 
   useEffect(() => {
     localStorage.setItem('aesthederm_blogs', JSON.stringify(blogs));
@@ -231,6 +276,18 @@ export const StoreProvider = ({ children }) => {
     }, 3500);
   };
 
+  // Site Content Updater
+  const updateSiteContent = (sectionKey, newSectionData) => {
+    setSiteContent(prev => ({
+      ...prev,
+      [sectionKey]: {
+        ...prev[sectionKey],
+        ...newSectionData
+      }
+    }));
+    showToast(`Updated site content for "${sectionKey}".`);
+  };
+
   // Cart Operations
   const addToCart = (product, quantity = 1, selectedSize = null) => {
     const size = selectedSize || (product.sizes ? product.sizes[0] : 'Standard');
@@ -266,7 +323,7 @@ export const StoreProvider = ({ children }) => {
         }
       });
     });
-    showToast(`Added Complete 3-Step Routine Bundle (${bundleProducts.length} items) to cart!`);
+    showToast(`Added Complete Routine Bundle (${bundleProducts.length} items) to cart!`);
     setIsCartOpen(true);
   };
 
@@ -431,7 +488,7 @@ export const StoreProvider = ({ children }) => {
     const newProduct = {
       ...prodData,
       id: `p-${Date.now()}`,
-      slug: prodData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      slug: prodData.slug || prodData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       rating: 5.0,
       reviewCount: 1,
       gallery: prodData.gallery && prodData.gallery.length > 0 ? prodData.gallery : [prodData.heroImage]
@@ -449,6 +506,142 @@ export const StoreProvider = ({ children }) => {
   const deleteProduct = (id) => {
     setProducts(prev => prev.filter(p => p.id !== id));
     showToast('Product removed from catalog.', 'info');
+  };
+
+  // Product Review System
+  const addReview = (productId, reviewData) => {
+    const newReview = {
+      id: `rev-${Date.now()}`,
+      author: reviewData.author,
+      rating: reviewData.rating,
+      comment: reviewData.comment,
+      skinType: reviewData.skinType || 'Combination Skin',
+      date: 'Just now',
+      verified: true
+    };
+
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId) {
+        const existingReviews = p.reviews || [];
+        const updatedReviews = [newReview, ...existingReviews];
+        const avgRating = (updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length).toFixed(1);
+        return {
+          ...p,
+          reviews: updatedReviews,
+          rating: parseFloat(avgRating),
+          reviewCount: updatedReviews.length
+        };
+      }
+      return p;
+    }));
+    showToast('Your verified clinical review has been published!');
+  };
+
+  // Concern CRUD
+  const addConcern = (concernData) => {
+    const newConcern = {
+      ...concernData,
+      id: `concern-${Date.now()}`,
+      slug: concernData.slug || concernData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    };
+    setConcerns(prev => [newConcern, ...prev]);
+    showToast(`Skin Concern "${newConcern.name}" created!`);
+    return newConcern;
+  };
+
+  const updateConcern = (id, updatedData) => {
+    setConcerns(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } : c));
+    showToast('Skin Concern protocol updated successfully.');
+  };
+
+  const deleteConcern = (id) => {
+    setConcerns(prev => prev.filter(c => c.id !== id));
+    showToast('Skin Concern protocol deleted.', 'info');
+  };
+
+  // Ingredients CRUD
+  const addIngredient = (ingData) => {
+    const newIng = {
+      ...ingData,
+      id: `ing-${Date.now()}`,
+      slug: ingData.slug || ingData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    };
+    setIngredients(prev => [newIng, ...prev]);
+    showToast(`Ingredient molecule "${newIng.name}" added to catalog.`);
+    return newIng;
+  };
+
+  const updateIngredient = (id, updatedData) => {
+    setIngredients(prev => prev.map(ing => ing.id === id ? { ...ing, ...updatedData } : ing));
+    showToast('Ingredient profile updated.');
+  };
+
+  const deleteIngredient = (id) => {
+    setIngredients(prev => prev.filter(ing => ing.id !== id));
+    showToast('Ingredient profile removed.', 'info');
+  };
+
+  // Clinical Trials CRUD
+  const addClinicalTrial = (trialData) => {
+    const newTrial = {
+      ...trialData,
+      id: `trial-${Date.now()}`
+    };
+    setClinicalTrials(prev => [newTrial, ...prev]);
+    showToast('Published new clinical trial dataset.');
+    return newTrial;
+  };
+
+  const updateClinicalTrial = (id, updatedData) => {
+    setClinicalTrials(prev => prev.map(t => t.id === id ? { ...t, ...updatedData } : t));
+    showToast('Clinical trial updated.');
+  };
+
+  const deleteClinicalTrial = (id) => {
+    setClinicalTrials(prev => prev.filter(t => t.id !== id));
+    showToast('Clinical trial removed.', 'info');
+  };
+
+  // Doctor Board CRUD
+  const addDoctor = (docData) => {
+    const newDoc = {
+      ...docData,
+      id: `doc-${Date.now()}`
+    };
+    setDoctors(prev => [newDoc, ...prev]);
+    showToast(`Dermatologist "${newDoc.name}" added to advisory board.`);
+  };
+
+  const updateDoctor = (id, updatedData) => {
+    setDoctors(prev => prev.map(d => d.id === id ? { ...d, ...updatedData } : d));
+    showToast('Doctor profile updated.');
+  };
+
+  const deleteDoctor = (id) => {
+    setDoctors(prev => prev.filter(d => d.id !== id));
+    showToast('Doctor profile removed.', 'info');
+  };
+
+  // Inquiries / Contact Leads
+  const addInquiry = (inquiryData) => {
+    const newInq = {
+      ...inquiryData,
+      id: `inq-${Date.now()}`,
+      date: new Date().toISOString(),
+      status: 'New'
+    };
+    setInquiries(prev => [newInq, ...prev]);
+    return newInq;
+  };
+
+  const updateInquiryStatus = (id, status) => {
+    setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status } : inq));
+    showToast(`Inquiry status updated to "${status}".`);
+  };
+
+  const deleteInquiry = (id) => {
+    setInquiries(prev => prev.filter(inq => inq.id !== id));
+    showToast('Inquiry removed from log.', 'info');
   };
 
   // Blog CRUD
@@ -519,6 +712,11 @@ export const StoreProvider = ({ children }) => {
     localStorage.clear();
     setProducts(initialProducts);
     setConcerns(initialConcerns);
+    setIngredients(initialIngredients);
+    setDoctors(initialDoctors);
+    setClinicalTrials(initialClinicalTrials);
+    setSiteContent(initialSiteContent);
+    setInquiries(initialInquiries);
     setBlogs(initialBlogs);
     setFaqs(initialFAQs);
     setTestimonials(initialTestimonials);
@@ -535,6 +733,9 @@ export const StoreProvider = ({ children }) => {
     concerns,
     ingredients,
     doctors,
+    clinicalTrials,
+    siteContent,
+    inquiries,
     blogs,
     faqs,
     testimonials,
@@ -582,9 +783,26 @@ export const StoreProvider = ({ children }) => {
     setAnnouncement,
 
     // CMS Handlers
+    updateSiteContent,
     addProduct,
     updateProduct,
     deleteProduct,
+    addReview,
+    addConcern,
+    updateConcern,
+    deleteConcern,
+    addIngredient,
+    updateIngredient,
+    deleteIngredient,
+    addClinicalTrial,
+    updateClinicalTrial,
+    deleteClinicalTrial,
+    addDoctor,
+    updateDoctor,
+    deleteDoctor,
+    addInquiry,
+    updateInquiryStatus,
+    deleteInquiry,
     addBlog,
     updateBlog,
     deleteBlog,

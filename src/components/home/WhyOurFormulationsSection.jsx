@@ -1,29 +1,41 @@
 import React from 'react';
+import { useStore } from '../../context/StoreContext';
 import { ShieldCheck, FlaskConical, Sparkles, HeartHandshake } from 'lucide-react';
 
 export default function WhyOurFormulationsSection() {
-  const pillars = [
+  const { siteContent } = useStore();
+
+  const iconKeyMap = {
+    ShieldCheck: <ShieldCheck size={24} color="#6C5B8B" />,
+    FlaskConical: <FlaskConical size={24} color="#3B5D92" />,
+    Sparkles: <Sparkles size={24} color="#C28E46" />,
+    HeartHandshake: <HeartHandshake size={24} color="#438E75" />
+  };
+
+  const defaultPillars = [
     {
       title: 'Dermatological Expertise',
       description: 'Developed with professional skincare expertise and clinical advisory oversight.',
-      icon: <ShieldCheck size={24} color="#6C5B8B" />
+      iconKey: 'ShieldCheck'
     },
     {
       title: 'Research Driven',
       description: 'Formulations informed by published scientific dermatological research and in-vivo assays.',
-      icon: <FlaskConical size={24} color="#3B5D92" />
+      iconKey: 'FlaskConical'
     },
     {
       title: 'Purposeful Ingredients',
       description: 'Carefully selected active molecules at functional percentages with 100% INCI transparency.',
-      icon: <Sparkles size={24} color="#C28E46" />
+      iconKey: 'Sparkles'
     },
     {
       title: 'Skin First',
       description: 'Designed around real skin concerns to restore, protect, and fortify your natural barrier.',
-      icon: <HeartHandshake size={24} color="#438E75" />
+      iconKey: 'HeartHandshake'
     }
   ];
+
+  const pillars = siteContent?.formulationPillars || defaultPillars;
 
   return (
     <section className="section-padding" style={{
@@ -66,7 +78,7 @@ export default function WhyOurFormulationsSection() {
         <div className="grid-4">
           {pillars.map((p, idx) => (
             <div
-              key={idx}
+              key={p.id || idx}
               className="soft-translucent-card"
               style={{
                 padding: '2rem 1.5rem',
@@ -88,7 +100,7 @@ export default function WhyOurFormulationsSection() {
                 border: '1px solid rgba(23, 33, 58, 0.08)',
                 boxShadow: '0 4px 12px rgba(23, 33, 58, 0.04)'
               }}>
-                {p.icon}
+                {iconKeyMap[p.iconKey] || <ShieldCheck size={24} color="#6C5B8B" />}
               </div>
 
               <h3 style={{
