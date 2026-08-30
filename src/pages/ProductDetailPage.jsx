@@ -78,6 +78,7 @@ export default function ProductDetailPage() {
 
     addReview(product.id, {
       name: reviewerName.trim(),
+      author: reviewerName.trim(),
       rating: Number(reviewerRating),
       comment: reviewerComment.trim(),
       skinType: reviewerSkinType

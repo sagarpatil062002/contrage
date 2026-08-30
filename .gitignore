@@ -25,3 +25,11 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Environment
+.env
+.env.local
+*.env
+server/.env
+server/node_modules
+

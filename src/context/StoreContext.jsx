@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
 import { initialProducts } from '../data/seedProducts';
 import { initialConcerns } from '../data/seedConcerns';
 import { initialIngredients } from '../data/seedIngredients';
@@ -19,98 +20,57 @@ export const useStore = () => {
 };
 
 export const StoreProvider = ({ children }) => {
-  // 1. Products
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_products');
-    return saved ? JSON.parse(saved) : initialProducts;
-  });
+  // 1. Core Catalog States
+  const [products, setProducts] = useState(initialProducts);
+  const [concerns, setConcerns] = useState(initialConcerns);
+  const [ingredients, setIngredients] = useState(initialIngredients);
+  const [doctors, setDoctors] = useState(initialDoctors);
+  const [clinicalTrials, setClinicalTrials] = useState(initialClinicalTrials);
+  const [siteContent, setSiteContent] = useState(initialSiteContent);
+  const [inquiries, setInquiries] = useState(initialInquiries);
+  const [blogs, setBlogs] = useState(initialBlogs);
+  const [faqs, setFaqs] = useState(initialFAQs);
+  const [testimonials, setTestimonials] = useState(initialTestimonials);
+  const [coupons, setCoupons] = useState(initialCoupons);
 
-  // 2. Concerns & Ingredients
-  const [concerns, setConcerns] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_concerns');
-    return saved ? JSON.parse(saved) : initialConcerns;
-  });
-
-  const [ingredients, setIngredients] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_ingredients');
-    return saved ? JSON.parse(saved) : initialIngredients;
-  });
-
-  const [doctors, setDoctors] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_doctors');
-    return saved ? JSON.parse(saved) : initialDoctors;
-  });
-
-  // 3. Clinical Trials
-  const [clinicalTrials, setClinicalTrials] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_clinical_trials');
-    return saved ? JSON.parse(saved) : initialClinicalTrials;
-  });
-
-  // 4. Site CMS Content
-  const [siteContent, setSiteContent] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_site_content');
-    return saved ? JSON.parse(saved) : initialSiteContent;
-  });
-
-  // 5. Inquiries & Contact Submissions
-  const [inquiries, setInquiries] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_inquiries');
-    return saved ? JSON.parse(saved) : initialInquiries;
-  });
-
-  // 6. Blogs & FAQs & Testimonials
-  const [blogs, setBlogs] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_blogs');
-    return saved ? JSON.parse(saved) : initialBlogs;
-  });
-
-  const [faqs, setFaqs] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_faqs');
-    return saved ? JSON.parse(saved) : initialFAQs;
-  });
-
-  const [testimonials, setTestimonials] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_testimonials');
-    return saved ? JSON.parse(saved) : initialTestimonials;
-  });
-
-  // 7. Coupons & Announcement
-  const [coupons, setCoupons] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_coupons');
-    return saved ? JSON.parse(saved) : initialCoupons;
-  });
-
-  const [appliedCoupon, setAppliedCoupon] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_applied_coupon');
-    return saved ? JSON.parse(saved) : null;
-  });
-
-  const [announcement, setAnnouncement] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_announcement');
+  // 2. Auth State
+  const [token, setToken] = useState(() => localStorage.getItem('contrage_token') || null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('contrage_user') || localStorage.getItem('aesthederm_user');
     return saved ? JSON.parse(saved) : {
-      text: '🌿 Formulated by 42+ Global Dermatologists • FREE Express Delivery Above ₹999 • Use Code FIRSTSKIN for 15% Off',
-      link: '/shop',
-      enabled: true
+      isLoggedIn: true,
+      name: 'Priya Sharma',
+      email: 'priya.sharma@example.com',
+      phone: '+91 98765 43210',
+      role: 'CUSTOMER',
+      skinType: 'Oily / Combination',
+      primaryConcern: 'Acne & Blemishes',
+      sensitivity: 'Low-Medium',
+      addresses: [
+        {
+          id: 'addr-1',
+          name: 'Priya Sharma',
+          phone: '+91 98765 43210',
+          street: 'Flat 402, Lotus Greens, Sector 45',
+          city: 'Gurugram',
+          state: 'Haryana',
+          pincode: '122003',
+          isDefault: true
+        }
+      ],
+      wishlist: ['p-1', 'p-4']
     };
   });
 
-  // 8. Cart & Wishlist
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  // 3. User Specific States
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_wishlist');
-    return saved ? JSON.parse(saved) : ['p-1', 'p-4'];
+    const saved = localStorage.getItem('contrage_wishlist');
+    return saved ? JSON.parse(saved) : (user?.wishlist || ['p-1', 'p-4']);
   });
 
-  // 9. Orders
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_orders');
-    if (saved) return JSON.parse(saved);
-    return [
+    const saved = localStorage.getItem('contrage_orders') || localStorage.getItem('aesthederm_orders');
+    return saved ? JSON.parse(saved) : [
       {
         id: 'ORD-84920',
         trackingNumber: 'DERMA-EXP-84920IN',
@@ -155,144 +115,295 @@ export const StoreProvider = ({ children }) => {
     ];
   });
 
-  // 10. User Profile
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_user');
-    return saved ? JSON.parse(saved) : {
-      isLoggedIn: true,
-      name: 'Priya Sharma',
-      email: 'priya.sharma@example.com',
-      phone: '+91 98765 43210',
-      skinType: 'Oily / Combination',
-      primaryConcern: 'Acne & Blemishes',
-      sensitivity: 'Low-Medium',
-      addresses: [
-        {
-          id: 'addr-1',
-          name: 'Priya Sharma',
-          phone: '+91 98765 43210',
-          street: 'Flat 402, Lotus Greens, Sector 45',
-          city: 'Gurugram',
-          state: 'Haryana',
-          pincode: '122003',
-          isDefault: true
-        }
-      ]
-    };
-  });
-
-  // 11. Skin Quiz Diagnostic State
-  const [quizResult, setQuizResult] = useState(() => {
-    const saved = localStorage.getItem('aesthederm_quiz_result');
+  const [appliedCoupon, setAppliedCoupon] = useState(() => {
+    const saved = localStorage.getItem('contrage_applied_coupon');
     return saved ? JSON.parse(saved) : null;
   });
 
-  // 12. UI Modals
+  const [announcement, setAnnouncement] = useState(() => {
+    const saved = localStorage.getItem('contrage_announcement');
+    return saved ? JSON.parse(saved) : {
+      text: '🌿 Formulated by 42+ Global Dermatologists • FREE Express Delivery Above ₹999 • Use Code FIRSTSKIN for 15% Off',
+      link: '/shop',
+      enabled: true
+    };
+  });
+
+  // 4. Cart State (Guest cart fallback + Authenticated cart sync)
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('contrage_cart') || localStorage.getItem('aesthederm_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [quizResult, setQuizResult] = useState(() => {
+    const saved = localStorage.getItem('contrage_quiz_result');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // 5. UI Modals & Feedback
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-
-  // Sync to LocalStorage
-  useEffect(() => {
-    localStorage.setItem('aesthederm_products', JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_concerns', JSON.stringify(concerns));
-  }, [concerns]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_ingredients', JSON.stringify(ingredients));
-  }, [ingredients]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_doctors', JSON.stringify(doctors));
-  }, [doctors]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_clinical_trials', JSON.stringify(clinicalTrials));
-  }, [clinicalTrials]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_site_content', JSON.stringify(siteContent));
-  }, [siteContent]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_inquiries', JSON.stringify(inquiries));
-  }, [inquiries]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_blogs', JSON.stringify(blogs));
-  }, [blogs]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_faqs', JSON.stringify(faqs));
-  }, [faqs]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_testimonials', JSON.stringify(testimonials));
-  }, [testimonials]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_coupons', JSON.stringify(coupons));
-  }, [coupons]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_applied_coupon', JSON.stringify(appliedCoupon));
-  }, [appliedCoupon]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_announcement', JSON.stringify(announcement));
-  }, [announcement]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_orders', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('aesthederm_user', JSON.stringify(user));
-  }, [user]);
-
-  useEffect(() => {
-    if (quizResult) {
-      localStorage.setItem('aesthederm_quiz_result', JSON.stringify(quizResult));
-    }
-  }, [quizResult]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Toast Notification Helper
-  const showToast = (message, type = 'success') => {
+  const showToast = useCallback((message, type = 'success') => {
     setToastMessage({ message, type, id: Date.now() });
     setTimeout(() => {
       setToastMessage(null);
     }, 3500);
-  };
+  }, []);
 
-  // Site Content Updater
-  const updateSiteContent = (sectionKey, newSectionData) => {
-    setSiteContent(prev => ({
-      ...prev,
-      [sectionKey]: {
-        ...prev[sectionKey],
-        ...newSectionData
+  // Fetch initial data from backend on load with fallback
+  const fetchAllData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // 1. Fetch Products
+      try {
+        const prodRes = await api.products.getAll();
+        if (prodRes?.data && prodRes.data.length > 0) {
+          setProducts(prodRes.data);
+        }
+      } catch (e) {
+        // use initial fallback
       }
-    }));
-    showToast(`Updated site content for "${sectionKey}".`);
+
+      // 2. Fetch Concerns
+      try {
+        const concernRes = await api.content.getConcerns();
+        if (concernRes?.data && concernRes.data.length > 0) {
+          setConcerns(concernRes.data);
+        }
+      } catch (e) {}
+
+      // 3. Fetch Ingredients
+      try {
+        const ingRes = await api.content.getIngredients();
+        if (ingRes?.data && ingRes.data.length > 0) {
+          setIngredients(ingRes.data);
+        }
+      } catch (e) {}
+
+      // 4. Fetch Blogs
+      try {
+        const blogRes = await api.content.getBlogs();
+        if (blogRes?.data && blogRes.data.length > 0) {
+          setBlogs(blogRes.data);
+        }
+      } catch (e) {}
+
+      // 5. Fetch Doctors
+      try {
+        const docRes = await api.content.getDoctors();
+        if (docRes?.data && docRes.data.length > 0) {
+          setDoctors(docRes.data);
+        }
+      } catch (e) {}
+
+      // 6. Fetch Clinical Trials
+      try {
+        const trialRes = await api.content.getTrials();
+        if (trialRes?.data && trialRes.data.length > 0) {
+          setClinicalTrials(trialRes.data);
+        }
+      } catch (e) {}
+
+      // 7. Fetch Coupons
+      try {
+        const coupRes = await api.coupons.getAll();
+        if (coupRes?.data && coupRes.data.length > 0) {
+          setCoupons(coupRes.data);
+        }
+      } catch (e) {}
+
+      // 8. Fetch FAQs
+      try {
+        const faqRes = await api.content.getFAQs();
+        if (faqRes?.data && faqRes.data.length > 0) {
+          setFaqs(faqRes.data);
+        }
+      } catch (e) {}
+
+      // 9. Fetch Testimonials
+      try {
+        const testRes = await api.content.getTestimonials();
+        if (testRes?.data && testRes.data.length > 0) {
+          setTestimonials(testRes.data);
+        }
+      } catch (e) {}
+
+      // 10. Fetch Site Content & Announcement
+      try {
+        const contentRes = await api.content.getSiteContent();
+        if (contentRes?.data?.main_site_content) {
+          setSiteContent(contentRes.data.main_site_content);
+        }
+        if (contentRes?.data?.announcement) {
+          setAnnouncement(contentRes.data.announcement);
+        }
+      } catch (e) {}
+
+      // 11. Fetch User Profile if token exists
+      const currentToken = localStorage.getItem('contrage_token');
+      if (currentToken) {
+        try {
+          const meRes = await api.auth.getMe();
+          if (meRes?.data) {
+            setUser({ ...meRes.data, isLoggedIn: true });
+            if (meRes.data.wishlist) setWishlist(meRes.data.wishlist);
+            if (meRes.data.quizResult) setQuizResult(meRes.data.quizResult);
+          }
+        } catch (e) {
+          // token might be expired
+        }
+      }
+
+      // 12. Fetch Orders if logged in
+      if (currentToken) {
+        try {
+          const ordRes = await api.orders.getMyOrders();
+          if (ordRes?.data && ordRes.data.length > 0) {
+            setOrders(ordRes.data);
+          }
+        } catch (e) {}
+      }
+
+      // 13. Fetch Inquiries if admin
+      if (currentToken) {
+        try {
+          const inqRes = await api.content.getInquiries();
+          if (inqRes?.data && inqRes.data.length > 0) {
+            setInquiries(inqRes.data);
+          }
+        } catch (e) {}
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
+
+  // Local mirror for instant UX caching
+  useEffect(() => {
+    localStorage.setItem('contrage_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('contrage_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  useEffect(() => {
+    localStorage.setItem('contrage_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('contrage_user', JSON.stringify(user));
+  }, [user]);
+
+  useEffect(() => {
+    if (appliedCoupon) {
+      localStorage.setItem('contrage_applied_coupon', JSON.stringify(appliedCoupon));
+    } else {
+      localStorage.removeItem('contrage_applied_coupon');
+    }
+  }, [appliedCoupon]);
+
+  // ==========================================
+  // AUTHENTICATION METHODS
+  // ==========================================
+  const login = async (email, password) => {
+    try {
+      const res = await api.auth.login({ email, password });
+      if (res?.data?.token) {
+        localStorage.setItem('contrage_token', res.data.token);
+        setToken(res.data.token);
+        setUser({ ...res.data.user, isLoggedIn: true });
+        if (res.data.user.wishlist) setWishlist(res.data.user.wishlist);
+
+        // Merge guest cart with database cart
+        if (cart.length > 0) {
+          try {
+            const merged = await api.cart.merge(cart);
+            if (merged?.data?.items) {
+              setCart(merged.data.items);
+            }
+          } catch (err) {
+            console.error('Cart merge error:', err);
+          }
+        } else {
+          try {
+            const dbCart = await api.cart.get();
+            if (dbCart?.data?.items) setCart(dbCart.data.items);
+          } catch (err) {}
+        }
+
+        // Fetch User's Real Orders
+        try {
+          const userOrders = await api.orders.getMyOrders();
+          if (userOrders?.data) setOrders(userOrders.data);
+        } catch (err) {}
+
+        showToast(`Welcome back, ${res.data.user.name}!`);
+        return { success: true, user: res.data.user };
+      }
+    } catch (error) {
+      showToast(error.message || 'Login failed', 'error');
+      return { success: false, message: error.message };
+    }
   };
 
-  // Cart Operations
-  const addToCart = (product, quantity = 1, selectedSize = null) => {
+  const register = async (userData) => {
+    try {
+      const res = await api.auth.register(userData);
+      if (res?.data?.token) {
+        localStorage.setItem('contrage_token', res.data.token);
+        setToken(res.data.token);
+        setUser({ ...res.data.user, isLoggedIn: true });
+
+        // Merge guest cart
+        if (cart.length > 0) {
+          try {
+            const merged = await api.cart.merge(cart);
+            if (merged?.data?.items) setCart(merged.data.items);
+          } catch (err) {}
+        }
+
+        showToast(`Account created successfully. Welcome to ContrAge!`);
+        return { success: true, user: res.data.user };
+      }
+    } catch (error) {
+      showToast(error.message || 'Registration failed', 'error');
+      return { success: false, message: error.message };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('contrage_token');
+    setToken(null);
+    setUser({
+      isLoggedIn: false,
+      name: 'Guest Customer',
+      email: '',
+      role: 'CUSTOMER',
+      addresses: []
+    });
+    setAppliedCoupon(null);
+    showToast('Logged out successfully.', 'info');
+  };
+
+  // ==========================================
+  // CART OPERATIONS
+  // ==========================================
+  const addToCart = async (product, quantity = 1, selectedSize = null) => {
     const size = selectedSize || (product.sizes ? product.sizes[0] : 'Standard');
     const price = product.salePrice || product.price;
 
+    // Optimistic UI update
     setCart(prev => {
       const existingIndex = prev.findIndex(item => item.product.id === product.id && item.selectedSize === size);
       if (existingIndex > -1) {
@@ -306,12 +417,22 @@ export const StoreProvider = ({ children }) => {
 
     showToast(`Added "${product.name.slice(0, 30)}..." to your clinical cart.`);
     setIsCartOpen(true);
+
+    // If logged in, sync with MongoDB
+    if (token) {
+      try {
+        await api.cart.addItem(product.id, quantity, size);
+      } catch (err) {
+        console.error('Cart sync error:', err);
+      }
+    }
   };
 
-  const addRoutineBundleToCart = (bundleProducts) => {
-    bundleProducts.forEach(prod => {
+  const addRoutineBundleToCart = async (bundleProducts) => {
+    for (const prod of bundleProducts) {
       const size = prod.sizes ? prod.sizes[0] : 'Standard';
       const price = prod.salePrice || prod.price;
+
       setCart(prev => {
         const existingIndex = prev.findIndex(item => item.product.id === prod.id && item.selectedSize === size);
         if (existingIndex > -1) {
@@ -322,35 +443,61 @@ export const StoreProvider = ({ children }) => {
           return [...prev, { product: prod, quantity: 1, selectedSize: size, price }];
         }
       });
-    });
+
+      if (token) {
+        try {
+          await api.cart.addItem(prod.id, 1, size);
+        } catch (err) {}
+      }
+    }
     showToast(`Added Complete Routine Bundle (${bundleProducts.length} items) to cart!`);
     setIsCartOpen(true);
   };
 
-  const updateCartQty = (productId, selectedSize, newQty) => {
+  const updateCartQty = async (productId, selectedSize, newQty) => {
     if (newQty <= 0) {
       removeFromCart(productId, selectedSize);
       return;
     }
+
     setCart(prev => prev.map(item => {
       if (item.product.id === productId && item.selectedSize === selectedSize) {
         return { ...item, quantity: newQty };
       }
       return item;
     }));
+
+    if (token) {
+      try {
+        await api.cart.addItem(productId, newQty, selectedSize);
+      } catch (err) {}
+    }
   };
 
-  const removeFromCart = (productId, selectedSize) => {
+  const removeFromCart = async (productId, selectedSize) => {
     setCart(prev => prev.filter(item => !(item.product.id === productId && item.selectedSize === selectedSize)));
     showToast('Removed item from cart.', 'info');
+
+    if (token) {
+      try {
+        await api.cart.removeItem(productId, selectedSize);
+      } catch (err) {}
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
     setAppliedCoupon(null);
+    if (token) {
+      try {
+        await api.cart.clear();
+      } catch (err) {}
+    }
   };
 
-  // Cart Calculations
+  // ==========================================
+  // CART CALCULATIONS
+  // ==========================================
   const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
@@ -367,24 +514,34 @@ export const StoreProvider = ({ children }) => {
   const shippingFee = (cartSubtotal >= freeShippingThreshold || (appliedCoupon && appliedCoupon.code === 'FREESHIP') || cartSubtotal === 0) ? 0 : 99;
   const cartTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
-  // Coupon Engine
-  const applyCoupon = (code) => {
+  // ==========================================
+  // COUPON OPERATIONS (Server Validated)
+  // ==========================================
+  const applyCoupon = async (code) => {
     const formatted = code.trim().toUpperCase();
-    const found = coupons.find(c => c.code.toUpperCase() === formatted && c.active);
 
-    if (!found) {
-      showToast('Invalid or expired coupon code.', 'error');
-      return { success: false, message: 'Invalid or expired coupon code.' };
+    try {
+      const res = await api.coupons.validate(formatted, cartSubtotal);
+      if (res?.data) {
+        setAppliedCoupon(res.data);
+        showToast(`Promo code "${res.data.code}" applied successfully! You saved ₹${res.data.discountAmount}.`);
+        return { success: true };
+      }
+    } catch (err) {
+      // Fallback local check if offline
+      const found = coupons.find(c => c.code.toUpperCase() === formatted && c.active);
+      if (!found) {
+        showToast('Invalid or expired coupon code.', 'error');
+        return { success: false, message: 'Invalid or expired coupon code.' };
+      }
+      if (cartSubtotal < found.minSpend) {
+        showToast(`Coupon requires a minimum order value of ₹${found.minSpend}.`, 'error');
+        return { success: false, message: `Minimum spend of ₹${found.minSpend} required.` };
+      }
+      setAppliedCoupon(found);
+      showToast(`Promo code "${found.code}" applied!`);
+      return { success: true };
     }
-
-    if (cartSubtotal < found.minSpend) {
-      showToast(`Coupon requires a minimum order value of ₹${found.minSpend}.`, 'error');
-      return { success: false, message: `Minimum spend of ₹${found.minSpend} required.` };
-    }
-
-    setAppliedCoupon(found);
-    showToast(`Promo code "${found.code}" applied successfully! You saved ₹${found.type === 'percentage' ? Math.round((cartSubtotal * found.value) / 100) : found.value}.`);
-    return { success: true };
   };
 
   const removeCoupon = () => {
@@ -392,8 +549,10 @@ export const StoreProvider = ({ children }) => {
     showToast('Coupon removed.', 'info');
   };
 
-  // Wishlist Operations
-  const toggleWishlist = (productId) => {
+  // ==========================================
+  // WISHLIST OPERATIONS
+  // ==========================================
+  const toggleWishlist = async (productId) => {
     setWishlist(prev => {
       const exists = prev.includes(productId);
       if (exists) {
@@ -404,56 +563,111 @@ export const StoreProvider = ({ children }) => {
         return [...prev, productId];
       }
     });
+
+    if (token) {
+      try {
+        await api.auth.toggleWishlist(productId);
+      } catch (err) {}
+    }
   };
 
   const isWishlisted = (productId) => wishlist.includes(productId);
 
-  // Order Placement
-  const placeOrder = (orderData) => {
-    const newOrderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-    const newTrackingNum = `DERMA-EXP-${Math.floor(10000 + Math.random() * 90000)}IN`;
+  // ==========================================
+  // ORDER PLACEMENT (Database Backed)
+  // ==========================================
+  const placeOrder = async (orderData) => {
+    try {
+      const payload = {
+        customer: {
+          name: orderData.name,
+          email: orderData.email,
+          phone: orderData.phone,
+          address: orderData.address,
+          city: orderData.city,
+          state: orderData.state || '',
+          pincode: orderData.pincode
+        },
+        items: cart.map(item => ({
+          productId: item.product.id,
+          product: item.product,
+          quantity: item.quantity,
+          selectedSize: item.selectedSize,
+          price: item.price
+        })),
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
+        paymentMethod: orderData.paymentMethod || 'Credit/Debit Card (Simulated)'
+      };
 
-    const now = new Date();
-    const formattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
-      now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const res = await api.orders.create(payload);
+      if (res?.data) {
+        const createdOrder = res.data;
+        setOrders(prev => [createdOrder, ...prev]);
 
-    const newOrder = {
-      id: newOrderId,
-      trackingNumber: newTrackingNum,
-      date: now.toISOString(),
-      status: 'Processing',
-      subtotal: cartSubtotal,
-      discount: discountAmount,
-      shippingFee: shippingFee,
-      total: cartTotal,
-      couponApplied: appliedCoupon ? appliedCoupon.code : null,
-      paymentMethod: orderData.paymentMethod || 'Credit/Debit Card (Simulated)',
-      customer: {
-        name: orderData.name,
-        email: orderData.email,
-        phone: orderData.phone,
-        address: orderData.address,
-        city: orderData.city,
-        state: orderData.state,
-        pincode: orderData.pincode
-      },
-      items: [...cart],
-      checkpoints: [
-        { status: 'Order Placed', time: formattedTime, completed: true, current: true, note: 'Order received and verified for clinical batch packaging.' },
-        { status: 'Formulation Packed', time: 'Pending (~2-4 hours)', completed: false, note: 'UV & temperature controlled packaging.' },
-        { status: 'Dispatched', time: 'Estimated Tomorrow', completed: false, note: 'Handover to express courier.' },
-        { status: 'In Transit', time: 'Estimated 2-3 Days', completed: false, note: 'Local distribution dispatch.' },
-        { status: 'Delivered', time: 'Estimated 3-4 Days', completed: false, note: 'Doorstep verification.' }
-      ]
-    };
+        // Decrement local product stock
+        setProducts(prev => prev.map(p => {
+          const purchasedItem = cart.find(ci => ci.product.id === p.id);
+          if (purchasedItem) {
+            return { ...p, stock: Math.max(0, p.stock - purchasedItem.quantity) };
+          }
+          return p;
+        }));
 
-    setOrders(prev => [newOrder, ...prev]);
-    clearCart();
-    return newOrder;
+        clearCart();
+        return createdOrder;
+      }
+    } catch (err) {
+      console.warn('Backend order placement error, creating fallback confirmed order:', err.message);
+
+      // Local fallback in case server was in disconnected mode
+      const newOrderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+      const newTrackingNum = `DERMA-EXP-${Math.floor(10000 + Math.random() * 90000)}IN`;
+      const now = new Date();
+      const formattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      const fallbackOrder = {
+        id: newOrderId,
+        trackingNumber: newTrackingNum,
+        date: now.toISOString(),
+        status: 'Processing',
+        subtotal: cartSubtotal,
+        discount: discountAmount,
+        shippingFee: shippingFee,
+        total: cartTotal,
+        couponApplied: appliedCoupon ? appliedCoupon.code : null,
+        paymentMethod: orderData.paymentMethod || 'Credit/Debit Card (Simulated)',
+        customer: {
+          name: orderData.name,
+          email: orderData.email,
+          phone: orderData.phone,
+          address: orderData.address,
+          city: orderData.city,
+          state: orderData.state,
+          pincode: orderData.pincode
+        },
+        items: [...cart],
+        checkpoints: [
+          { status: 'Order Placed', time: formattedTime, completed: true, current: true, note: 'Order received and verified for clinical batch packaging.' },
+          { status: 'Formulation Packed', time: 'Pending (~2-4 hours)', completed: false, note: 'UV & temperature controlled packaging.' },
+          { status: 'Dispatched', time: 'Estimated Tomorrow', completed: false, note: 'Handover to express courier.' },
+          { status: 'In Transit', time: 'Estimated 2-3 Days', completed: false, note: 'Local distribution dispatch.' },
+          { status: 'Delivered', time: 'Estimated 3-4 Days', completed: false, note: 'Doorstep verification.' }
+        ]
+      };
+
+      setOrders(prev => [fallbackOrder, ...prev]);
+      clearCart();
+      return fallbackOrder;
+    }
   };
 
   // Order Status update for Admin CMS
-  const updateOrderStatus = (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await api.orders.updateStatus(orderId, newStatus);
+    } catch (err) {}
+
     setOrders(prev => prev.map(ord => {
       if (ord.id === orderId) {
         const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
@@ -483,33 +697,61 @@ export const StoreProvider = ({ children }) => {
     showToast(`Order ${orderId} updated to "${newStatus}".`);
   };
 
-  // Product CRUD (Admin CMS)
-  const addProduct = (prodData) => {
+  // ==========================================
+  // CMS & MUTATION HANDLERS
+  // ==========================================
+  const addProduct = async (prodData) => {
+    const id = prodData.id || `p-${Date.now()}`;
+    const slug = prodData.slug || prodData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const newProduct = {
       ...prodData,
-      id: `p-${Date.now()}`,
-      slug: prodData.slug || prodData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      id,
+      slug,
       rating: 5.0,
       reviewCount: 1,
       gallery: prodData.gallery && prodData.gallery.length > 0 ? prodData.gallery : [prodData.heroImage]
     };
+
+    try {
+      const res = await api.products.create(newProduct);
+      if (res?.data) {
+        setProducts(prev => [res.data, ...prev]);
+        showToast('New clinical product successfully created in MongoDB!');
+        return res.data;
+      }
+    } catch (err) {}
+
     setProducts(prev => [newProduct, ...prev]);
     showToast('New clinical product successfully created!');
     return newProduct;
   };
 
-  const updateProduct = (id, updatedData) => {
+  const updateProduct = async (id, updatedData) => {
+    try {
+      await api.products.update(id, updatedData);
+    } catch (err) {}
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedData } : p));
     showToast('Product specifications updated successfully.');
   };
 
-  const deleteProduct = (id) => {
+  const deleteProduct = async (id) => {
+    try {
+      await api.products.delete(id);
+    } catch (err) {}
     setProducts(prev => prev.filter(p => p.id !== id));
     showToast('Product removed from catalog.', 'info');
   };
 
-  // Product Review System
-  const addReview = (productId, reviewData) => {
+  const addReview = async (productId, reviewData) => {
+    try {
+      const res = await api.products.addReview(productId, reviewData);
+      if (res?.data) {
+        setProducts(prev => prev.map(p => (p.id === productId || p.slug === productId) ? res.data : p));
+        showToast('Your verified clinical review has been published!');
+        return;
+      }
+    } catch (err) {}
+
     const newReview = {
       id: `rev-${Date.now()}`,
       author: reviewData.author,
@@ -537,8 +779,16 @@ export const StoreProvider = ({ children }) => {
     showToast('Your verified clinical review has been published!');
   };
 
-  // Concern CRUD
-  const addConcern = (concernData) => {
+  const addConcern = async (concernData) => {
+    try {
+      const res = await api.content.createConcern(concernData);
+      if (res?.data) {
+        setConcerns(prev => [res.data, ...prev]);
+        showToast(`Skin Concern "${res.data.name}" created!`);
+        return res.data;
+      }
+    } catch (err) {}
+
     const newConcern = {
       ...concernData,
       id: `concern-${Date.now()}`,
@@ -549,18 +799,32 @@ export const StoreProvider = ({ children }) => {
     return newConcern;
   };
 
-  const updateConcern = (id, updatedData) => {
+  const updateConcern = async (id, updatedData) => {
+    try {
+      await api.content.updateConcern(id, updatedData);
+    } catch (err) {}
     setConcerns(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } : c));
     showToast('Skin Concern protocol updated successfully.');
   };
 
-  const deleteConcern = (id) => {
+  const deleteConcern = async (id) => {
+    try {
+      await api.content.deleteConcern(id);
+    } catch (err) {}
     setConcerns(prev => prev.filter(c => c.id !== id));
     showToast('Skin Concern protocol deleted.', 'info');
   };
 
-  // Ingredients CRUD
-  const addIngredient = (ingData) => {
+  const addIngredient = async (ingData) => {
+    try {
+      const res = await api.content.createIngredient(ingData);
+      if (res?.data) {
+        setIngredients(prev => [res.data, ...prev]);
+        showToast(`Ingredient molecule "${res.data.name}" added to catalog.`);
+        return res.data;
+      }
+    } catch (err) {}
+
     const newIng = {
       ...ingData,
       id: `ing-${Date.now()}`,
@@ -571,59 +835,94 @@ export const StoreProvider = ({ children }) => {
     return newIng;
   };
 
-  const updateIngredient = (id, updatedData) => {
+  const updateIngredient = async (id, updatedData) => {
+    try {
+      await api.content.updateIngredient(id, updatedData);
+    } catch (err) {}
     setIngredients(prev => prev.map(ing => ing.id === id ? { ...ing, ...updatedData } : ing));
     showToast('Ingredient profile updated.');
   };
 
-  const deleteIngredient = (id) => {
+  const deleteIngredient = async (id) => {
+    try {
+      await api.content.deleteIngredient(id);
+    } catch (err) {}
     setIngredients(prev => prev.filter(ing => ing.id !== id));
     showToast('Ingredient profile removed.', 'info');
   };
 
-  // Clinical Trials CRUD
-  const addClinicalTrial = (trialData) => {
-    const newTrial = {
-      ...trialData,
-      id: `trial-${Date.now()}`
-    };
+  const addClinicalTrial = async (trialData) => {
+    try {
+      const res = await api.content.createTrial(trialData);
+      if (res?.data) {
+        setClinicalTrials(prev => [res.data, ...prev]);
+        showToast('Published new clinical trial dataset.');
+        return res.data;
+      }
+    } catch (err) {}
+
+    const newTrial = { ...trialData, id: `trial-${Date.now()}` };
     setClinicalTrials(prev => [newTrial, ...prev]);
     showToast('Published new clinical trial dataset.');
     return newTrial;
   };
 
-  const updateClinicalTrial = (id, updatedData) => {
+  const updateClinicalTrial = async (id, updatedData) => {
+    try {
+      await api.content.updateTrial(id, updatedData);
+    } catch (err) {}
     setClinicalTrials(prev => prev.map(t => t.id === id ? { ...t, ...updatedData } : t));
     showToast('Clinical trial updated.');
   };
 
-  const deleteClinicalTrial = (id) => {
+  const deleteClinicalTrial = async (id) => {
+    try {
+      await api.content.deleteTrial(id);
+    } catch (err) {}
     setClinicalTrials(prev => prev.filter(t => t.id !== id));
     showToast('Clinical trial removed.', 'info');
   };
 
-  // Doctor Board CRUD
-  const addDoctor = (docData) => {
-    const newDoc = {
-      ...docData,
-      id: `doc-${Date.now()}`
-    };
+  const addDoctor = async (docData) => {
+    try {
+      const res = await api.content.createDoctor(docData);
+      if (res?.data) {
+        setDoctors(prev => [res.data, ...prev]);
+        showToast(`Dermatologist "${res.data.name}" added to advisory board.`);
+        return;
+      }
+    } catch (err) {}
+
+    const newDoc = { ...docData, id: `doc-${Date.now()}` };
     setDoctors(prev => [newDoc, ...prev]);
     showToast(`Dermatologist "${newDoc.name}" added to advisory board.`);
   };
 
-  const updateDoctor = (id, updatedData) => {
+  const updateDoctor = async (id, updatedData) => {
+    try {
+      await api.content.updateDoctor(id, updatedData);
+    } catch (err) {}
     setDoctors(prev => prev.map(d => d.id === id ? { ...d, ...updatedData } : d));
     showToast('Doctor profile updated.');
   };
 
-  const deleteDoctor = (id) => {
+  const deleteDoctor = async (id) => {
+    try {
+      await api.content.deleteDoctor(id);
+    } catch (err) {}
     setDoctors(prev => prev.filter(d => d.id !== id));
     showToast('Doctor profile removed.', 'info');
   };
 
-  // Inquiries / Contact Leads
-  const addInquiry = (inquiryData) => {
+  const addInquiry = async (inquiryData) => {
+    try {
+      const res = await api.content.createInquiry(inquiryData);
+      if (res?.data) {
+        setInquiries(prev => [res.data, ...prev]);
+        return res.data;
+      }
+    } catch (err) {}
+
     const newInq = {
       ...inquiryData,
       id: `inq-${Date.now()}`,
@@ -634,18 +933,32 @@ export const StoreProvider = ({ children }) => {
     return newInq;
   };
 
-  const updateInquiryStatus = (id, status) => {
+  const updateInquiryStatus = async (id, status) => {
+    try {
+      await api.content.updateInquiryStatus(id, status);
+    } catch (err) {}
     setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status } : inq));
     showToast(`Inquiry status updated to "${status}".`);
   };
 
-  const deleteInquiry = (id) => {
+  const deleteInquiry = async (id) => {
+    try {
+      await api.content.deleteInquiry(id);
+    } catch (err) {}
     setInquiries(prev => prev.filter(inq => inq.id !== id));
     showToast('Inquiry removed from log.', 'info');
   };
 
-  // Blog CRUD
-  const addBlog = (blogData) => {
+  const addBlog = async (blogData) => {
+    try {
+      const res = await api.content.createBlog(blogData);
+      if (res?.data) {
+        setBlogs(prev => [res.data, ...prev]);
+        showToast('Published new clinical editorial!');
+        return;
+      }
+    } catch (err) {}
+
     const newBlog = {
       ...blogData,
       id: `blog-${Date.now()}`,
@@ -655,18 +968,32 @@ export const StoreProvider = ({ children }) => {
     showToast('Published new clinical editorial!');
   };
 
-  const updateBlog = (id, updatedData) => {
+  const updateBlog = async (id, updatedData) => {
+    try {
+      await api.content.updateBlog(id, updatedData);
+    } catch (err) {}
     setBlogs(prev => prev.map(b => b.id === id ? { ...b, ...updatedData } : b));
     showToast('Article updated.');
   };
 
-  const deleteBlog = (id) => {
+  const deleteBlog = async (id) => {
+    try {
+      await api.content.deleteBlog(id);
+    } catch (err) {}
     setBlogs(prev => prev.filter(b => b.id !== id));
     showToast('Article removed.', 'info');
   };
 
-  // Coupon CRUD
-  const addCoupon = (coupData) => {
+  const addCoupon = async (coupData) => {
+    try {
+      const res = await api.coupons.create(coupData);
+      if (res?.data) {
+        setCoupons(prev => [res.data, ...prev]);
+        showToast(`Created coupon "${res.data.code}".`);
+        return;
+      }
+    } catch (err) {}
+
     const newCoupon = {
       ...coupData,
       id: `coup-${Date.now()}`,
@@ -678,36 +1005,78 @@ export const StoreProvider = ({ children }) => {
     showToast(`Created coupon "${newCoupon.code}".`);
   };
 
-  const toggleCoupon = (id) => {
-    setCoupons(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
+  const toggleCoupon = async (id) => {
+    const coupon = coupons.find(c => c.id === id || c._id === id);
+    if (coupon) {
+      try {
+        await api.coupons.update(id, { active: !coupon.active });
+      } catch (err) {}
+    }
+    setCoupons(prev => prev.map(c => (c.id === id || c._id === id) ? { ...c, active: !c.active } : c));
     showToast('Coupon status updated.');
   };
 
-  const deleteCoupon = (id) => {
-    setCoupons(prev => prev.filter(c => c.id !== id));
+  const deleteCoupon = async (id) => {
+    try {
+      await api.coupons.delete(id);
+    } catch (err) {}
+    setCoupons(prev => prev.filter(c => c.id !== id && c._id !== id));
     showToast('Coupon deleted.', 'info');
   };
 
-  // FAQ CRUD
-  const addFAQ = (faqData) => {
+  const addFAQ = async (faqData) => {
+    try {
+      const res = await api.content.createFAQ(faqData);
+      if (res?.data) {
+        setFaqs(prev => [...prev, res.data]);
+        showToast('FAQ added.');
+        return;
+      }
+    } catch (err) {}
+
     const newFAQ = { ...faqData, id: `faq-${Date.now()}` };
     setFaqs(prev => [...prev, newFAQ]);
     showToast('FAQ added.');
   };
 
-  const deleteFAQ = (id) => {
-    setFaqs(prev => prev.filter(f => f.id !== id));
+  const deleteFAQ = async (id) => {
+    try {
+      await api.content.deleteFAQ(id);
+    } catch (err) {}
+    setFaqs(prev => prev.filter(f => f.id !== id && f._id !== id));
     showToast('FAQ deleted.', 'info');
   };
 
-  // Testimonial CRUD
-  const addTestimonial = (testData) => {
+  const addTestimonial = async (testData) => {
+    try {
+      const res = await api.content.createTestimonial(testData);
+      if (res?.data) {
+        setTestimonials(prev => [res.data, ...prev]);
+        showToast('Review submitted for clinical verification.');
+        return;
+      }
+    } catch (err) {}
+
     const newTest = { ...testData, id: `test-${Date.now()}` };
     setTestimonials(prev => [newTest, ...prev]);
     showToast('Review submitted for clinical verification.');
   };
 
-  // 1-Click Reset Demo Data
+  const updateSiteContent = async (sectionKey, newSectionData) => {
+    const updatedContent = {
+      ...siteContent,
+      [sectionKey]: {
+        ...siteContent[sectionKey],
+        ...newSectionData
+      }
+    };
+    try {
+      await api.content.updateSiteContent('main_site_content', updatedContent);
+    } catch (err) {}
+    setSiteContent(updatedContent);
+    showToast(`Updated site content for "${sectionKey}".`);
+  };
+
   const resetDemoData = () => {
     localStorage.clear();
     setProducts(initialProducts);
@@ -747,6 +1116,7 @@ export const StoreProvider = ({ children }) => {
     orders,
     user,
     quizResult,
+    isLoading,
 
     // Calculations
     cartSubtotal,
@@ -781,6 +1151,12 @@ export const StoreProvider = ({ children }) => {
     setUser,
     setQuizResult,
     setAnnouncement,
+    fetchAllData,
+
+    // Auth Handlers
+    login,
+    register,
+    logout,
 
     // CMS Handlers
     updateSiteContent,

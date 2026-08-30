@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
+import { api } from '../../services/api';
 import { Sparkles, ArrowRight, RotateCcw, Check, ShoppingBag, ShieldCheck, Heart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -58,6 +59,15 @@ export default function SkinDiagnosticQuiz() {
 
       setPrescribedRoutine(routine);
       setQuizResult(routine);
+      const token = localStorage.getItem('contrage_token');
+      if (token) {
+        api.auth.saveQuiz({
+          skinType: selectedSkinType,
+          primaryConcern: selectedConcern,
+          tolerance: selectedSensitivity,
+          routine: routine.steps.map(s => s.product?.name)
+        }).catch(() => {});
+      }
       setIsPrescribing(false);
       setStep(4);
 

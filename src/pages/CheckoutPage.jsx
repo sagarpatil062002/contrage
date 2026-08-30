@@ -91,7 +91,7 @@ export default function CheckoutPage() {
     showToast('Autofilled demo customer shipping address.');
   };
 
-  const handleOrderSubmit = (e) => {
+  const handleOrderSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.pincode) {
@@ -101,9 +101,8 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
 
-    // Simulate 1.2s clinical payment gateway handshake
-    setTimeout(() => {
-      const placed = placeOrder({
+    try {
+      const placed = await placeOrder({
         ...formData,
         paymentMethod: paymentMethod === 'card' ? 'Credit Card (Simulated Direct)' :
           paymentMethod === 'upi' ? `Instant UPI (${upiId})` :
@@ -120,8 +119,15 @@ export default function CheckoutPage() {
         });
       } catch (e) {}
 
-      navigate(`/order-confirmation/${placed.id}`);
-    }, 1200);
+      if (placed && placed.id) {
+        navigate(`/order-confirmation/${placed.id}`);
+      } else {
+        navigate('/account?tab=orders');
+      }
+    } catch (err) {
+      setIsProcessing(false);
+      showToast(err.message || 'Error processing order.', 'error');
+    }
   };
 
   return (
