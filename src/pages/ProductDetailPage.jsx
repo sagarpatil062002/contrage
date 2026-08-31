@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import StarRating from '../components/common/StarRating';
 import ProductCard from '../components/common/ProductCard';
+import PincodeChecker from '../components/common/PincodeChecker';
 import {
   ShoppingBag,
   Heart,
@@ -18,8 +19,10 @@ import {
   Plus,
   Minus,
   CheckCircle2,
+  AlertCircle,
   FlaskConical,
-  ArrowRight
+  ArrowRight,
+  Send
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -27,9 +30,9 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { products, addToCart, wishlist, toggleWishlist, addReview, setIsCartOpen, showToast } = useStore();
 
-  const product = products.find(p => p.id === id) || products[0];
+  const product = products.find(p => p.id === id || p.slug === id) || products[0];
 
-  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || '30ml');
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'Standard');
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
 
@@ -38,8 +41,8 @@ export default function ProductDetailPage() {
     benefits: true,
     inci: true,
     usage: false,
-    trials: false,
-    faq: false
+    suitability: false,
+    precautions: false
   });
 
   // Review submission state
@@ -51,22 +54,32 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="container" style={{ padding: '5rem 0', textAlign: 'center' }}>
-        <h2>Product Not Found</h2>
+        <h2 style={{ color: '#0F172A', fontFamily: 'var(--font-serif)' }}>Formulation Not Found</h2>
         <Link to="/shop" className="btn btn-primary" style={{ marginTop: '1rem' }}>Back to Shop</Link>
       </div>
     );
   }
 
   const isWishlisted = wishlist.includes(product.id);
-  const images = product.galleryImages || [product.heroImage, product.heroImage];
+  const images = (product.gallery && product.gallery.length > 0) ? product.gallery : [product.heroImage];
+  const isOutOfStock = product.stock <= 0;
+  const isLowStock = product.stock > 0 && product.stock <= 15;
+  const reviews = product.reviews || [];
 
   const toggleSection = (key) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, quantity);
+    if (isOutOfStock) return;
+    addToCart(product, quantity, selectedSize);
     setIsCartOpen(true);
+  };
+
+  const handleBuyNow = () => {
+    if (isOutOfStock) return;
+    addToCart(product, quantity, selectedSize);
+    navigate('/checkout');
   };
 
   const handleReviewSubmit = (e) => {
@@ -76,59 +89,64 @@ export default function ProductDetailPage() {
       return;
     }
 
-    addReview(product.id, {
-      name: reviewerName.trim(),
-      author: reviewerName.trim(),
-      rating: Number(reviewerRating),
-      comment: reviewerComment.trim(),
-      skinType: reviewerSkinType
-    });
+    if (addReview) {
+      addReview(product.id, {
+        name: reviewerName.trim(),
+        author: reviewerName.trim(),
+        rating: Number(reviewerRating),
+        comment: reviewerComment.trim(),
+        skinType: reviewerSkinType
+      });
+    }
 
+    showToast('Thank you! Your verified review has been submitted.');
     setReviewerName('');
     setReviewerComment('');
   };
 
-  // Related products bundle
-  const relatedProducts = products.filter(p => p.id !== product.id && p.category !== product.category).slice(0, 2);
+  // Related products
+  const relatedProducts = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 3);
+  const fallbackRelated = relatedProducts.length > 0 ? relatedProducts : products.filter(p => p.id !== product.id).slice(0, 3);
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: '5rem' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', paddingBottom: '5rem' }}>
       {/* Breadcrumb Navigation */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(23, 33, 58, 0.08)', padding: '0.85rem 0' }}>
+      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: '0.85rem 0' }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-            <Link to="/" style={{ color: 'inherit' }}>Home</Link> &gt;
-            <Link to="/shop" style={{ color: 'inherit' }}>Shop</Link> &gt;
-            <Link to={`/shop?category=${encodeURIComponent(product.category)}`} style={{ color: 'inherit' }}>{product.category}</Link> &gt;
-            <span style={{ color: 'var(--text-primary)', fontWeight: '700' }}>{product.name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#64748B' }}>
+            <Link to="/" style={{ color: '#64748B' }}>Home</Link>
+            <span>/</span>
+            <Link to="/shop" style={{ color: '#64748B' }}>Catalogue</Link>
+            <span>/</span>
+            <span style={{ color: '#0284C7' }}>{product.category}</span>
+            <span>/</span>
+            <span style={{ color: '#0F172A', fontWeight: '600' }}>{product.name}</span>
           </div>
         </div>
       </div>
 
       <div className="container" style={{ paddingTop: '2.5rem' }}>
-        {/* Top Split Hero (Gallery + Purchase Dossier) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          gap: 'clamp(2rem, 5vw, 4rem)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '3.5rem',
           alignItems: 'start',
           marginBottom: '4rem'
         }}>
-          {/* Left Column: Image Gallery on Soft Gradient Base */}
+          {/* Left Column: Interactive Image Gallery */}
           <div>
             <div style={{
               position: 'relative',
-              width: '100%',
-              aspectRatio: '1/1',
-              backgroundColor: '#FFFFFF',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(23, 33, 58, 0.08)',
+              borderRadius: 'var(--radius-md)',
               overflow: 'hidden',
-              boxShadow: 'var(--shadow-sm)',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
+              aspectRatio: '1/1',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: '1rem'
+              marginBottom: '1rem',
+              boxShadow: 'var(--shadow-sm)'
             }}>
               <img
                 src={images[selectedImageIdx] || product.heroImage}
@@ -141,14 +159,14 @@ export default function ProductDetailPage() {
                   position: 'absolute',
                   top: '16px',
                   left: '16px',
-                  backgroundColor: 'var(--bg-lavender)',
-                  color: 'var(--text-primary)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  color: '#FFFFFF',
                   fontSize: '0.72rem',
                   fontWeight: '700',
-                  padding: '0.3rem 0.75rem',
+                  padding: '0.35rem 0.85rem',
                   borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(216, 210, 231, 0.8)',
-                  letterSpacing: '0.04em'
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
                 }}>
                   {product.badge}
                 </div>
@@ -166,7 +184,7 @@ export default function ProductDetailPage() {
                       width: '72px',
                       height: '72px',
                       borderRadius: 'var(--radius-xs)',
-                      border: selectedImageIdx === i ? '2px solid var(--accent-navy)' : '1px solid rgba(23, 33, 58, 0.1)',
+                      border: selectedImageIdx === i ? '2px solid #0284C7' : '1px solid rgba(15, 23, 42, 0.12)',
                       padding: '2px',
                       backgroundColor: '#FFFFFF',
                       cursor: 'pointer',
@@ -183,18 +201,18 @@ export default function ProductDetailPage() {
           {/* Right Column: Prescription & Buying Controls */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span className="badge badge-lavender" style={{ fontSize: '0.72rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {product.category}
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                SKU: {product.id.toUpperCase()}
+              <span style={{ fontSize: '0.75rem', color: '#64748B', fontFamily: 'monospace' }}>
+                SKU: {product.sku || product.id.toUpperCase()}
               </span>
             </div>
 
             <h1 style={{
-              fontSize: 'clamp(2rem, 3.5vw, 2.6rem)',
-              lineHeight: '1.2',
-              color: 'var(--text-primary)',
+              fontSize: 'clamp(1.8rem, 3.2vw, 2.4rem)',
+              lineHeight: '1.25',
+              color: '#0F172A',
               marginBottom: '0.5rem',
               fontFamily: 'var(--font-serif)'
             }}>
@@ -202,67 +220,100 @@ export default function ProductDetailPage() {
             </h1>
 
             <p style={{
-              fontSize: '1rem',
-              color: 'var(--text-secondary)',
+              fontSize: '0.95rem',
+              color: '#64748B',
               lineHeight: '1.6',
-              marginBottom: '1rem'
+              marginBottom: '1.25rem'
             }}>
               {product.tagline}
             </p>
 
-            {/* Star Rating & Review Count */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <StarRating rating={product.rating || 4.9} size={16} />
-              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                {product.rating} / 5.0
-              </span>
-              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                ({product.reviewsCount || 64} verified patient reviews)
-              </span>
+            {/* Real Review or Clinical Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+              {reviews.length > 0 ? (
+                <>
+                  <StarRating rating={product.rating || 5} size={16} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#0F172A' }}>
+                    {product.rating} / 5.0
+                  </span>
+                  <span style={{ fontSize: '0.82rem', color: '#64748B' }}>
+                    ({reviews.length} verified review{reviews.length === 1 ? '' : 's'})
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontSize: '0.82rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: '700' }}>
+                  <CheckCircle2 size={14} /> Certified Cosmeceutical Formulation
+                </span>
+              )}
             </div>
 
             {/* Active Molecule Highlight Card */}
-            {product.activeIngredients && (
+            {product.activeIngredients && product.activeIngredients.length > 0 && (
               <div style={{
-                backgroundColor: 'var(--bg-lavender)',
+                backgroundColor: '#F0F9FF',
                 borderRadius: 'var(--radius-sm)',
                 padding: '1.25rem',
-                border: '1px solid rgba(216, 210, 231, 0.8)',
-                marginBottom: '1.75rem'
+                border: '1px solid #BAE6FD',
+                marginBottom: '1.5rem'
               }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#6C5B8B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
-                  Core Active Concentration:
+                <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+                  Key Active Molecule:
                 </div>
-                <div style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.2rem' }}>
                   🔬 {product.activeIngredients[0].percentage} {product.activeIngredients[0].name}
                 </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                <div style={{ fontSize: '0.82rem', color: '#334155' }}>
                   {product.activeIngredients[0].role}
                 </div>
               </div>
             )}
 
             {/* Pricing Section */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <span style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginBottom: '1.25rem' }}>
+              <span style={{ fontSize: '2rem', fontWeight: '800', color: '#0F172A' }}>
                 ₹{product.salePrice || product.price}
               </span>
               {product.salePrice && product.price > product.salePrice && (
                 <>
-                  <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                  <span style={{ fontSize: '1.15rem', color: '#94A3B8', textDecoration: 'line-through' }}>
                     ₹{product.price}
                   </span>
-                  <span className="badge badge-rose">
+                  <span style={{
+                    backgroundColor: '#ECFDF5',
+                    color: '#059669',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: 'var(--radius-xs)',
+                    border: '1px solid #A7F3D0'
+                  }}>
                     Save ₹{product.price - product.salePrice}
                   </span>
                 </>
               )}
             </div>
 
+            {/* Stock Availability Indicator */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              {isOutOfStock ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#EF4444', fontSize: '0.85rem', fontWeight: '700' }}>
+                  <AlertCircle size={16} /> Currently Out of Stock
+                </div>
+              ) : isLowStock ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#D97706', fontSize: '0.85rem', fontWeight: '700' }}>
+                  <Clock size={16} /> Limited Stock: Only {product.stock} units remaining
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#059669', fontSize: '0.85rem', fontWeight: '700' }}>
+                  <CheckCircle2 size={16} /> In Stock ({product.stock} units available)
+                </div>
+              )}
+            </div>
+
             {/* Size Selector */}
-            {product.sizes && (
+            {product.sizes && product.sizes.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.5rem' }}>
                   Select Volume / Size:
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -274,11 +325,11 @@ export default function ProductDetailPage() {
                       style={{
                         padding: '0.5rem 1.15rem',
                         borderRadius: 'var(--radius-xs)',
-                        border: selectedSize === sz ? '2px solid var(--accent-navy)' : '1px solid rgba(23, 33, 58, 0.12)',
-                        backgroundColor: selectedSize === sz ? 'var(--bg-lavender)' : '#FFFFFF',
+                        border: selectedSize === sz ? '2px solid #0284C7' : '1px solid rgba(15, 23, 42, 0.15)',
+                        backgroundColor: selectedSize === sz ? '#F0F9FF' : '#FFFFFF',
                         fontWeight: '700',
                         fontSize: '0.85rem',
-                        color: 'var(--text-primary)',
+                        color: '#0F172A',
                         cursor: 'pointer'
                       }}
                     >
@@ -289,8 +340,8 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Quantity and Add to Cart */}
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.75rem' }}>
+            {/* Quantity and Primary CTAs */}
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -299,318 +350,369 @@ export default function ProductDetailPage() {
                 backgroundColor: '#FFFFFF'
               }}>
                 <button
+                  type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  style={{ background: 'none', border: 'none', padding: '0.65rem 0.9rem', cursor: 'pointer', display: 'flex', color: 'var(--text-secondary)' }}
+                  disabled={quantity <= 1 || isOutOfStock}
+                  style={{ padding: '0.6rem 0.85rem', border: 'none', background: 'none', cursor: 'pointer', color: '#0F172A' }}
                 >
-                  <Minus size={15} />
+                  <Minus size={14} />
                 </button>
-                <span style={{ fontSize: '0.95rem', fontWeight: '800', minWidth: '32px', textAlign: 'center' }}>
+                <span style={{ padding: '0 0.85rem', fontWeight: '700', fontSize: '0.9rem', color: '#0F172A' }}>
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  style={{ background: 'none', border: 'none', padding: '0.65rem 0.9rem', cursor: 'pointer', display: 'flex', color: 'var(--text-secondary)' }}
+                  type="button"
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  disabled={quantity >= product.stock || isOutOfStock}
+                  style={{ padding: '0.6rem 0.85rem', border: 'none', background: 'none', cursor: 'pointer', color: '#0F172A' }}
                 >
-                  <Plus size={15} />
+                  <Plus size={14} />
                 </button>
               </div>
 
               <button
+                type="button"
                 onClick={handleAddToCart}
-                className="btn btn-primary btn-lg"
-                style={{ flex: 1, padding: '0.9rem' }}
+                disabled={isOutOfStock}
+                className="btn btn-primary"
+                style={{
+                  flex: '1 1 180px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  opacity: isOutOfStock ? 0.5 : 1,
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer'
+                }}
               >
-                <ShoppingBag size={18} /> Add Formulation to Cart
+                <ShoppingBag size={16} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
 
               <button
-                onClick={() => toggleWishlist(product.id)}
-                aria-label="Toggle wishlist"
+                type="button"
+                onClick={handleBuyNow}
+                disabled={isOutOfStock}
+                className="btn btn-secondary"
                 style={{
-                  width: '48px',
-                  height: '48px',
+                  flex: '1 1 140px',
+                  opacity: isOutOfStock ? 0.5 : 1,
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Buy Now
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleWishlist(product.id)}
+                aria-label="Wishlist"
+                style={{
+                  width: '46px',
+                  height: '46px',
                   borderRadius: 'var(--radius-xs)',
-                  border: '1px solid rgba(23, 33, 58, 0.12)',
+                  border: '1px solid rgba(15, 23, 42, 0.15)',
                   backgroundColor: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: isWishlisted ? '#D96B7D' : 'var(--text-secondary)'
+                  color: isWishlisted ? '#EF4444' : '#64748B'
                 }}
               >
-                <Heart size={20} fill={isWishlisted ? '#D96B7D' : 'none'} />
+                <Heart size={18} fill={isWishlisted ? '#EF4444' : 'none'} />
               </button>
             </div>
 
-            {/* Guarantees & Shipping Strip */}
+            {/* Pincode & Delivery Availability Checker */}
+            <div style={{ marginBottom: '2rem' }}>
+              <PincodeChecker />
+            </div>
+
+            {/* Trust Assurances */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '0.75rem',
-              paddingTop: '1.25rem',
-              borderTop: '1px solid rgba(23, 33, 58, 0.08)',
-              fontSize: '0.75rem',
-              color: 'var(--text-secondary)'
+              gap: '1rem',
+              padding: '1.25rem',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(15, 23, 42, 0.08)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <ShieldCheck size={16} color="#6C5B8B" />
-                <span>30-Day Guarantee</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <ShieldCheck size={18} style={{ color: '#0284C7' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#0F172A' }}>100% Authentic Formula</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Truck size={16} color="#6C5B8B" />
-                <span>Cold-Chain Courier</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Truck size={18} style={{ color: '#0284C7' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#0F172A' }}>Delhivery Express</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Sparkles size={16} color="#6C5B8B" />
-                <span>100% INCI Honest</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <RotateCcw size={18} style={{ color: '#0284C7' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#0F172A' }}>Safe Clinical Transit</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Expandable Accordions Dossier */}
+        {/* Clinical Tabs / Accordion Section */}
         <div style={{
           backgroundColor: '#FFFFFF',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid rgba(23, 33, 58, 0.08)',
-          padding: '2rem',
-          boxShadow: 'var(--shadow-sm)',
-          marginBottom: '4rem'
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid rgba(15, 23, 42, 0.08)',
+          overflow: 'hidden',
+          marginBottom: '4rem',
+          boxShadow: 'var(--shadow-sm)'
         }}>
-          {/* 1. Full INCI Transparency */}
-          <div style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.08)', paddingBottom: '1.25rem', marginBottom: '1.25rem' }}>
+          {/* Section 1: Overview & Benefits */}
+          <div style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.08)' }}>
+            <button
+              onClick={() => toggleSection('benefits')}
+              style={{
+                width: '100%',
+                padding: '1.25rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <span style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+                1. Formulation Overview & Clinical Action
+              </span>
+              {openSections.benefits ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
+
+            {openSections.benefits && (
+              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', color: '#334155', lineHeight: '1.7', fontSize: '0.92rem' }}>
+                <p style={{ marginBottom: '1rem' }}>
+                  {product.tagline}
+                </p>
+                {product.doctorNote && (
+                  <div style={{
+                    backgroundColor: '#F8FAFC',
+                    borderLeft: '3px solid #0284C7',
+                    padding: '0.85rem 1rem',
+                    borderRadius: '0 4px 4px 0',
+                    fontSize: '0.85rem',
+                    color: '#0F172A',
+                    fontStyle: 'italic'
+                  }}>
+                    💡 {product.doctorNote}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Section 2: Active Molecules & Full INCI */}
+          <div style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.08)' }}>
             <button
               onClick={() => toggleSection('inci')}
-              style={{ width: '100%', background: 'none', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left' }}
+              style={{
+                width: '100%',
+                padding: '1.25rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
             >
-              <h3 style={{ fontSize: '1.2rem', margin: 0, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
-                Full INCI Ingredients Transparency
-              </h3>
+              <span style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+                2. Active Molecules & Full INCI Transparency
+              </span>
               {openSections.inci ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
 
             {openSections.inci && (
-              <div style={{ marginTop: '1rem', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                <p style={{ marginBottom: '0.75rem', fontFamily: 'monospace', backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.06)' }}>
-                  {product.fullInci || 'Aqua (Purified Water), Niacinamide (USP Grade), Glycerin, Zinc PCA, Sodium Hyaluronate, Panthenol, Phenoxyethanol.'}
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.78rem', color: 'var(--text-primary)', fontWeight: '700' }}>
-                  <span>✓ 0% Synthetic Fragrance</span>
-                  <span>✓ 0% Parabens & Sulfates</span>
-                  <span>✓ 0% Artificial Colorants</span>
-                  <span>✓ Non-Comedogenic Tested</span>
-                </div>
+              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
+                {product.activeIngredients && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                    {product.activeIngredients.map((act, i) => (
+                      <div key={i} style={{ backgroundColor: '#F8FAFC', padding: '1rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(15, 23, 42, 0.06)' }}>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#0284C7', marginBottom: '0.2rem' }}>
+                          {act.percentage} {act.name}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748B' }}>
+                          {act.role}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {product.fullInci && (
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.4rem' }}>
+                      Full INCI Declaration:
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: '#64748B', lineHeight: '1.6', fontFamily: 'monospace', backgroundColor: '#F8FAFC', padding: '0.75rem', borderRadius: 'var(--radius-xs)' }}>
+                      {product.fullInci}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* 2. Usage & Layering Guide */}
-          <div style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.08)', paddingBottom: '1.25rem', marginBottom: '1.25rem' }}>
+          {/* Section 3: How to Use */}
+          <div style={{ borderBottom: '1px solid rgba(15, 23, 42, 0.08)' }}>
             <button
               onClick={() => toggleSection('usage')}
-              style={{ width: '100%', background: 'none', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left' }}
+              style={{
+                width: '100%',
+                padding: '1.25rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
             >
-              <h3 style={{ fontSize: '1.2rem', margin: 0, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
-                Application Protocol & AM/PM Layering
-              </h3>
+              <span style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+                3. Application Routine & AM / PM Protocol
+              </span>
               {openSections.usage ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
 
             {openSections.usage && (
-              <div style={{ marginTop: '1rem', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                <p style={{ marginBottom: '1rem' }}>
-                  {product.howToUse?.instructions || 'Apply 2-3 drops morning and evening directly to clean facial skin. Pat gently until absorbed before applying heavier moisturizers.'}
-                </p>
-                <div style={{ backgroundColor: 'var(--bg-lavender)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(216, 210, 231, 0.8)', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
-                  ⚠️ <strong>Patch Test Advisory:</strong> Apply a dime-sized amount behind the ear or inside forearm 24 hours prior to full facial application.
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 3. Clinical Trial Results */}
-          <div>
-            <button
-              onClick={() => toggleSection('trials')}
-              style={{ width: '100%', background: 'none', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left' }}
-            >
-              <h3 style={{ fontSize: '1.2rem', margin: 0, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
-                Clinical Trial Evidence
-              </h3>
-              {openSections.trials ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
-
-            {openSections.trials && (
-              <div style={{ marginTop: '1rem', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                <p>
-                  Evaluated in a 4-week randomized clinical assessment. 94% of subjects demonstrated measurable improvement in skin barrier resilience and marked reduction in localized erythema.
-                </p>
+              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', color: '#334155', fontSize: '0.9rem', lineHeight: '1.7' }}>
+                {product.howToUse && (
+                  <>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                      {product.howToUse.am && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FEF3C7', color: '#B45309', padding: '0.25rem 0.65rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: '700' }}>
+                          <Sun size={13} /> Morning (AM)
+                        </span>
+                      )}
+                      {product.howToUse.pm && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#EDE9FE', color: '#6D28D9', padding: '0.25rem 0.65rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: '700' }}>
+                          <Moon size={13} /> Evening (PM)
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontWeight: '700', color: '#0F172A', marginBottom: '0.35rem' }}>
+                      {product.howToUse.step}
+                    </div>
+                    <p style={{ marginBottom: '1rem' }}>
+                      {product.howToUse.instructions}
+                    </p>
+                    {product.howToUse.warning && (
+                      <div style={{ backgroundColor: '#FEF2F2', borderLeft: '3px solid #EF4444', padding: '0.75rem 1rem', fontSize: '0.82rem', color: '#991B1B' }}>
+                        ⚠️ {product.howToUse.warning}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Frequently Prescribed Together Routine Bundle */}
-        {relatedProducts.length > 0 && (
-          <div style={{
-            backgroundColor: 'var(--bg-lavender)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid rgba(216, 210, 231, 0.8)',
-            padding: '2.5rem',
-            marginBottom: '4rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <span className="badge badge-lavender" style={{ marginBottom: '0.4rem' }}>
-                  Doctor Regimen Pairings
-                </span>
-                <h3 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', margin: 0, fontFamily: 'var(--font-serif)' }}>
-                  Frequently Prescribed Together
-                </h3>
-              </div>
-
-              <button
-                onClick={() => {
-                  addToCart(product, selectedSize, 1);
-                  relatedProducts.forEach(rp => addToCart(rp, rp.sizes?.[0] || '30ml', 1));
-                  setIsCartOpen(true);
-                  showToast('Added 3-product clinical routine bundle to cart with 15% discount!');
-                }}
-                className="btn btn-primary btn-md"
-              >
-                <ShoppingBag size={16} /> Add All 3 to Cart (Save 15%)
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-              <ProductCard product={product} />
-              {relatedProducts.map(rp => (
-                <ProductCard key={rp.id} product={rp} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Customer Reviews & Submission Form */}
+        {/* Real Verified Customer Reviews & Review Submission Form */}
         <div style={{
           backgroundColor: '#FFFFFF',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid rgba(23, 33, 58, 0.08)',
-          padding: '2.5rem',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid rgba(15, 23, 42, 0.08)',
+          padding: '2rem',
+          marginBottom: '4rem',
           boxShadow: 'var(--shadow-sm)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', margin: 0, fontFamily: 'var(--font-serif)' }}>
-                Verified Patient Reviews
-              </h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
-                <StarRating rating={product.rating || 4.9} size={16} />
-                <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>{product.rating} out of 5</span>
-              </div>
-            </div>
-          </div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0F172A', marginBottom: '1.5rem', fontFamily: 'var(--font-serif)' }}>
+            Customer Feedback & Reviews
+          </h2>
 
-          {/* Reviews List */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2.5rem' }}>
-            {product.reviews?.map((rev, idx) => (
-              <div
-                key={idx}
-                style={{
-                  backgroundColor: 'var(--bg-primary)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '1.25rem',
-                  border: '1px solid rgba(23, 33, 58, 0.06)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>{rev.name}</span>
-                    <span className="badge badge-lavender" style={{ fontSize: '0.65rem' }}>Verified Patient</span>
+          {reviews.length === 0 ? (
+            <div style={{ padding: '1.5rem', backgroundColor: '#F8FAFC', borderRadius: 'var(--radius-sm)', textAlign: 'center', marginBottom: '2rem' }}>
+              <p style={{ color: '#64748B', fontSize: '0.9rem', margin: 0 }}>
+                No customer reviews submitted yet. Have you tried this formulation? Share your clinical experience below.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2.5rem' }}>
+              {reviews.map((rev, idx) => (
+                <div key={idx} style={{ padding: '1rem', borderBottom: '1px solid rgba(15, 23, 42, 0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                    <span style={{ fontWeight: '700', color: '#0F172A', fontSize: '0.92rem' }}>{rev.author || rev.name}</span>
+                    <StarRating rating={rev.rating} size={14} />
                   </div>
-                  <StarRating rating={rev.rating} size={12} />
+                  <p style={{ color: '#475569', fontSize: '0.85rem', lineHeight: '1.5', margin: 0 }}>{rev.comment}</p>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                  Skin Type: {rev.skinType || 'Combination'}
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                  "{rev.comment}"
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Write a Review Form */}
-          <form onSubmit={handleReviewSubmit} style={{
-            backgroundColor: 'var(--bg-lavender)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.5rem',
-            border: '1px solid rgba(216, 210, 231, 0.8)'
-          }}>
-            <h4 style={{ fontSize: '1.1rem', marginBottom: '1rem', fontFamily: 'var(--font-serif)' }}>
-              Submit Your Clinical Feedback
-            </h4>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Your Name</label>
+          <form onSubmit={handleReviewSubmit} style={{ backgroundColor: '#F8FAFC', padding: '1.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#0F172A', marginBottom: '1rem' }}>
+              Write a Verified Review
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.35rem' }}>Your Name *</label>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder="e.g. Dr. Ananya / Priya M."
+                  required
                   value={reviewerName}
                   onChange={(e) => setReviewerName(e.target.value)}
-                  required
+                  placeholder="e.g. Dr. Ananya / Priya S."
+                  style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
                 />
               </div>
-
-              <div className="form-group">
-                <label className="form-label">Rating</label>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.35rem' }}>Rating *</label>
                 <select
-                  className="form-control"
                   value={reviewerRating}
                   onChange={(e) => setReviewerRating(Number(e.target.value))}
+                  style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
                 >
-                  <option value={5}>5 Stars - Outstanding Efficacy</option>
-                  <option value={4}>4 Stars - Very Good</option>
-                  <option value={3}>3 Stars - Moderate</option>
-                  <option value={2}>2 Stars - Mild Reaction</option>
-                  <option value={1}>1 Star - Unsatisfied</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Your Skin Type</label>
-                <select
-                  className="form-control"
-                  value={reviewerSkinType}
-                  onChange={(e) => setReviewerSkinType(e.target.value)}
-                >
-                  <option value="Oily / Acne Prone">Oily / Acne Prone</option>
-                  <option value="Combination">Combination</option>
-                  <option value="Dry / Dehydrated">Dry / Dehydrated</option>
-                  <option value="Sensitive & Reactive">Sensitive & Reactive</option>
+                  <option value={5}>⭐⭐⭐⭐⭐ (5 - Exceptional Efficacy)</option>
+                  <option value={4}>⭐⭐⭐⭐ (4 - Very Good)</option>
+                  <option value={3}>⭐⭐⭐ (3 - Moderate)</option>
+                  <option value={2}>⭐⭐ (2 - Below Expectation)</option>
+                  <option value={1}>⭐ (1 - Unsatisfactory)</option>
                 </select>
               </div>
             </div>
-
-            <div className="form-group">
-              <label className="form-label">Clinical Experience Review</label>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.35rem' }}>Review & Skin Observations *</label>
               <textarea
-                rows="3"
-                className="form-control"
-                placeholder="Share texture, application notes, and barrier results..."
+                required
+                rows={3}
                 value={reviewerComment}
                 onChange={(e) => setReviewerComment(e.target.value)}
-                required
+                placeholder="Describe your experience, texture absorption, and results observed over time..."
+                style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
               />
             </div>
-
-            <button type="submit" className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem' }}>
-              Submit Verified Patient Review
+            <button type="submit" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <Send size={13} /> Submit Review
             </button>
           </form>
+        </div>
+
+        {/* Related Formulations */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0F172A', fontFamily: 'var(--font-serif)' }}>
+              Complementary Formulations
+            </h2>
+            <Link to="/shop" style={{ color: '#0284C7', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              View All <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+            {fallbackRelated.map(p => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

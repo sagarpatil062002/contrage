@@ -203,8 +203,8 @@ export default function CartDrawer() {
                       {item.product.name}
                     </Link>
                   </h4>
-                  <div style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                    ₹{item.price * item.quantity}
+                  <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#0F172A', marginTop: '0.2rem' }}>
+                    ₹{(Number(item.price || item.product?.salePrice || item.product?.price) || 0) * (typeof item.quantity === 'number' ? item.quantity : 1)}
                   </div>
 
                   {/* Quantity Controls */}

@@ -20,7 +20,10 @@ import {
   Lock,
   Mail,
   Phone,
-  Trash2
+  KeyRound,
+  Trash2,
+  Search,
+  ExternalLink
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -35,19 +38,37 @@ export default function AccountPage() {
     showToast,
     login,
     register,
-    logout
+    logout,
+    sendMobileOtp,
+    verifyMobileOtp,
+    fetchOrdersByPhone
   } = useStore();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || (user?.email ? 'orders' : 'auth'));
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || (user?.isLoggedIn ? 'orders' : 'auth'));
 
-  // Auth Form State
+  // Auth Modes: 'mobile_otp' | 'email_password'
+  const [authMethod, setAuthMethod] = useState('mobile_otp');
+
+  // Mobile OTP States
+  const [mobilePhone, setMobilePhone] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [testOtp, setTestOtp] = useState('');
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // Email/Password States
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
-  const [authPhone, setAuthPhone] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
+  const [authPhoneInput, setAuthPhoneInput] = useState('');
+
+  // Quick Order Lookup by Phone
+  const [lookupPhone, setLookupPhone] = useState('');
+  const [lookupResults, setLookupResults] = useState(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
 
   // Address Modal / Form state
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -61,9 +82,61 @@ export default function AccountPage() {
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
+  // Resend OTP Countdown
+  useEffect(() => {
+    let interval;
+    if (otpTimer > 0) {
+      interval = setInterval(() => setOtpTimer(prev => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
+
   const wishlistedProducts = products.filter(p => wishlist.includes(p.id));
 
-  const handleAuthSubmit = async (e) => {
+  // Send Mobile OTP
+  const handleSendOtp = async (e) => {
+    e?.preventDefault();
+    const clean = mobilePhone.replace(/[^0-9]/g, '').slice(-10);
+    if (!clean || clean.length !== 10) {
+      showToast('Please enter a valid 10-digit mobile number.', 'error');
+      return;
+    }
+
+    setAuthLoading(true);
+    const res = await sendMobileOtp(clean);
+    setAuthLoading(false);
+
+    if (res?.success) {
+      setOtpSent(true);
+      setTestOtp(res.otp || '1234');
+      setOtpTimer(30);
+    }
+  };
+
+  // Verify Mobile OTP
+  const handleVerifyOtp = async (e) => {
+    e?.preventDefault();
+    if (!otpCode.trim()) {
+      showToast('Please enter the 4-digit verification code.', 'error');
+      return;
+    }
+
+    setAuthLoading(true);
+    const clean = mobilePhone.replace(/[^0-9]/g, '').slice(-10);
+    const res = await verifyMobileOtp({
+      phone: clean,
+      otp: otpCode.trim()
+    });
+    setAuthLoading(false);
+
+    if (res?.success) {
+      setActiveTab('orders');
+      setSearchParams({ tab: 'orders' });
+    }
+  };
+
+  // Email / Password Form Submit
+  const handleEmailAuthSubmit = async (e) => {
     e.preventDefault();
     setAuthLoading(true);
 
@@ -77,7 +150,7 @@ export default function AccountPage() {
         name: authName,
         email: authEmail,
         password: authPassword,
-        phone: authPhone
+        phone: authPhoneInput
       });
       if (res.success) {
         setActiveTab('orders');
@@ -98,22 +171,30 @@ export default function AccountPage() {
     setAuthLoading(false);
   };
 
-  const handleDemoAdminLogin = async () => {
-    setAuthLoading(true);
-    await login('admin@contrage.com', 'Admin@ContrAge2026');
-    setActiveTab('orders');
-    setSearchParams({ tab: 'orders' });
-    setAuthLoading(false);
+  // Quick Order Lookup by Phone
+  const handleLookupOrders = async (e) => {
+    e.preventDefault();
+    const clean = lookupPhone.replace(/[^0-9]/g, '').slice(-10);
+    if (!clean || clean.length !== 10) {
+      showToast('Please enter a valid 10-digit mobile number.', 'error');
+      return;
+    }
+
+    setIsLookingUp(true);
+    const res = await fetchOrdersByPhone(clean);
+    setIsLookingUp(false);
+
+    if (res.success) {
+      setLookupResults(res.orders);
+      if (res.orders.length === 0) {
+        showToast(`No orders found for +91 ${clean}.`, 'info');
+      } else {
+        showToast(`Found ${res.orders.length} order(s) for +91 ${clean}.`);
+      }
+    }
   };
 
-  const handleDemoCustomerLogin = async () => {
-    setAuthLoading(true);
-    await login('priya.sharma@example.com', 'Customer@123');
-    setActiveTab('orders');
-    setSearchParams({ tab: 'orders' });
-    setAuthLoading(false);
-  };
-
+  // Add Address
   const handleAddAddress = async (e) => {
     e.preventDefault();
     if (!newStreet || !newCity || !newPincode) {
@@ -121,111 +202,82 @@ export default function AccountPage() {
       return;
     }
 
-    const newAddr = {
-      id: `addr-${Date.now()}`,
-      name: user.name || 'Customer',
-      phone: user.phone || '',
-      street: newStreet,
-      city: newCity,
-      state: newState,
-      pincode: newPincode,
-      isDefault: false
-    };
-
     try {
-      await api.auth.addAddress(newAddr);
-    } catch (err) {}
+      const res = await api.auth.addAddress({
+        street: newStreet,
+        city: newCity,
+        state: newState,
+        pincode: newPincode,
+        isDefault: user?.addresses?.length === 0
+      });
 
-    setUser(prev => ({
-      ...prev,
-      addresses: [...(prev.addresses || []), newAddr]
-    }));
-
-    setShowAddressForm(false);
-    setNewStreet('');
-    setNewCity('');
-    setNewState('');
-    setNewPincode('');
-    showToast('New shipping address saved.');
+      if (res?.data) {
+        setUser({ ...user, addresses: res.data });
+        setShowAddressForm(false);
+        setNewStreet('');
+        setNewCity('');
+        setNewState('');
+        setNewPincode('');
+        showToast('Delivery address saved successfully.');
+      }
+    } catch (err) {
+      // Local fallback
+      const newAddr = {
+        id: `addr-${Date.now()}`,
+        name: user.name || 'Customer',
+        phone: user.phone || '',
+        street: newStreet,
+        city: newCity,
+        state: newState,
+        pincode: newPincode,
+        isDefault: user?.addresses?.length === 0
+      };
+      const updated = [...(user.addresses || []), newAddr];
+      setUser({ ...user, addresses: updated });
+      setShowAddressForm(false);
+      showToast('Delivery address saved.');
+    }
   };
 
-  const handleDeleteAddress = async (addressId) => {
+  // Delete Address
+  const handleDeleteAddress = async (id) => {
     try {
-      await api.auth.deleteAddress(addressId);
-    } catch (err) {}
-    setUser(prev => ({
-      ...prev,
-      addresses: (prev.addresses || []).filter(a => a.id !== addressId)
-    }));
-    showToast('Address removed.', 'info');
+      await api.auth.deleteAddress(id);
+    } catch (e) {}
+    const updated = (user.addresses || []).filter(a => a.id !== id);
+    setUser({ ...user, addresses: updated });
+    showToast('Address removed.');
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: '5rem' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', paddingBottom: '5rem' }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '2.5rem 0 2rem 0' }}>
+      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: '2.5rem 0 2rem 0' }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--teal-800)',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: '800'
-              }}>
-                {user?.name ? user.name.charAt(0).toUpperCase() : <User size={24} />}
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <h1 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', margin: 0 }}>
-                    {user?.name || 'Customer Account'}
-                  </h1>
-                  {user?.role === 'ADMIN' && (
-                    <span className="badge badge-teal" style={{ fontSize: '0.72rem' }}>Clinical Admin</span>
-                  )}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {user?.email ? `${user.email} • ${user.phone || 'Verified Customer'} • Skin Profile: ` : 'Please log in to manage your orders & clinical profile'}
-                  {user?.email && <strong>{user?.skinType || 'Combination Skin'}</strong>}
-                </div>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#64748B', marginBottom: '0.5rem' }}>
+            <Link to="/" style={{ color: 'inherit' }}>Home</Link> &gt;
+            <span style={{ color: '#0F172A', fontWeight: '600' }}>Customer Portal</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h1 style={{ fontSize: '2.2rem', color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+                {user?.isLoggedIn ? `Welcome, ${user.name || 'Customer'}` : 'Customer Portal & Order Tracking'}
+              </h1>
+              <p style={{ fontSize: '0.92rem', color: '#64748B', marginTop: '0.35rem' }}>
+                {user?.isLoggedIn ? `Linked mobile: ${user.phone || 'N/A'} • Authenticated clinical session` : 'Access your formulations, track live Delhivery dispatches, and manage addresses.'}
+              </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              {user?.email ? (
-                <>
-                  {user?.role === 'ADMIN' && (
-                    <Link to="/admin" className="btn btn-secondary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <ShieldCheck size={16} /> Admin CMS Portal
-                    </Link>
-                  )}
-                  <button
-                    onClick={logout}
-                    className="btn btn-light btn-sm"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                  >
-                    <LogOut size={16} /> Log Out
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => {
-                    setActiveTab('auth');
-                    setSearchParams({ tab: 'auth' });
-                  }}
-                  className="btn btn-primary btn-sm"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                >
-                  <LogIn size={16} /> Sign In / Register
-                </button>
-              )}
-            </div>
+            {user?.isLoggedIn && (
+              <button
+                onClick={logout}
+                className="btn btn-secondary btn-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', borderColor: '#CBD5E1' }}
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -234,513 +286,684 @@ export default function AccountPage() {
         {/* Navigation Tabs */}
         <div style={{
           display: 'flex',
-          gap: '0.75rem',
-          flexWrap: 'wrap',
+          gap: '0.5rem',
+          borderBottom: '1px solid rgba(15, 23, 42, 0.1)',
           marginBottom: '2.5rem',
-          borderBottom: '1px solid #E2E8F0',
-          paddingBottom: '0.5rem'
+          overflowX: 'auto',
+          paddingBottom: '2px'
         }}>
-          {[
-            { id: 'orders', label: 'Live Order Tracking & History', icon: <Truck size={16} /> },
-            { id: 'wishlist', label: `Clinical Wishlist (${wishlist.length})`, icon: <Heart size={16} /> },
-            { id: 'addresses', label: 'Saved Addresses', icon: <MapPin size={16} /> },
-            { id: 'profile', label: 'Diagnostic Skin Profile', icon: <Sparkles size={16} /> },
-            { id: 'auth', label: user?.email ? 'Account Security' : 'Sign In / Register', icon: <Lock size={16} /> }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setSearchParams({ tab: tab.id });
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.65rem 1.25rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.88rem',
-                fontWeight: '700',
-                border: activeTab === tab.id ? '2px solid var(--teal-700)' : '1px solid #CBD5E1',
-                backgroundColor: activeTab === tab.id ? 'var(--teal-800)' : '#FFFFFF',
-                color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
+          {user?.isLoggedIn ? (
+            <>
+              <button
+                onClick={() => { setActiveTab('orders'); setSearchParams({ tab: 'orders' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'orders' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'orders' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'orders' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Package size={18} color={activeTab === 'orders' ? '#0284C7' : '#64748B'} /> My Orders ({orders.length})
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('addresses'); setSearchParams({ tab: 'addresses' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'addresses' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'addresses' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'addresses' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <MapPin size={18} color={activeTab === 'addresses' ? '#0284C7' : '#64748B'} /> Saved Addresses
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('wishlist'); setSearchParams({ tab: 'wishlist' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'wishlist' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'wishlist' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'wishlist' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Heart size={18} color={activeTab === 'wishlist' ? '#E11D48' : '#64748B'} /> Wishlist ({wishlist.length})
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('track'); setSearchParams({ tab: 'track' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'track' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'track' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'track' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Truck size={18} color={activeTab === 'track' ? '#0284C7' : '#64748B'} /> Track Any Order
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => { setActiveTab('auth'); setSearchParams({ tab: 'auth' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'auth' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'auth' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'auth' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem'
+                }}
+              >
+                <LogIn size={18} color={activeTab === 'auth' ? '#0284C7' : '#64748B'} /> Sign In / Quick OTP Login
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('track'); setSearchParams({ tab: 'track' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'track' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'track' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'track' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem'
+                }}
+              >
+                <Truck size={18} color={activeTab === 'track' ? '#0284C7' : '#64748B'} /> Track Order by Mobile No.
+              </button>
+            </>
+          )}
         </div>
 
-        {/* Tab 1: Live Order Tracking & Orders */}
-        {activeTab === 'orders' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* TAB 1: AUTH (Mobile OTP & Email/Password) */}
+        {!user?.isLoggedIn && activeTab === 'auth' && (
+          <div style={{ maxWidth: '480px', margin: '0 auto' }}>
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid rgba(15, 23, 42, 0.08)',
+              padding: '2.5rem',
+              boxShadow: 'var(--shadow-md)'
+            }}>
+              {/* Method Switcher */}
+              <div style={{ display: 'flex', backgroundColor: '#F1F5F9', borderRadius: '8px', padding: '4px', marginBottom: '2rem' }}>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMethod('mobile_otp'); setOtpSent(false); }}
+                  style={{
+                    flex: 1,
+                    padding: '0.65rem',
+                    border: 'none',
+                    borderRadius: '6px',
+                    backgroundColor: authMethod === 'mobile_otp' ? '#FFFFFF' : 'transparent',
+                    color: authMethod === 'mobile_otp' ? '#0F172A' : '#64748B',
+                    fontWeight: '800',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    boxShadow: authMethod === 'mobile_otp' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                  }}
+                >
+                  📱 Mobile OTP (Quick)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthMethod('email_password')}
+                  style={{
+                    flex: 1,
+                    padding: '0.65rem',
+                    border: 'none',
+                    borderRadius: '6px',
+                    backgroundColor: authMethod === 'email_password' ? '#FFFFFF' : 'transparent',
+                    color: authMethod === 'email_password' ? '#0F172A' : '#64748B',
+                    fontWeight: '800',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    boxShadow: authMethod === 'email_password' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                  }}
+                >
+                  ✉️ Email / Password
+                </button>
+              </div>
+
+              {/* OPTION A: MOBILE OTP (The Derma Co Flow) */}
+              {authMethod === 'mobile_otp' ? (
+                <div>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+                    {otpSent ? 'Enter Verification Code' : 'Sign In with Mobile'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: '#64748B', marginBottom: '1.75rem' }}>
+                    {otpSent ? `We sent a 4-digit code to +91 ${mobilePhone}` : 'Enter your 10-digit phone number to receive a secure login code.'}
+                  </p>
+
+                  {!otpSent ? (
+                    <form onSubmit={handleSendOtp}>
+                      <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                        <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: '700' }}>Mobile Number</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0 0.85rem',
+                            backgroundColor: '#F8FAFC',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '0.9rem',
+                            fontWeight: '700',
+                            color: '#0F172A',
+                            gap: '0.35rem'
+                          }}>
+                            <span>🇮🇳</span> +91
+                          </div>
+                          <input
+                            type="tel"
+                            maxLength="10"
+                            className="form-control"
+                            placeholder="98765 43210"
+                            value={mobilePhone}
+                            onChange={(e) => setMobilePhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
+                            style={{ fontSize: '1rem', fontWeight: '700' }}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={authLoading || mobilePhone.length !== 10}
+                        className="btn btn-primary btn-lg"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                      >
+                        {authLoading ? 'Sending OTP...' : 'Send Login OTP →'}
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleVerifyOtp}>
+                      {testOtp && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F0F9FF', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px dashed #0284C7', marginBottom: '1.25rem' }}>
+                          <span style={{ fontSize: '0.82rem', color: '#0F172A' }}>
+                            🔐 Test OTP: <strong style={{ color: '#0284C7' }}>{testOtp}</strong> (or 1234)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setOtpCode(testOtp)}
+                            style={{ background: '#0284C7', color: '#FFFFFF', border: 'none', borderRadius: '3px', fontSize: '0.72rem', padding: '3px 8px', cursor: 'pointer', fontWeight: '700' }}
+                          >
+                            Auto-Fill
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                        <input
+                          type="text"
+                          maxLength="4"
+                          className="form-control"
+                          placeholder="Enter 4-Digit Code"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+                          style={{ fontSize: '1.2rem', textAlign: 'center', letterSpacing: '0.25em', fontWeight: '800' }}
+                          autoFocus
+                          required
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => setOtpSent(false)}
+                          style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                          Change Number
+                        </button>
+                        {otpTimer > 0 ? (
+                          <span style={{ color: '#64748B' }}>Resend in {otpTimer}s</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            style={{ background: 'none', border: 'none', color: '#0284C7', fontWeight: '700', cursor: 'pointer' }}
+                          >
+                            Resend Code
+                          </button>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={authLoading || otpCode.length < 4}
+                        className="btn btn-primary btn-lg"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                      >
+                        {authLoading ? 'Verifying...' : 'Verify & Enter Portal →'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              ) : (
+                /* OPTION B: EMAIL & PASSWORD */
+                <div>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+                    {isRegisterMode ? 'Create Patient Account' : 'Sign In with Email'}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: '#64748B', marginBottom: '1.75rem' }}>
+                    {isRegisterMode ? 'Register to receive bespoke formulation updates and saved addresses.' : 'Enter your email credentials to access your clinical account.'}
+                  </p>
+
+                  <form onSubmit={handleEmailAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+                    {isRegisterMode && (
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: '700' }}>Full Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Dr. / Ms. / Mr. Full Name"
+                          value={authName}
+                          onChange={(e) => setAuthName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: '700' }}>Email Address</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="you@example.com"
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: '700' }}>Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="••••••••"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {isRegisterMode && (
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: '700' }}>Phone (Optional)</label>
+                        <input
+                          type="tel"
+                          className="form-control"
+                          placeholder="+91 98765 43210"
+                          value={authPhoneInput}
+                          onChange={(e) => setAuthPhoneInput(e.target.value)}
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      className="btn btn-primary btn-lg"
+                      style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
+                    >
+                      {authLoading ? 'Processing...' : isRegisterMode ? 'Create Account →' : 'Sign In →'}
+                    </button>
+
+                    <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setIsRegisterMode(!isRegisterMode)}
+                        style={{ background: 'none', border: 'none', color: '#0284C7', fontSize: '0.85rem', cursor: 'pointer', fontWeight: '600' }}
+                      >
+                        {isRegisterMode ? 'Already have an account? Sign In' : "Don't have an account? Register"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: MY ORDERS */}
+        {user?.isLoggedIn && activeTab === 'orders' && (
+          <div>
             {orders.length === 0 ? (
-              <div style={{ backgroundColor: '#FFFFFF', padding: '3rem', borderRadius: 'var(--radius-md)', textAlign: 'center', border: '1px solid #E2E8F0' }}>
-                <Package size={40} color="var(--text-light)" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>No Orders Found</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  You haven't placed any clinical orders yet.
+              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15, 23, 42, 0.08)', padding: '3.5rem 2rem', textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
+                <Package size={48} color="#94A3B8" style={{ margin: '0 auto 1rem auto' }} />
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+                  No Orders Placed Yet
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: '1.5rem' }}>
+                  Explore active cosmeceutical molecules developed under Dr. Siddhi clinical oversight.
                 </p>
                 <Link to="/shop" className="btn btn-primary btn-sm">
                   Explore Formulations &rarr;
                 </Link>
               </div>
             ) : (
-              orders.map(order => (
-                <div
-                  key={order.id}
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 'var(--radius-xl)',
-                    border: '1px solid #E2E8F0',
-                    padding: '2rem',
-                    boxShadow: 'var(--shadow-sm)'
-                  }}
-                >
-                  {/* Order Header */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '1rem',
-                    paddingBottom: '1.25rem',
-                    borderBottom: '1px solid #E2E8F0',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
-                          Order {order.id}
-                        </h3>
-                        <span className="badge badge-teal">
-                          {order.status}
-                        </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {orders.map((ord) => (
+                  <div
+                    key={ord.id}
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid rgba(15, 23, 42, 0.08)',
+                      padding: '1.75rem',
+                      boxShadow: 'var(--shadow-sm)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '1.25rem', marginBottom: '1.25rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                          <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0F172A' }}>
+                            Order #{ord.id}
+                          </span>
+                          <span className={`badge ${ord.status === 'Delivered' ? 'badge-emerald' : 'badge-teal'}`}>
+                            {ord.status}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '4px' }}>
+                          Placed on {new Date(ord.date || ord.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {ord.paymentMethod}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                        Tracking Number: <strong style={{ color: 'var(--teal-900)' }}>{order.trackingNumber}</strong> • Placed on {new Date(order.date || order.createdAt || Date.now()).toLocaleDateString()}
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A' }}>
+                          ₹{ord.total}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                          AWB: <strong>{ord.trackingNumber}</strong>
+                        </div>
                       </div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--teal-950)' }}>
-                        ₹{order.total}
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {order.items?.length} items • {order.paymentMethod}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Multi-Stage Checkpoint Timeline */}
-                  <div style={{
-                    backgroundColor: '#FAF9F6',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid #E2E8F0',
-                    padding: '1.5rem',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--teal-900)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Truck size={18} /> Live Logistics Checkpoints:
-                    </div>
-
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                      gap: '1.5rem',
-                      position: 'relative'
-                    }}>
-                      {order.checkpoints?.map((cp, idx) => (
-                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', position: 'relative' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <div style={{
-                              width: '24px',
-                              height: '24px',
-                              borderRadius: '50%',
-                              backgroundColor: cp.completed ? 'var(--teal-700)' : '#CBD5E1',
-                              color: '#FFFFFF',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '12px',
-                              fontWeight: '700'
-                            }}>
-                              {cp.completed ? '✓' : idx + 1}
+                    {/* Order Line Items */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                      {ord.items && ord.items.map((item, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <img
+                            src={item.product?.heroImage || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80'}
+                            alt={item.product?.name || 'Formulation'}
+                            style={{ width: '44px', height: '44px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #E2E8F0' }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '0.88rem', fontWeight: '700', color: '#0F172A' }}>
+                              {item.product?.name || 'ContrÂge Active Formulation'}
                             </div>
-                            <span style={{
-                              fontWeight: '700',
-                              fontSize: '0.88rem',
-                              color: cp.completed ? 'var(--teal-950)' : 'var(--text-muted)'
-                            }}>
-                              {cp.status}
-                            </span>
-                          </div>
-
-                          <div style={{ fontSize: '0.75rem', color: 'var(--teal-700)', fontWeight: '600', paddingLeft: '2rem' }}>
-                            {cp.time}
-                          </div>
-                          {cp.note && (
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', paddingLeft: '2rem' }}>
-                              {cp.note}
+                            <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                              Qty: {item.quantity} • {item.selectedSize}
                             </div>
-                          )}
+                          </div>
+                          <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#0F172A' }}>
+                            ₹{(item.price || item.product?.salePrice || item.product?.price || 0) * (item.quantity || 1)}
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Order Items Snapshot */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {order.items?.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                          <img
-                            src={item.product?.heroImage || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=150&q=80'}
-                            alt={item.product?.name}
-                            style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)' }}>
-                              {item.product?.name}
-                            </div>
-                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                              Size: {item.selectedSize} • Qty: {item.quantity}
-                            </div>
-                          </div>
+                    {/* Checkpoints Timeline */}
+                    {ord.checkpoints && ord.checkpoints.length > 0 && (
+                      <div style={{ backgroundColor: '#F8FAFC', borderRadius: 'var(--radius-sm)', padding: '1rem' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                          Delhivery Transit Status
                         </div>
-                        <div style={{ fontWeight: '700', color: 'var(--teal-900)' }}>
-                          ₹{item.price * item.quantity}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {ord.checkpoints.map((cp, cIdx) => (
+                            <div key={cIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem' }}>
+                              <CheckCircle2 size={15} color={cp.completed ? '#059669' : '#CBD5E1'} style={{ marginTop: '2px', flexShrink: 0 }} />
+                              <div>
+                                <span style={{ fontWeight: '700', color: cp.completed ? '#0F172A' : '#94A3B8' }}>{cp.status}</span>
+                                {cp.time && <span style={{ color: '#64748B', marginLeft: '6px' }}>({cp.time})</span>}
+                                {cp.note && <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{cp.note}</div>}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #E2E8F0', fontSize: '0.88rem' }}>
-                    <div>
-                      <strong>Delivery To:</strong> {order.customer?.name}, {order.customer?.address}, {order.customer?.city} - {order.customer?.pincode}
-                    </div>
-                    <Link to={`/order-confirmation/${order.id}`} className="btn btn-outline btn-sm">
-                      View Official Invoice &rarr;
-                    </Link>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Tab 2: Wishlist */}
-        {activeTab === 'wishlist' && (
-          <div>
-            {wishlistedProducts.length === 0 ? (
-              <div style={{ backgroundColor: '#FFFFFF', padding: '3rem', borderRadius: 'var(--radius-md)', textAlign: 'center', border: '1px solid #E2E8F0' }}>
-                <Heart size={40} color="var(--text-light)" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Your Clinical Wishlist is Empty</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  Save doctor-formulated cosmeceuticals for your next regimen refill.
-                </p>
-                <Link to="/shop" className="btn btn-primary btn-sm">
-                  Browse Catalog &rarr;
-                </Link>
-              </div>
-            ) : (
-              <div className="product-grid">
-                {wishlistedProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Tab 3: Saved Addresses */}
-        {activeTab === 'addresses' && (
-          <div>
+        {/* TAB 3: TRACK ORDER BY MOBILE NUMBER */}
+        {activeTab === 'track' && (
+          <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15, 23, 42, 0.08)', padding: '2.5rem', boxShadow: 'var(--shadow-sm)', marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+                Track Orders by Mobile Number
+              </h3>
+              <p style={{ fontSize: '0.88rem', color: '#64748B', marginBottom: '1.5rem' }}>
+                Enter the 10-digit mobile number used during checkout to check live Delhivery shipping updates.
+              </p>
+
+              <form onSubmit={handleLookupOrders} style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 0.85rem',
+                  backgroundColor: '#F8FAFC',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  color: '#0F172A',
+                  gap: '0.35rem'
+                }}>
+                  <span>🇮🇳</span> +91
+                </div>
+                <input
+                  type="tel"
+                  maxLength="10"
+                  className="form-control"
+                  placeholder="98765 43210"
+                  value={lookupPhone}
+                  onChange={(e) => setLookupPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
+                  style={{ flex: 1, fontSize: '1rem', fontWeight: '700' }}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isLookingUp || lookupPhone.length !== 10}
+                  className="btn btn-primary"
+                  style={{ padding: '0.75rem 1.5rem', whiteSpace: 'nowrap' }}
+                >
+                  {isLookingUp ? 'Searching...' : 'Track Orders →'}
+                </button>
+              </form>
+            </div>
+
+            {/* Lookup Results */}
+            {lookupResults && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: '800', color: '#0F172A' }}>
+                  Orders Found ({lookupResults.length})
+                </h4>
+
+                {lookupResults.length === 0 ? (
+                  <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '2rem', textAlign: 'center', border: '1px solid #E2E8F0', color: '#64748B' }}>
+                    No orders registered under +91 {lookupPhone}.
+                  </div>
+                ) : (
+                  lookupResults.map((ord) => (
+                    <div key={ord.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.5rem', border: '1px solid #E2E8F0', boxShadow: 'var(--shadow-sm)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div>
+                          <span style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>Order #{ord.id}</span>
+                          <span className={`badge ${ord.status === 'Delivered' ? 'badge-emerald' : 'badge-teal'}`} style={{ marginLeft: '8px' }}>
+                            {ord.status}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0F172A' }}>₹{ord.total}</span>
+                      </div>
+
+                      <div style={{ fontSize: '0.82rem', color: '#64748B', marginBottom: '1rem' }}>
+                        Delhivery Tracking AWB: <strong>{ord.trackingNumber}</strong> • {ord.paymentMethod}
+                      </div>
+
+                      {/* Items */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem', backgroundColor: '#F8FAFC', borderRadius: '4px' }}>
+                        {ord.items && ord.items.map((it, idx) => (
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                            <span style={{ fontWeight: '700', color: '#0F172A' }}>{it.product?.name || 'Formulation'} ({it.selectedSize}) x {it.quantity}</span>
+                            <span style={{ fontWeight: '800', color: '#0F172A' }}>₹{(it.price || it.product?.salePrice || it.product?.price || 0) * it.quantity}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: SAVED ADDRESSES */}
+        {user?.isLoggedIn && activeTab === 'addresses' && (
+          <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', margin: 0 }}>Registered Delivery Addresses</h3>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', margin: 0 }}>
+                Saved Clinical Delivery Addresses
+              </h3>
               <button
                 onClick={() => setShowAddressForm(!showAddressForm)}
                 className="btn btn-primary btn-sm"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               >
                 <Plus size={16} /> Add New Address
               </button>
             </div>
 
+            {/* Add Address Form */}
             {showAddressForm && (
-              <form onSubmit={handleAddAddress} style={{
-                backgroundColor: '#FFFFFF',
-                padding: '1.75rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--teal-300)',
-                marginBottom: '2rem',
-                maxWidth: '600px'
-              }}>
-                <h4 style={{ fontSize: '1.1rem', marginBottom: '1rem', fontWeight: '700' }}>Add Shipping Destination</h4>
-                <div style={{ marginBottom: '1rem' }}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="House/Flat No, Street, Landmark"
-                    value={newStreet}
-                    onChange={(e) => setNewStreet(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="City"
-                    value={newCity}
-                    onChange={(e) => setNewCity(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="State"
-                    value={newState}
-                    onChange={(e) => setNewState(e.target.value)}
-                  />
-                </div>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Pincode (e.g. 122003)"
-                    value={newPincode}
-                    onChange={(e) => setNewPincode(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button type="submit" className="btn btn-primary btn-sm">Save Address</button>
-                  <button type="button" onClick={() => setShowAddressForm(false)} className="btn btn-light btn-sm">Cancel</button>
+              <form onSubmit={handleAddAddress} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.75rem', border: '1px solid #CBD5E1', marginBottom: '1.75rem', boxShadow: 'var(--shadow-sm)' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: '800', color: '#0F172A', marginBottom: '1rem' }}>New Address Details</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Flat / House No. / Street</label>
+                    <input type="text" className="form-control" value={newStreet} onChange={e => setNewStreet(e.target.value)} required />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">City</label>
+                      <input type="text" className="form-control" value={newCity} onChange={e => setNewCity(e.target.value)} required />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">State</label>
+                      <input type="text" className="form-control" value={newState} onChange={e => setNewState(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">PIN Code</label>
+                      <input type="text" maxLength="6" className="form-control" value={newPincode} onChange={e => setNewPincode(e.target.value)} required />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                    <button type="button" onClick={() => setShowAddressForm(false)} className="btn btn-secondary btn-sm">Cancel</button>
+                    <button type="submit" className="btn btn-primary btn-sm">Save Address</button>
+                  </div>
                 </div>
               </form>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-              {user?.addresses?.map((addr, idx) => (
-                <div
-                  key={addr.id || idx}
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid #E2E8F0',
-                    padding: '1.5rem',
-                    boxShadow: 'var(--shadow-sm)',
-                    position: 'relative'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <span style={{ fontWeight: '700', fontSize: '1rem' }}>{addr.name || user?.name}</span>
+            {/* Address List */}
+            {(!user.addresses || user.addresses.length === 0) ? (
+              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '2.5rem', textAlign: 'center', border: '1px solid #E2E8F0', color: '#64748B' }}>
+                No delivery addresses saved yet. Click "Add New Address" above.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                {user.addresses.map((addr) => (
+                  <div key={addr.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.25rem', border: '1px solid #E2E8F0', position: 'relative' }}>
+                    <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.35rem' }}>
+                      {addr.name || user.name}
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: '#475569', lineHeight: '1.5' }}>
+                      {addr.street}<br />
+                      {addr.city}, {addr.state} - <strong>{addr.pincode}</strong>
+                    </div>
                     <button
                       onClick={() => handleDeleteAddress(addr.id)}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-                      title="Delete Address"
+                      aria-label="Delete address"
+                      style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
                     >
                       <Trash2 size={16} />
                     </button>
                   </div>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                    {addr.street}<br />
-                    {addr.city}, {addr.state} - {addr.pincode}<br />
-                    Phone: {addr.phone || user?.phone}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Tab 4: Skin Profile */}
-        {activeTab === 'profile' && (
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid #E2E8F0',
-            padding: '2.5rem',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: '700', marginBottom: '1.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E2E8F0' }}>
-              Your Diagnostic Skin Profile
-            </h3>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1.25rem', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Baseline Skin Type</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--teal-950)', marginTop: '0.25rem' }}>{user?.skinType || 'Oily / Combination'}</div>
+        {/* TAB 5: WISHLIST */}
+        {user?.isLoggedIn && activeTab === 'wishlist' && (
+          <div>
+            {wishlistedProducts.length === 0 ? (
+              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15, 23, 42, 0.08)', padding: '3.5rem 2rem', textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
+                <Heart size={48} color="#E11D48" style={{ margin: '0 auto 1rem auto' }} />
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+                  Your Wishlist is Empty
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: '1.5rem' }}>
+                  Save your favorite active molecules and clinical routines for easy reordering.
+                </p>
+                <Link to="/shop" className="btn btn-primary btn-sm">
+                  Browse Formulations &rarr;
+                </Link>
               </div>
-
-              <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1.25rem', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Primary Target</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--teal-950)', marginTop: '0.25rem' }}>{user?.primaryConcern || 'Acne & Blemishes'}</div>
+            ) : (
+              <div className="grid-4">
+                {wishlistedProducts.map(p => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
               </div>
-
-              <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1.25rem', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Active Tolerance</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--teal-950)', marginTop: '0.25rem' }}>{user?.sensitivity || 'Low-Medium'}</div>
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: 'var(--teal-50)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--teal-200)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', fontSize: '1rem', color: 'var(--teal-950)', marginBottom: '0.35rem' }}>
-                <Sparkles size={18} color="var(--teal-700)" />
-                <span>Need to update your clinical routine?</span>
-              </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--teal-800)', marginBottom: '1rem' }}>
-                Retake the 4-step skin diagnostic quiz at any time to recalibrate your seasonal skincare formulation requirements.
-              </p>
-              <Link to="/#skin-quiz" className="btn btn-primary btn-sm">
-                Retake Skin Diagnostic Quiz &rarr;
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 5: Auth / Security */}
-        {activeTab === 'auth' && (
-          <div style={{ maxWidth: '540px', margin: '0 auto', backgroundColor: '#FFFFFF', padding: '2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid #E2E8F0', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--teal-50)',
-                color: 'var(--teal-700)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1rem auto'
-              }}>
-                {isRegisterMode ? <UserPlus size={24} /> : <LogIn size={24} />}
-              </div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
-                {isRegisterMode ? 'Create Your Clinical Account' : 'Sign In to ContrAge'}
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                {isRegisterMode
-                  ? 'Access prescription histories, personalized regimens, and order tracking.'
-                  : 'Enter your credentials to manage your verified orders and clinical diagnostics.'}
-              </p>
-            </div>
-
-            <form onSubmit={handleAuthSubmit}>
-              {isRegisterMode && (
-                <>
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.35rem' }}>Full Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Dr. / Ms. / Mr. Name"
-                      value={authName}
-                      onChange={(e) => setAuthName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.35rem' }}>Phone Number</label>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      placeholder="+91 98765 43210"
-                      value={authPhone}
-                      onChange={(e) => setAuthPhone(e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
-
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.35rem' }}>Email Address</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  placeholder="name@example.com"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.35rem' }}>Password</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="••••••••"
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '0.85rem' }}
-                disabled={authLoading}
-              >
-                {authLoading ? 'Authenticating...' : (isRegisterMode ? 'Register Account' : 'Sign In')}
-              </button>
-
-              <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.88rem' }}>
-                {isRegisterMode ? (
-                  <span>
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setIsRegisterMode(false)}
-                      style={{ background: 'none', border: 'none', color: 'var(--teal-700)', fontWeight: '700', cursor: 'pointer' }}
-                    >
-                      Sign In
-                    </button>
-                  </span>
-                ) : (
-                  <span>
-                    New patient or specialist?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setIsRegisterMode(true)}
-                      style={{ background: 'none', border: 'none', color: 'var(--teal-700)', fontWeight: '700', cursor: 'pointer' }}
-                    >
-                      Create Account
-                    </button>
-                  </span>
-                )}
-              </div>
-            </form>
-
-            {/* Quick Demo Logins for Fast Operational Testing */}
-            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #CBD5E1' }}>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', textAlign: 'center', marginBottom: '0.75rem' }}>
-                ⚡ Quick 1-Click Operational Test Logins:
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  onClick={handleDemoCustomerLogin}
-                  className="btn btn-outline btn-sm"
-                  style={{ fontSize: '0.78rem' }}
-                >
-                  Customer (Priya)
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDemoAdminLogin}
-                  className="btn btn-outline btn-sm"
-                  style={{ fontSize: '0.78rem' }}
-                >
-                  Admin (CMS Full Access)
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

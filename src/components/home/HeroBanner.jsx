@@ -6,15 +6,15 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 export default function HeroBanner() {
   const { siteContent } = useStore();
   const hero = siteContent?.hero || {
-    eyebrow: 'DERMATOLOGIST-LED SKINCARE',
-    titleLine1: 'Advanced Skincare.',
-    titleLine2: 'Guided by Science.',
-    description: 'Premium skincare formulations developed with dermatological expertise and designed around the needs of your skin.',
-    primaryCtaText: 'Explore Products',
+    eyebrow: 'CLINICAL COSMECEUTICAL INNOVATION',
+    titleLine1: 'YOUR PARTNER IN',
+    titleLine2: 'SKIN IMPROVEMENT.',
+    description: 'High-quality cosmeceutical formulations, NDGA cellular intervention, and non-invasive treatments developed with dermatological precision and Dr. Siddhi advisory oversight.',
+    primaryCtaText: 'DISCOVER FORMULATIONS',
     primaryCtaLink: '/shop',
-    secondaryCtaText: 'Find Your Concern',
-    secondaryCtaLink: '/concerns',
-    badgeText: '100% Active Transparency',
+    secondaryCtaText: 'CLINIC & B2B PORTAL',
+    secondaryCtaLink: '/dermatologist-b2b',
+    badgeText: '100% ACTIVE TRANSPARENCY',
     leftProductImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
     centerProductImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80',
     rightProductImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80'
@@ -23,13 +23,13 @@ export default function HeroBanner() {
   return (
     <section style={{
       position: 'relative',
-      background: 'linear-gradient(135deg, #F7F5F7 0%, #EDEAF4 45%, #E5EBF5 80%, #F2F5FA 100%)',
+      background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 45%, #E0F2FE 85%, #F0F9FF 100%)',
       overflow: 'hidden',
       paddingTop: 'clamp(3rem, 6vw, 5.5rem)',
       paddingBottom: 'clamp(3.5rem, 7vw, 6.5rem)',
-      borderBottom: '1px solid rgba(23, 33, 58, 0.08)'
+      borderBottom: '1px solid rgba(15, 23, 42, 0.08)'
     }}>
-      {/* Soft Ambient Ethereal Glow Circles */}
+      {/* Soft Ambient Clinical Glow */}
       <div style={{
         position: 'absolute',
         top: '-15%',
@@ -37,7 +37,7 @@ export default function HeroBanner() {
         width: '550px',
         height: '550px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(237, 234, 244, 0.9) 0%, rgba(229, 235, 245, 0.4) 50%, rgba(255,255,255,0) 70%)',
+        background: 'radial-gradient(circle, rgba(224, 242, 254, 0.8) 0%, rgba(240, 249, 255, 0.4) 50%, rgba(255,255,255,0) 70%)',
         pointerEvents: 'none'
       }} />
 

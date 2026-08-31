@@ -80,7 +80,7 @@ export default function SkinDiagnosticQuiz() {
   const handleAddBundleToCart = () => {
     if (!prescribedRoutine) return;
     prescribedRoutine.steps.forEach(s => {
-      addToCart(s.product, s.product.sizes?.[0] || '30ml', 1);
+      addToCart(s.product, 1, s.product.sizes?.[0] || '30ml');
     });
     showToast('Prescribed 3-step routine bundle added to your cart with 15% discount!');
     setIsCartOpen(true);

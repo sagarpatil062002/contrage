@@ -7,6 +7,7 @@ import CartDrawer from './components/layout/CartDrawer';
 import QuickSearchModal from './components/layout/QuickSearchModal';
 import QuickViewModal from './components/layout/QuickViewModal';
 import Toast from './components/common/Toast';
+import MarketingLeadModal from './components/common/MarketingLeadModal';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -27,6 +28,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import AccountPage from './pages/AccountPage';
 import LegalPage from './pages/LegalPage';
+import DermatologistB2BPage from './pages/DermatologistB2BPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
 // Scroll to top helper
@@ -59,6 +61,7 @@ export default function App() {
       <CartDrawer />
       <QuickSearchModal />
       <QuickViewModal />
+      {!isAdmin && <MarketingLeadModal />}
       <Toast />
 
       {/* Main Storefront Layout (hidden on /admin for dedicated CMS layout) */}
@@ -85,6 +88,7 @@ export default function App() {
           <Route path="/testimonials" element={<TestimonialsPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/dermatologist-b2b" element={<DermatologistB2BPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />

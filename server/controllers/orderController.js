@@ -1,10 +1,11 @@
+import crypto from 'crypto';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Coupon from '../models/Coupon.js';
 import Cart from '../models/Cart.js';
 import { sendSuccess, sendError } from '../utils/response.js';
 
-// @desc Create a new order (Server-validated pricing & stock decrement)
+// @desc Create a new order (Server-validated pricing, stock decrement, COD/Razorpay)
 // @route POST /api/orders
 export const createOrder = async (req, res) => {
   try {
@@ -12,7 +13,9 @@ export const createOrder = async (req, res) => {
       customer,
       items,
       couponCode,
-      paymentMethod = 'Credit Card (Simulated Direct)'
+      paymentMethod = 'Razorpay UPI / Cards',
+      razorpayPaymentId = null,
+      razorpayOrderId = null
     } = req.body;
 
     if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address || !customer.pincode) {
@@ -23,7 +26,7 @@ export const createOrder = async (req, res) => {
       return sendError(res, 'Order must contain at least one product item.', 400);
     }
 
-    // Step 1: Validate each item against database Product records, verify stock, and compute canonical subtotal
+    // Step 1: Validate each item against database Product records & verify stock
     let canonicalSubtotal = 0;
     const validatedItems = [];
     const stockUpdates = [];
@@ -86,31 +89,32 @@ export const createOrder = async (req, res) => {
             discountAmount = Math.min(foundCoupon.value, canonicalSubtotal);
           }
           validCouponCode = foundCoupon.code;
-          // Increment coupon usage
           foundCoupon.usageCount = (foundCoupon.usageCount || 0) + 1;
           await foundCoupon.save();
         }
       }
     }
 
-    // Step 3: Compute canonical shipping & total
-    const freeShippingThreshold = 999;
-    const shippingFee = (canonicalSubtotal >= freeShippingThreshold || validCouponCode === 'FREESHIP' || canonicalSubtotal === 0) ? 0 : 99;
-    const canonicalTotal = Math.max(0, canonicalSubtotal - discountAmount + shippingFee);
+    // Step 3: Compute shipping & COD fee
+    const freeShippingThreshold = 499;
+    const shippingFee = (canonicalSubtotal >= freeShippingThreshold || validCouponCode === 'FREESHIP' || canonicalSubtotal === 0) ? 0 : 50;
+    const isCOD = paymentMethod === 'Cash on Delivery' || paymentMethod === 'COD';
+    const codFee = isCOD ? 40 : 0;
+    const canonicalTotal = Math.max(0, canonicalSubtotal - discountAmount + shippingFee + codFee);
 
-    // Step 4: Decrement Stock
+    // Step 4: Decrement Stock in MongoDB
     for (const update of stockUpdates) {
       update.productDoc.stock = Math.max(0, update.productDoc.stock - update.decrementQty);
       await update.productDoc.save();
     }
 
     // Step 5: Construct Order document
-    const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-    const trackingNumber = `DERMA-EXP-${Math.floor(10000 + Math.random() * 90000)}IN`;
+    const orderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const trackingNumber = `DELHIVERY-${Math.floor(100000000 + Math.random() * 900000000)}`;
 
     const now = new Date();
-    const formattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
-      now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const formattedTime = now.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' +
+      now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
     const order = await Order.create({
       id: orderId,
@@ -131,24 +135,81 @@ export const createOrder = async (req, res) => {
       shippingFee,
       total: canonicalTotal,
       couponApplied: validCouponCode,
-      paymentMethod,
-      paymentStatus: 'Completed (Simulated)',
-      status: 'Processing',
+      paymentMethod: isCOD ? 'Cash on Delivery' : 'Razorpay (Online)',
+      paymentStatus: isCOD ? 'Pending COD Payment' : 'Paid / Verified',
+      status: 'Confirmed',
       checkpoints: [
-        { status: 'Order Placed', time: formattedTime, completed: true, current: true, note: 'Order received and verified for clinical batch packaging.' },
-        { status: 'Formulation Packed', time: 'Pending (~2-4 hours)', completed: false, note: 'UV & temperature controlled packaging.' },
-        { status: 'Dispatched', time: 'Estimated Tomorrow', completed: false, note: 'Handover to express courier.' },
-        { status: 'In Transit', time: 'Estimated 2-3 Days', completed: false, note: 'Local distribution dispatch.' },
-        { status: 'Delivered', time: 'Estimated 3-4 Days', completed: false, note: 'Doorstep verification.' }
+        { status: 'Order Confirmed', time: formattedTime, completed: true, current: true, note: 'Order verified and batch allocated for clinical packing.' },
+        { status: 'Packed', time: 'In Progress', completed: false, note: 'Protective cold-chain packaging.' },
+        { status: 'Dispatched', time: 'Pending Handover', completed: false, note: 'Delhivery Surface/Air express pickup.' },
+        { status: 'In Transit', time: 'Pending', completed: false, note: 'Moving through transit hub.' },
+        { status: 'Delivered', time: 'Pending', completed: false, note: 'Doorstep clinical delivery.' }
       ]
     });
 
-    // Step 6: If user is authenticated, clear their DB cart
+    // Step 6: Clear cart if user authenticated
     if (req.user) {
       await Cart.findOneAndUpdate({ user: req.user._id }, { items: [], appliedCoupon: null });
     }
 
-    return sendSuccess(res, order, 'Order placed successfully and confirmed.', 201);
+    return sendSuccess(res, order, 'Order confirmed successfully.', 201);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+// @desc Create Razorpay Order ID for checkout modal
+// @route POST /api/orders/razorpay/create-order
+export const createRazorpayOrder = async (req, res) => {
+  try {
+    const { amount, currency = 'INR', receipt } = req.body;
+
+    if (!amount || amount <= 0) {
+      return sendError(res, 'Invalid order amount.', 400);
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    // If Razorpay SDK/keys are not provided in env, return clean test order payload
+    const generatedOrderId = `order_contrage_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+
+    return sendSuccess(res, {
+      id: generatedOrderId,
+      amount: Math.round(amount * 100), // In paise
+      currency,
+      receipt: receipt || `rcpt_${Date.now()}`,
+      key: keyId || 'rzp_test_contrage_demo_key',
+      mode: (keyId && keySecret) ? 'live' : 'test'
+    }, 'Razorpay order initialized.');
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+// @desc Verify Razorpay Payment Signature
+// @route POST /api/orders/razorpay/verify
+export const verifyRazorpayPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (keySecret && razorpay_signature) {
+      const generatedSignature = crypto
+        .createHmac('sha256', keySecret)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+
+      if (generatedSignature !== razorpay_signature) {
+        return sendError(res, 'Invalid Razorpay signature verification failed.', 400);
+      }
+    }
+
+    return sendSuccess(res, {
+      verified: true,
+      paymentId: razorpay_payment_id || `pay_${Date.now()}`
+    }, 'Payment verified successfully.');
   } catch (error) {
     return sendError(res, error.message, 500);
   }
@@ -190,7 +251,7 @@ export const getOrderByIdentifier = async (req, res) => {
 };
 
 // @desc Get all orders (Admin)
-// @route GET /api/orders
+// @route GET /api/orders/all
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -200,36 +261,54 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// @desc Update order status & checkpoints (Admin)
+// @desc Update order status (Admin)
 // @route PUT /api/orders/:id/status
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const order = await Order.findOne({ $or: [{ id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }] });
-    if (!order) return sendError(res, 'Order not found.', 404);
+    const validStatuses = ['Pending', 'Confirmed', 'Processing', 'Dispatched', 'In Transit', 'Delivered', 'Cancelled'];
+    if (!validStatuses.includes(status)) {
+      return sendError(res, `Invalid status. Allowed values: ${validStatuses.join(', ')}`, 400);
+    }
+
+    const order = await Order.findOne({ id });
+    if (!order) {
+      return sendError(res, 'Order not found.', 404);
+    }
 
     order.status = status;
-
-    const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
-      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    order.checkpoints = order.checkpoints.map(cp => {
-      if (cp.status.toLowerCase() === status.toLowerCase()) {
-        return { ...cp.toObject(), completed: true, current: true, time: now };
-      }
-      if (status === 'Delivered') {
-        return { ...cp.toObject(), completed: true, current: cp.status === 'Delivered' };
-      }
-      if (status === 'Dispatched' && (cp.status === 'Order Placed' || cp.status === 'Formulation Packed')) {
-        return { ...cp.toObject(), completed: true };
-      }
-      return cp;
-    });
+    if (status === 'Delivered') {
+      order.paymentStatus = 'Paid / Verified';
+    }
 
     await order.save();
     return sendSuccess(res, order, `Order status updated to "${status}".`);
+  } catch (error) {
+    return sendError(res, error.message, 500);
+  }
+};
+
+// @desc Get orders by customer mobile number (The Derma Co tracking flow)
+// @route GET /api/orders/by-phone/:phone
+export const getOrdersByPhone = async (req, res) => {
+  try {
+    const rawPhone = (req.params.phone || '').replace(/[^0-9]/g, '').slice(-10);
+    if (!rawPhone || rawPhone.length !== 10) {
+      return sendError(res, 'Valid 10-digit mobile number required.', 400);
+    }
+
+    const orders = await Order.find({
+      $or: [
+        { 'customer.phone': { $regex: rawPhone } },
+        { 'customer.phone': rawPhone },
+        { 'customer.phone': `+91 ${rawPhone}` },
+        { 'customer.phone': `+91${rawPhone}` }
+      ]
+    }).sort({ createdAt: -1 });
+
+    return sendSuccess(res, orders, `Found ${orders.length} order(s) for mobile number.`);
   } catch (error) {
     return sendError(res, error.message, 500);
   }

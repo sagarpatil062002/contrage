@@ -1,5 +1,7 @@
 import express from 'express';
 import {
+  sendMobileOtp,
+  verifyMobileOtp,
   registerUser,
   loginUser,
   getMe,
@@ -13,8 +15,15 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Mobile OTP Endpoints (The Derma Co Flow)
+router.post('/send-otp', sendMobileOtp);
+router.post('/verify-otp', verifyMobileOtp);
+
+// Email & Password Auth
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+
+// Protected Account Routes
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.post('/address', protect, addAddress);

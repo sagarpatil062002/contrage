@@ -63,39 +63,16 @@ export const runSeed = async () => {
       console.log('  -> Admin user already exists (idempotent skipped).');
     }
 
-    const customerEmail = 'priya.sharma@example.com';
-    const existingCustomer = await User.findOne({ email: customerEmail });
-    if (!existingCustomer) {
-      await User.create({
-        name: 'Priya Sharma',
-        email: customerEmail,
-        password: 'Customer@123',
-        role: 'CUSTOMER',
-        phone: '+91 98765 43210',
-        skinType: 'Oily / Combination',
-        primaryConcern: 'Acne & Blemishes',
-        sensitivity: 'Low-Medium',
-        addresses: [
-          {
-            id: 'addr-1',
-            name: 'Priya Sharma',
-            phone: '+91 98765 43210',
-            street: 'Flat 402, Lotus Greens, Sector 45',
-            city: 'Gurugram',
-            state: 'Haryana',
-            pincode: '122003',
-            isDefault: true
-          }
-        ],
-        wishlist: ['p-1', 'p-4']
-      });
-      console.log('  -> Created default Customer user: priya.sharma@example.com');
-    } else {
-      console.log('  -> Customer user already exists (idempotent skipped).');
-    }
+    // Purge any legacy dummy customer records
+    await User.deleteMany({ email: 'priya.sharma@example.com' });
+    await Order.deleteMany({ id: 'ORD-84920' });
+    console.log('  -> Purged legacy dummy users and mock demo orders.');
 
-    // 2. Products - Upsert by id
+    // 2. Products - Purge obsolete & Upsert authentic ContrÂge products
     console.log('Seeding Products...');
+    const activeProductIds = initialProducts.map(p => p.id);
+    await Product.deleteMany({ id: { $nin: activeProductIds } });
+
     for (const prod of initialProducts) {
       await Product.findOneAndUpdate(
         { id: prod.id },
@@ -103,7 +80,7 @@ export const runSeed = async () => {
         { upsert: true, new: true }
       );
     }
-    console.log(`  -> Upserted ${initialProducts.length} clinical products.`);
+    console.log(`  -> Cleaned and synchronized ${initialProducts.length} authentic ContrÂge products.`);
 
     // 3. Concerns - Upsert by id / slug
     console.log('Seeding Concerns...');
@@ -228,65 +205,9 @@ export const runSeed = async () => {
     );
     console.log('  -> Upserted Site CMS content & announcement banner.');
 
-    // 12. Seed Baseline Demo Order - Upsert by id
-    const existingOrder = await Order.findOne({ id: 'ORD-84920' });
-    if (!existingOrder) {
-      await Order.create({
-        id: 'ORD-84920',
-        trackingNumber: 'DERMA-EXP-84920IN',
-        status: 'In Transit',
-        total: 1248,
-        subtotal: 1248,
-        discount: 0,
-        shippingFee: 0,
-        paymentMethod: 'UPI (Instant Verified)',
-        customer: {
-          name: 'Priya Sharma',
-          email: 'priya.sharma@example.com',
-          phone: '+91 98765 43210',
-          address: 'Flat 402, Lotus Greens, Sector 45',
-          city: 'Gurugram',
-          state: 'Haryana',
-          pincode: '122003'
-        },
-        items: [
-          {
-            product: {
-              id: initialProducts[0].id,
-              name: initialProducts[0].name,
-              heroImage: initialProducts[0].heroImage,
-              category: initialProducts[0].category,
-              slug: initialProducts[0].slug
-            },
-            quantity: 1,
-            selectedSize: '30ml',
-            price: 549
-          },
-          {
-            product: {
-              id: initialProducts[3].id,
-              name: initialProducts[3].name,
-              heroImage: initialProducts[3].heroImage,
-              category: initialProducts[3].category,
-              slug: initialProducts[3].slug
-            },
-            quantity: 1,
-            selectedSize: '50g',
-            price: 699
-          }
-        ],
-        checkpoints: [
-          { status: 'Order Placed', time: 'Aug 20, 10:30 AM', completed: true, note: 'Prescription & formulation verified by clinical lab.' },
-          { status: 'Formulation Packed', time: 'Aug 20, 02:15 PM', completed: true, note: 'Packed in cold-chain UV protective container.' },
-          { status: 'Dispatched', time: 'Aug 21, 09:00 AM', completed: true, note: 'Handed over to Express Medical Logistics courier.' },
-          { status: 'In Transit', time: 'Aug 22, 06:45 AM', completed: true, current: true, note: 'Out for local delivery via Delhi Central Hub.' },
-          { status: 'Delivered', time: 'Estimated Today by 5:00 PM', completed: false, note: 'Pending customer doorstep delivery.' }
-        ]
-      });
-      console.log('  -> Created baseline demo order ORD-84920.');
-    } else {
-      console.log('  -> Baseline demo order ORD-84920 already exists.');
-    }
+    // Orders start completely empty for real customer purchases
+    await Order.deleteMany({ id: 'ORD-84920' });
+    console.log('  -> Purged legacy demo orders.');
 
     // Collection Counts Verification
     console.log('\n--- VERIFYING DOCUMENT COUNTS IN MONGODB ATLAS ---');
@@ -316,6 +237,4 @@ export const runSeed = async () => {
   }
 };
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  runSeed();
-}
+runSeed();

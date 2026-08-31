@@ -66,12 +66,12 @@ export const initialSiteContent = {
     }
   ],
   brand: {
-    name: 'AESTHEDERM',
-    tagline: 'LABORATOIRES DERMATOLOGIQUES',
-    shortDescription: 'Advanced dermatological skincare formulations developed with global clinical expertise and 100% molecular transparency.',
-    supportEmail: 'care@aesthedermlabs.com',
+    name: 'CONTRÂGE',
+    tagline: 'YOUR PARTNER IN SKIN IMPROVEMENT',
+    shortDescription: 'High-quality cosmeceutical formulations, non-invasive clinical treatments, and home care lines developed with medical precision, NDGA antioxidant science, and Dr. Siddhi advisory oversight.',
+    supportEmail: 'care@contrage.com',
     helplinePhone: '+91 1800 233 4567',
-    headquartersAddress: 'Cyber City, Tower 4B, Gurugram, India',
+    headquartersAddress: 'Clinical Formulation Labs, Mumbai & Gurugram, India',
     consultationHours: '9:00 AM – 7:00 PM IST (Mon-Sat)'
   }
 };
@@ -117,7 +117,7 @@ export const initialInquiries = [
     email: 'dr.kulkarni@dermlaser.in',
     phone: '+91 98230 11223',
     location: 'Bandra West, Mumbai',
-    message: 'We are looking to stock Aesthederm post-laser restorative barrier creams and retinaldehyde serums for our clinical backbar and outpatient retail pharmacy.',
+    message: 'We are looking to stock Contrage post-laser restorative barrier creams and retinaldehyde serums for our clinical backbar and outpatient retail pharmacy.',
     date: '2026-08-21T14:30:00Z',
     status: 'Pending Contact'
   },
@@ -135,3 +135,92 @@ export const initialInquiries = [
     status: 'Replied'
   }
 ];
+
+export const initialDermatologistInquiries = [
+  {
+    id: 'b2b-1',
+    doctorName: 'Dr. Siddharth Kapoor (MD, DNB Dermatology)',
+    clinicName: 'Aura Skin & Cosmetology Centre',
+    licenseNumber: 'MCI-REG-489201',
+    gstin: '27AAAAA0000A1Z5',
+    email: 'dr.kapoor@auraskinclinic.com',
+    phone: '+91 98110 44552',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    estimatedMonthlyUnits: '50-100 units',
+    selectedTier: 'Tier 2 (45% Discount)',
+    preferredProducts: ['3% Ceramide Complex Barrier Cream', '10% Niacinamide + 2% Zinc Serum', '0.1% Retinaldehyde Night Cream'],
+    notes: 'Interested in post-chemical peel barrier repair protocol bundles for our aesthetic dermatology clinic patients.',
+    status: 'Quotation Sent',
+    date: '2026-08-28T11:20:00Z'
+  },
+  {
+    id: 'b2b-2',
+    doctorName: 'Dr. Radhika Sen (MBBS, MD Skin & VD)',
+    clinicName: 'Sen Aesthetic Dermatology Studio',
+    licenseNumber: 'WB-MED-89210',
+    gstin: '19AABCS1429B1ZX',
+    email: 'radhika.sen@dermatologystudio.com',
+    phone: '+91 98300 77112',
+    city: 'Kolkata',
+    state: 'West Bengal',
+    estimatedMonthlyUnits: '100+ units',
+    selectedTier: 'Tier 3 (50% Discount)',
+    preferredProducts: ['15% Vitamin C Ethyl Ascorbic Serum', '2% Salicylic Acid Cleanser', 'Centella Soothing Gel'],
+    notes: 'Need sample testers and wholesale GST proforma for retail counter and procedural backbar.',
+    status: 'Pending Review',
+    date: '2026-08-30T16:45:00Z'
+  }
+];
+
+export const initialMarketingLeads = [
+  {
+    id: 'lead-1',
+    name: 'Meera Nambiar',
+    email: 'meera.nambiar@gmail.com',
+    phone: '+91 98450 12345',
+    skinConcern: 'Hyperpigmentation & Dark Spots',
+    skinType: 'Combination',
+    channels: {
+      email: true,
+      whatsapp: true,
+      sms: true
+    },
+    couponGenerated: 'CONTRAGE10',
+    source: 'Hero Lead Popup',
+    createdAt: '2026-08-29T10:15:00Z'
+  },
+  {
+    id: 'lead-2',
+    name: 'Kavita Menon',
+    email: 'kavita.m@yahoo.com',
+    phone: '+91 97112 88990',
+    skinConcern: 'Acne & Blemishes',
+    skinType: 'Oily',
+    channels: {
+      email: true,
+      whatsapp: true,
+      sms: false
+    },
+    couponGenerated: 'CONTRAGE10',
+    source: 'Footer WhatsApp Club',
+    createdAt: '2026-08-30T14:22:00Z'
+  },
+  {
+    id: 'lead-3',
+    name: 'Arjun Singhania',
+    email: 'arjun.singh@outlook.com',
+    phone: '+91 98200 45678',
+    skinConcern: 'Damaged Barrier & Redness',
+    skinType: 'Sensitive',
+    channels: {
+      email: true,
+      whatsapp: true,
+      sms: true
+    },
+    couponGenerated: 'CONTRAGE10',
+    source: 'Skin Diagnostic Consultation',
+    createdAt: '2026-08-31T07:40:00Z'
+  }
+];
+

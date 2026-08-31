@@ -1,5 +1,25 @@
 export const initialCoupons = [
   {
+    id: 'coup-0',
+    code: 'CONTRAGE10',
+    type: 'percentage',
+    value: 10,
+    minSpend: 0,
+    description: '10% Welcome Discount for Email, WhatsApp & SMS Subscribers',
+    active: true,
+    usageCount: 520
+  },
+  {
+    id: 'coup-01',
+    code: 'DRSIDDHI10',
+    type: 'percentage',
+    value: 10,
+    minSpend: 0,
+    description: '10% Dr. Siddhi VIP Clinical Welcome Offer',
+    active: true,
+    usageCount: 310
+  },
+  {
     id: 'coup-1',
     code: 'DERMA20',
     type: 'percentage',

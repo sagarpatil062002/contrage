@@ -34,6 +34,7 @@ const reviewSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true }, // 'p-1', 'p-2', etc.
+  sku: { type: String, default: '' },
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
   tagline: { type: String, default: '' },
@@ -43,7 +44,7 @@ const productSchema = new mongoose.Schema({
   skinTypes: [{ type: String }],
   price: { type: Number, required: true, min: 0 },
   salePrice: { type: Number, min: 0 },
-  rating: { type: Number, default: 5.0, min: 0, max: 5 },
+  rating: { type: Number, default: 0, min: 0, max: 5 },
   reviewCount: { type: Number, default: 0 },
   stock: { type: Number, required: true, default: 50, min: 0 },
   sizes: [{ type: String }],

@@ -32,7 +32,11 @@ import {
   Mail,
   Phone,
   MapPin,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Download,
+  Stethoscope,
+  Send,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -58,6 +62,11 @@ export default function AdminDashboardPage() {
     inquiries,
     updateInquiryStatus,
     deleteInquiry,
+    marketingLeads = [],
+    deleteMarketingLead,
+    dermatologistInquiries = [],
+    updateDermatologistInquiryStatus,
+    deleteDermatologistInquiry,
     orders,
     updateOrderStatus,
     coupons,
@@ -76,7 +85,109 @@ export default function AdminDashboardPage() {
     showToast
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'products' | 'concerns' | 'ingredients' | 'trials' | 'content' | 'inquiries' | 'orders' | 'coupons' | 'editorial' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'products' | 'concerns' | 'ingredients' | 'trials' | 'content' | 'inquiries' | 'leads' | 'b2b' | 'orders' | 'coupons' | 'editorial' | 'settings'
+
+  // ==========================================
+  // CSV / EXCEL EXPORT HELPERS (TEAM OPS)
+  // ==========================================
+  const downloadCSV = (filename, csvContent) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Exported ${filename} successfully!`);
+  };
+
+  const exportOrdersCSV = () => {
+    const headers = ['Order ID', 'Date', 'Customer Name', 'Email', 'Phone', 'Address', 'City', 'State', 'Pincode', 'Courier', 'Tracking AWB', 'Payment Method', 'Subtotal', 'Discount', 'Shipping', 'Total', 'Status', 'Items'];
+    const rows = orders.map(o => [
+      `"${o.id}"`,
+      `"${new Date(o.date).toLocaleDateString('en-IN')}"`,
+      `"${o.customer?.name || ''}"`,
+      `"${o.customer?.email || ''}"`,
+      `"${o.customer?.phone || ''}"`,
+      `"${(o.customer?.address || '').replace(/"/g, '""')}"`,
+      `"${o.customer?.city || ''}"`,
+      `"${o.customer?.state || ''}"`,
+      `"${o.customer?.pincode || ''}"`,
+      `"${o.courier || 'Delhivery Express'}"`,
+      `"${o.trackingNumber || ''}"`,
+      `"${o.paymentMethod || ''}"`,
+      o.subtotal || 0,
+      o.discount || 0,
+      o.shippingFee || 0,
+      o.total || 0,
+      `"${o.status || 'Processing'}"`,
+      `"${(o.items || []).map(i => `${i.product?.name || 'Item'} (x${i.quantity}, ${i.selectedSize || ''})`).join('; ')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadCSV(`Contrage_Orders_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
+
+  const exportProductsCSV = () => {
+    const headers = ['ID', 'SKU / Slug', 'Product Name', 'Category', 'Primary Concern', 'MRP Price', 'Sale Price', 'Stock', 'Sizes', 'Active Ingredients'];
+    const rows = products.map(p => [
+      `"${p.id}"`,
+      `"${p.slug}"`,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${p.category}"`,
+      `"${p.primaryConcern}"`,
+      p.price,
+      p.salePrice,
+      p.stock,
+      `"${(p.sizes || []).join('; ')}"`,
+      `"${(p.activeIngredients || []).map(a => `${a.name} ${a.percentage}`).join('; ')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadCSV(`Contrage_Catalog_Inventory_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
+
+  const exportMarketingLeadsCSV = () => {
+    const headers = ['Lead ID', 'Name', 'Email', 'Phone / WhatsApp', 'Skin Concern', 'Skin Type', 'WhatsApp Optin', 'Email Optin', 'SMS Optin', 'Coupon Generated', 'Source', 'Captured Date'];
+    const rows = marketingLeads.map(l => [
+      `"${l.id}"`,
+      `"${l.name}"`,
+      `"${l.email}"`,
+      `"${l.phone}"`,
+      `"${l.skinConcern || ''}"`,
+      `"${l.skinType || ''}"`,
+      l.channels?.whatsapp ? 'YES' : 'NO',
+      l.channels?.email ? 'YES' : 'NO',
+      l.channels?.sms ? 'YES' : 'NO',
+      `"${l.couponGenerated || 'CONTRAGE10'}"`,
+      `"${l.source || 'Storefront'}"`,
+      `"${new Date(l.createdAt).toLocaleDateString('en-IN')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadCSV(`Contrage_Marketing_Leads_CRM_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
+
+  const exportDermatologistInquiriesCSV = () => {
+    const headers = ['Inquiry ID', 'Doctor Name', 'Clinic / Hospital', 'Medical License', 'GSTIN', 'Email', 'Phone / WhatsApp', 'City', 'State', 'Monthly Units', 'Selected Tier', 'Preferred Products', 'Notes', 'Status', 'Date'];
+    const rows = dermatologistInquiries.map(b => [
+      `"${b.id}"`,
+      `"${b.doctorName}"`,
+      `"${b.clinicName}"`,
+      `"${b.licenseNumber || 'N/A'}"`,
+      `"${b.gstin || 'N/A'}"`,
+      `"${b.email}"`,
+      `"${b.phone}"`,
+      `"${b.city || ''}"`,
+      `"${b.state || ''}"`,
+      `"${b.estimatedMonthlyUnits || ''}"`,
+      `"${b.selectedTier || ''}"`,
+      `"${(b.preferredProducts || []).join('; ')}"`,
+      `"${(b.notes || '').replace(/"/g, '""')}"`,
+      `"${b.status || 'Pending Review'}"`,
+      `"${new Date(b.date).toLocaleDateString('en-IN')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadCSV(`Contrage_Dermatologist_B2B_Inquiries_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
 
   // ==========================================
   // PRODUCT MODAL STATE
@@ -589,14 +700,16 @@ export default function AdminDashboardPage() {
           gap: '0.4rem'
         }}>
           {[
-            { id: 'overview', label: 'Overview Metrics', icon: <LayoutDashboard size={17} /> },
+            { id: 'overview', label: 'Overview & Reports', icon: <LayoutDashboard size={17} /> },
             { id: 'content', label: 'Site Content & Hero', icon: <SlidersHorizontal size={17} /> },
             { id: 'products', label: `Formulations (${products.length})`, icon: <Package size={17} /> },
+            { id: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingBag size={17} /> },
+            { id: 'leads', label: `Marketing Leads (${marketingLeads.length})`, icon: <Users size={17} /> },
+            { id: 'b2b', label: `Dermatologist B2B (${dermatologistInquiries.length})`, icon: <Stethoscope size={17} /> },
+            { id: 'inquiries', label: `Inquiries (${pendingInquiriesCount} new)`, icon: <Mail size={17} /> },
             { id: 'concerns', label: `Skin Concerns (${concerns.length})`, icon: <ShieldCheck size={17} /> },
             { id: 'ingredients', label: `Ingredients (${ingredients.length})`, icon: <Sparkles size={17} /> },
             { id: 'trials', label: `Clinical Trials (${clinicalTrials.length})`, icon: <FlaskConical size={17} /> },
-            { id: 'inquiries', label: `Inquiries (${pendingInquiriesCount} new)`, icon: <Mail size={17} /> },
-            { id: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingBag size={17} /> },
             { id: 'coupons', label: `Promo Codes (${coupons.length})`, icon: <Tag size={17} /> },
             { id: 'editorial', label: 'Journal & FAQs', icon: <FileText size={17} /> },
             { id: 'settings', label: 'Announcement Bar', icon: <Megaphone size={17} /> }
@@ -692,11 +805,68 @@ export default function AdminDashboardPage() {
                   <button onClick={() => { setEditingProductId(null); setShowProductModal(true); }} className="btn btn-primary btn-sm">
                     <Plus size={14} /> Add New Formulation
                   </button>
-                  <button onClick={() => setActiveTab('inquiries')} className="btn btn-secondary btn-sm">
-                    <Mail size={14} /> View Inquiries Inbox ({pendingInquiriesCount})
+                  <button onClick={() => setActiveTab('leads')} className="btn btn-secondary btn-sm">
+                    <Users size={14} /> View Marketing Leads ({marketingLeads.length})
+                  </button>
+                  <button onClick={() => setActiveTab('b2b')} className="btn btn-secondary btn-sm">
+                    <Stethoscope size={14} /> View Clinic B2B Leads ({dermatologistInquiries.length})
                   </button>
                   <button onClick={() => setActiveTab('concerns')} className="btn btn-secondary btn-sm">
                     <ShieldCheck size={14} /> Manage Skin Concerns
+                  </button>
+                </div>
+              </div>
+
+              {/* One-Click Excel / CSV Reports Strip (For HR & Ops Team) */}
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.75rem',
+                border: '1px solid rgba(23, 33, 58, 0.08)',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '700', margin: '0 0 0.25rem 0' }}>
+                      📊 One-Click Excel / CSV Operations Reports
+                    </h3>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
+                      Download complete, uncompressed spreadsheets for accounting, inventory tracking, courier reconciliations, and CRM marketing campaigns.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <button
+                    onClick={exportOrdersCSV}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.75rem 1rem' }}
+                  >
+                    <Download size={15} color="var(--accent-blue-dark)" /> Export Orders (CSV)
+                  </button>
+
+                  <button
+                    onClick={exportProductsCSV}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.75rem 1rem' }}
+                  >
+                    <Download size={15} color="var(--accent-blue-dark)" /> Export Inventory (CSV)
+                  </button>
+
+                  <button
+                    onClick={exportMarketingLeadsCSV}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.75rem 1rem' }}
+                  >
+                    <Download size={15} color="var(--accent-emerald)" /> Export Leads / CRM (CSV)
+                  </button>
+
+                  <button
+                    onClick={exportDermatologistInquiriesCSV}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.75rem 1rem' }}
+                  >
+                    <Download size={15} color="var(--accent-lavender-dark)" /> Export Clinic B2B (CSV)
                   </button>
                 </div>
               </div>
@@ -1280,39 +1450,275 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB 8: ORDERS & FULFILLMENT LOGISTICS */}
+          {/* TAB 7: MARKETING LEADS & CRM OPT-INS */}
+          {activeTab === 'leads' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-serif)' }}>
+                    Marketing Leads & Omnichannel CRM
+                  </h2>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    Customer subscribers captured across Storefront Popups, WhatsApp VIP Club, and Skin Diagnostic Quiz.
+                  </p>
+                </div>
+
+                <button
+                  onClick={exportMarketingLeadsCSV}
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <Download size={15} /> Export Leads (CSV)
+                </button>
+              </div>
+
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(23, 33, 58, 0.08)',
+                boxShadow: 'var(--shadow-sm)',
+                overflow: 'hidden'
+              }}>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid rgba(23, 33, 58, 0.08)' }}>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Name & Date</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Email & WhatsApp</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Primary Concern</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Channels Opted In</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Coupon Issued</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700', textAlign: 'right' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {marketingLeads.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                            No marketing leads captured yet.
+                          </td>
+                        </tr>
+                      ) : (
+                        marketingLeads.map(l => (
+                          <tr key={l.id} style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.06)' }}>
+                            <td style={{ padding: '1rem' }}>
+                              <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{l.name}</div>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                {new Date(l.createdAt).toLocaleDateString('en-IN')} • {l.source || 'Popup'}
+                              </div>
+                            </td>
+                            <td style={{ padding: '1rem' }}>
+                              <div>{l.email}</div>
+                              <div style={{ fontSize: '0.78rem', color: '#6C5B8B', fontWeight: '600' }}>{l.phone}</div>
+                            </td>
+                            <td style={{ padding: '1rem' }}>
+                              <span className="badge badge-lavender" style={{ fontSize: '0.72rem' }}>
+                                {l.skinConcern || 'General Skincare'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '1rem' }}>
+                              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                {l.channels?.whatsapp && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EFF8F4', color: '#438E75', borderRadius: '4px', fontWeight: '700' }}>WhatsApp</span>}
+                                {l.channels?.email && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#E5EBF5', color: '#3B5D92', borderRadius: '4px', fontWeight: '700' }}>Email</span>}
+                                {l.channels?.sms && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EDEAF4', color: '#6C5B8B', borderRadius: '4px', fontWeight: '700' }}>SMS</span>}
+                              </div>
+                            </td>
+                            <td style={{ padding: '1rem' }}>
+                              <code style={{ backgroundColor: 'var(--bg-primary)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.78rem', fontWeight: '700' }}>
+                                {l.couponGenerated || 'CONTRAGE10'}
+                              </code>
+                            </td>
+                            <td style={{ padding: '1rem', textAlign: 'right' }}>
+                              <button
+                                onClick={() => deleteMarketingLead(l.id)}
+                                style={{ background: 'none', border: 'none', color: '#D96B7D', cursor: 'pointer' }}
+                                title="Delete Lead"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: DERMATOLOGIST & CLINIC B2B INQUIRIES */}
+          {activeTab === 'b2b' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-serif)' }}>
+                    Dermatologist & Clinic Wholesale Inquiries
+                  </h2>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    High-volume bulk purchase and clinical dispensing inquiries submitted by doctors and aesthetic skin clinics.
+                  </p>
+                </div>
+
+                <button
+                  onClick={exportDermatologistInquiriesCSV}
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <Download size={15} /> Export B2B Inquiries (CSV)
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {dermatologistInquiries.length === 0 ? (
+                  <div style={{ backgroundColor: '#FFFFFF', padding: '3rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                    No dermatologist B2B inquiries yet.
+                  </div>
+                ) : (
+                  dermatologistInquiries.map(b => (
+                    <div
+                      key={b.id}
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '1.75rem',
+                        border: '1px solid rgba(23, 33, 58, 0.08)',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            <span style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
+                              {b.doctorName}
+                            </span>
+                            <span className="badge badge-blue" style={{ fontSize: '0.72rem' }}>{b.selectedTier || 'Tier 2 (45%)'}</span>
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                            <strong>{b.clinicName}</strong> • {b.city}, {b.state}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: '700' }}>Inquiry Status:</span>
+                          <select
+                            value={b.status}
+                            onChange={(e) => updateDermatologistInquiryStatus(b.id, e.target.value)}
+                            style={{
+                              padding: '0.4rem 0.8rem',
+                              borderRadius: 'var(--radius-full)',
+                              fontSize: '0.78rem',
+                              fontWeight: '700',
+                              border: '1px solid #CBD5E1',
+                              backgroundColor: b.status === 'Approved' ? '#F0F9F5' : b.status === 'Quotation Sent' ? '#E5EBF5' : '#FFFBEB',
+                              color: b.status === 'Approved' ? '#438E75' : b.status === 'Quotation Sent' ? '#3B5D92' : '#C28E46'
+                            }}
+                          >
+                            <option value="Pending Review">Pending Review</option>
+                            <option value="Quotation Sent">Quotation Sent</option>
+                            <option value="Approved">Approved / Account Active</option>
+                            <option value="Completed">Completed</option>
+                          </select>
+
+                          <button
+                            onClick={() => deleteDermatologistInquiry(b.id)}
+                            style={{ background: 'none', border: 'none', color: '#D96B7D', cursor: 'pointer' }}
+                            title="Remove Inquiry"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '1rem',
+                        fontSize: '0.82rem',
+                        backgroundColor: 'var(--bg-primary)',
+                        padding: '1rem',
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: '1rem'
+                      }}>
+                        <div>
+                          <div style={{ color: 'var(--text-muted)' }}>License / Registration</div>
+                          <div style={{ fontWeight: '700' }}>{b.licenseNumber || 'Verification Pending'}</div>
+                        </div>
+                        <div>
+                          <div style={{ color: 'var(--text-muted)' }}>Clinic GSTIN</div>
+                          <div style={{ fontWeight: '700' }}>{b.gstin || 'N/A (Unregistered)'}</div>
+                        </div>
+                        <div>
+                          <div style={{ color: 'var(--text-muted)' }}>Contact Info</div>
+                          <div>{b.email} | {b.phone}</div>
+                        </div>
+                        <div>
+                          <div style={{ color: 'var(--text-muted)' }}>Estimated Volume</div>
+                          <div style={{ fontWeight: '700', color: 'var(--accent-blue-dark)' }}>{b.estimatedMonthlyUnits || '50+ Units'}</div>
+                        </div>
+                      </div>
+
+                      {b.preferredProducts && b.preferredProducts.length > 0 && (
+                        <div style={{ fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+                          <strong>Preferred Formulations:</strong> {b.preferredProducts.join(', ')}
+                        </div>
+                      )}
+
+                      {b.notes && (
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                          "{b.notes}"
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 9: ORDERS & FULFILLMENT LOGISTICS */}
           {activeTab === 'orders' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', margin: '0 0 0.35rem 0', fontFamily: 'var(--font-serif)' }}>
-                    Orders & Medical Dispatch
+                    Orders & Delhivery Logistics
                   </h2>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    Update live order stages from formulation batching to doorstep delivery.
+                    Update live order stages from formulation batching to Delhivery doorstep delivery.
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {['all', 'processing', 'in transit', 'delivered'].map(f => (
-                    <button
-                      key={f}
-                      onClick={() => setOrderFilter(f)}
-                      style={{
-                        padding: '0.45rem 0.9rem',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: '0.8rem',
-                        fontWeight: '700',
-                        textTransform: 'capitalize',
-                        border: orderFilter === f ? '1px solid var(--accent-navy)' : '1px solid #CBD5E1',
-                        backgroundColor: orderFilter === f ? 'var(--accent-navy)' : '#FFFFFF',
-                        color: orderFilter === f ? '#FFFFFF' : 'var(--text-secondary)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {f}
-                    </button>
-                  ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={exportOrdersCSV}
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <Download size={15} /> Export Orders (CSV)
+                  </button>
+
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {['all', 'processing', 'in transit', 'delivered'].map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setOrderFilter(f)}
+                        style={{
+                          padding: '0.45rem 0.9rem',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          textTransform: 'capitalize',
+                          border: orderFilter === f ? '1px solid var(--accent-navy)' : '1px solid #CBD5E1',
+                          backgroundColor: orderFilter === f ? 'var(--accent-navy)' : '#FFFFFF',
+                          color: orderFilter === f ? '#FFFFFF' : 'var(--text-secondary)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1520,21 +1926,25 @@ export default function AdminDashboardPage() {
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <select className="form-control" value={productForm.category} onChange={e => setProductForm({ ...productForm, category: e.target.value })}>
-                    <option value="Serums & Treatments">Serums & Treatments</option>
-                    <option value="Cleansers">Cleansers</option>
+                    <option value="Serums & Boosters">Serums & Boosters</option>
                     <option value="Moisturizers & Creams">Moisturizers & Creams</option>
+                    <option value="Cleansers & Toners">Cleansers & Toners</option>
+                    <option value="Exfoliators & Masks">Exfoliators & Masks</option>
                     <option value="Sun Protection">Sun Protection</option>
-                    <option value="Exfoliants & Toners">Exfoliants & Toners</option>
-                    <option value="Eye Care">Eye Care</option>
+                    <option value="Professional & Backbar">Professional & Backbar</option>
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Primary Skin Concern</label>
                   <select className="form-control" value={productForm.primaryConcern} onChange={e => setProductForm({ ...productForm, primaryConcern: e.target.value })}>
                     <option value="Acne & Blemishes">Acne & Blemishes</option>
-                    <option value="Hyperpigmentation">Hyperpigmentation</option>
-                    <option value="Damaged Barrier">Damaged Barrier</option>
                     <option value="Aging & Fine Lines">Aging & Fine Lines</option>
+                    <option value="Hyperpigmentation">Hyperpigmentation</option>
+                    <option value="Barrier Repair">Barrier Repair</option>
+                    <option value="Dryness & Dehydration">Dryness & Dehydration</option>
+                    <option value="Redness & Sensitivity">Redness & Sensitivity</option>
+                    <option value="Open Pores & Oiliness">Open Pores & Oiliness</option>
+                    <option value="Sun Protection">Sun Protection</option>
                   </select>
                 </div>
               </div>

@@ -1,18 +1,22 @@
+// Authentic ContrÂge Clinical Skincare & Cosmeceutical Formulations
+// Developed under Dr. Siddhi Dermatological Advisory Standards
+
 export const initialProducts = [
   {
     id: 'p-1',
-    name: '10% Niacinamide + 2% Zinc PCA Blemish Barrier Serum',
-    slug: '10-niacinamide-2-zinc-pca-blemish-serum',
-    tagline: 'High-strength clinical serum to regulate sebum, minimize enlarged pores, and fade post-acne blemishes.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Acne & Blemishes',
-    concerns: ['Acne & Blemishes', 'Open Pores & Oiliness', 'Hyperpigmentation'],
-    skinTypes: ['Oily / Combination', 'Acne-Prone', 'Sensitive', 'All Skin Types'],
-    price: 699,
-    salePrice: 549,
-    rating: 4.88,
-    reviewCount: 642,
-    stock: 85,
+    sku: 'CON-SRM-NDGA-30',
+    name: 'ContrÂge Cellular Intervention NDGA Serum',
+    slug: 'contrage-cellular-intervention-ndga-serum',
+    tagline: 'High-potency cellular antioxidant formulation with NDGA (Nordihydroguaiaretic Acid) to neutralize free radicals and fortify cellular integrity.',
+    category: 'Serums & Boosters',
+    primaryConcern: 'Aging & Fine Lines',
+    concerns: ['Aging & Fine Lines', 'Barrier Repair', 'Open Pores & Oiliness'],
+    skinTypes: ['All Skin Types', 'Mature', 'Sensitive', 'Normal'],
+    price: 1899,
+    salePrice: 1599,
+    rating: 0,
+    reviewCount: 0,
+    stock: 65,
     sizes: ['30ml', '50ml'],
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
@@ -21,83 +25,155 @@ export const initialProducts = [
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Niacinamide (Vitamin B3)', percentage: '10%', role: 'Suppresses sebum overproduction, calms inflammation and strengthens the epidermal lipid barrier.' },
-      { name: 'Zinc PCA', percentage: '2%', role: 'Targeted antimicrobial active that inhibits Cutibacterium acnes and promotes cellular healing.' },
-      { name: 'EUGELIA Bio-Ferment', percentage: '1.5%', role: 'Balances skin microbiome biodiversity.' }
+      { name: 'Nordihydroguaiaretic Acid (NDGA)', percentage: '1.5%', role: 'Cellular antioxidant that regulates cell proliferation and neutralizes environmental free radicals.' },
+      { name: 'Oleanolic Acid', percentage: '1.0%', role: 'Inhibits 5-alpha reductase to refine follicular elasticity and texture.' },
+      { name: 'Biomimetic Tripeptide Complex', percentage: '2.0%', role: 'Stimulates extracellular matrix collagen synthesis.' }
     ],
-    fullInci: 'Aqua, Niacinamide, Glycerin, Zinc PCA, Butylene Glycol, Dimethyl Isosorbide, Propanediol, Sodium Hyaluronate, Centella Asiatica Extract, Allantoin, Phenoxyethanol, Ethylhexylglycerin, Disodium EDTA, Xanthan Gum.',
-    clinicalResults: {
-      stat1: '-42% Sebum secretion in 14 days',
-      stat2: '91% saw visible reduction in acne marks within 3 weeks',
-      stat3: '96% experienced refined pore elasticity'
-    },
+    fullInci: 'Aqua, Butylene Glycol, PEG-60 Almond Glycerides, Caprylyl Glycol, Glycerin, Carbomer, Nordihydroguaiaretic Acid, Oleanolic Acid, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Sodium Hyaluronate, Phenoxyethanol, Ethylhexylglycerin, Disodium EDTA.',
     howToUse: {
       am: true,
       pm: true,
-      step: 'Step 2: Treatment Serum (After cleansing & toning, before moisturizer)',
-      instructions: 'Dispense 2–3 drops onto fingertips and gently press into cleansed face and neck until fully absorbed.',
-      warning: 'Perform a patch test 24 hours before first use. If pairing with Vitamin C, use Niacinamide in PM and Vitamin C in AM for optimal skin comfort.'
+      step: 'Step 2: Treatment Serum (After cleansing, before moisturizer)',
+      instructions: 'Dispense 3–4 drops onto fingertips and gently press into cleansed face and neck until fully absorbed.',
+      warning: 'For external use only. Perform a patch test 24 hours prior to initial application. Avoid contact with eyes.'
     },
-    doctorNote: 'Formulated with ultra-pure Grade-USP Niacinamide with minimal residual nicotinic acid to prevent transient flushing. Recommended by Dr. Alistair Vance, Harley St.',
-    badge: 'Clinical Best Seller',
-    featured: true
+    doctorNote: 'Dr. Siddhi Clinical Advisory: NDGA cellular serum is optimal for photo-damaged, environmentally stressed skin requiring deep antioxidant support.',
+    badge: 'Signature Formulation',
+    featured: true,
+    reviews: []
   },
   {
     id: 'p-2',
-    name: '2% Salicylic Acid (BHA) Deep Pore Clarifying Cleanser',
-    slug: '2-salicylic-acid-bha-deep-pore-cleanser',
-    tagline: 'Lipophilic beta-hydroxy acid foaming wash to dissolve blackheads, dead cellular buildup, and congested sebum.',
-    category: 'Cleansers',
-    primaryConcern: 'Open Pores & Oiliness',
-    concerns: ['Acne & Blemishes', 'Open Pores & Oiliness'],
-    skinTypes: ['Oily / Combination', 'Acne-Prone', 'Normal'],
-    price: 499,
-    salePrice: 429,
-    rating: 4.82,
-    reviewCount: 489,
-    stock: 120,
-    sizes: ['100ml', '200ml'],
+    sku: 'CON-HYD-CRM-50',
+    name: 'ContrÂge Hydra Line Intense Moisture Cream',
+    slug: 'contrage-hydra-line-intense-moisture-cream',
+    tagline: 'Multi-depth biomimetic hydration cream enriched with cross-linked Hyaluronic Acid and natural moisturizing factors (NMF).',
+    category: 'Moisturizers & Creams',
+    primaryConcern: 'Dryness & Dehydration',
+    concerns: ['Dryness & Dehydration', 'Barrier Repair', 'Redness & Sensitivity'],
+    skinTypes: ['Dry', 'Dehydrated', 'Normal', 'Sensitive'],
+    price: 1499,
+    salePrice: 1249,
+    rating: 0,
+    reviewCount: 0,
+    stock: 80,
+    sizes: ['50ml'],
     heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Encapsulated Salicylic Acid', percentage: '2%', role: 'Oil-soluble exfoliant penetrating deep inside follicular pores.' },
-      { name: 'Betaine & Glycerin', percentage: '4%', role: 'Prevents barrier striping and maintains cellular hydration.' },
-      { name: 'Tea Tree Terpinen-4-ol', percentage: '0.5%', role: 'Purifies bacterial congestion without irritation.' }
+      { name: 'Cross-Linked Hyaluronic Acid', percentage: '2.5%', role: 'Multi-molecular moisture reservoir providing 72-hour continuous hydration.' },
+      { name: 'Ceramide NP & Phytosphingosine', percentage: '1.2%', role: 'Replenishes intercellular lipid matrix and seals transepidermal water loss.' },
+      { name: 'Squalane (Plant-Derived)', percentage: '5.0%', role: 'Biocompatible lipid that softens skin texture without pore clogging.' }
     ],
-    fullInci: 'Aqua, Sodium Cocoyl Glycinate, Cocamidopropyl Betaine, Salicylic Acid, Glycerin, Betaine, Polyacrylate Crosspolymer-6, Melaleuca Alternifolia Leaf Extract, Citric Acid, Phenoxyethanol, Sodium Hydroxide.',
-    clinicalResults: {
-      stat1: '-58% Micro-comedones in 21 days',
-      stat2: '88% reduction in active blackhead density',
-      stat3: '100% non-stripping gentle surfactant base'
+    fullInci: 'Aqua, Squalane, Glycerin, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Sodium Hyaluronate Crosspolymer, Ceramide NP, Phytosphingosine, Cholesterol, Tocopherol, Dimethicone, Polyacrylate Crosspolymer-6, Phenoxyethanol, Ethylhexylglycerin.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 3: Moisturizer',
+      instructions: 'Smooth a dime-sized amount over face and neck morning and evening as the final hydration step.',
+      warning: 'Store in a cool, dry place away from direct sunlight.'
     },
+    doctorNote: 'Hydra Line formula is designed for instantaneous barrier recovery post-exposure to dry or air-conditioned environments.',
+    badge: 'Hydra Collection',
+    featured: true,
+    reviews: []
+  },
+  {
+    id: 'p-3',
+    sku: 'CON-CLN-BHA-150',
+    name: 'ContrÂge 2% Salicylic Acid Deep Pore Clarifying Cleanser',
+    slug: 'contrage-2-salicylic-acid-deep-pore-cleanser',
+    tagline: 'Lipophilic beta-hydroxy acid foaming wash to dissolve congested sebum, blackheads, and dead follicular buildup.',
+    category: 'Cleansers & Toners',
+    primaryConcern: 'Acne & Blemishes',
+    concerns: ['Acne & Blemishes', 'Open Pores & Oiliness'],
+    skinTypes: ['Oily / Combination', 'Acne-Prone', 'Normal'],
+    price: 899,
+    salePrice: 749,
+    rating: 0,
+    reviewCount: 0,
+    stock: 95,
+    sizes: ['150ml'],
+    heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'Encapsulated Salicylic Acid (BHA)', percentage: '2.0%', role: 'Time-released follicular exfoliant that clears comedones without surface irritation.' },
+      { name: 'Zinc PCA', percentage: '1.0%', role: 'Antimicrobial regulator of sebaceous gland activity.' },
+      { name: 'Betaine', percentage: '3.0%', role: 'Natural osmolyte that buffers skin against moisture loss during cleansing.' }
+    ],
+    fullInci: 'Aqua, Sodium Cocoyl Glycinate, Cocamidopropyl Betaine, Salicylic Acid, Glycerin, Betaine, Zinc PCA, Polyacrylate Crosspolymer-6, Melaleuca Alternifolia Leaf Extract, Allantoin, Citric Acid, Phenoxyethanol, Sodium Hydroxide.',
     howToUse: {
       am: true,
       pm: true,
       step: 'Step 1: Cleanser',
-      instructions: 'Lather a coin-sized amount with lukewarm water on wet skin. Massage in circular motions for 60 seconds. Rinse thoroughly.',
-      warning: 'Avoid direct contact with eyes. If dryness occurs, reduce usage to once daily.'
+      instructions: 'Lather a coin-sized amount with lukewarm water. Gently massage over face for 60 seconds. Rinse thoroughly.',
+      warning: 'Avoid direct eye contact. If irritation occurs, reduce frequency to once daily.'
     },
-    doctorNote: 'Encapsulated BHA allows time-released penetration, minimizing skin surface irritation while delivering maximum follicular decongestion.',
+    doctorNote: 'Formulated at pH 4.5–5.0 to optimize salicylic acid bioavailability without stripping the protective acid mantle.',
     badge: 'Dermatologist Choice',
-    featured: true
+    featured: true,
+    reviews: []
   },
   {
-    id: 'p-3',
-    name: '0.1% Retinaldehyde + 1% Bakuchiol Age-Renewal Elixir',
-    slug: '01-retinaldehyde-1-bakuchiol-age-renewal-elixir',
-    tagline: 'Next-generation Vitamin A retinoid working 11x faster than retinol to stimulate collagen and smooth fine wrinkles.',
-    category: 'Serums & Treatments',
+    id: 'p-4',
+    sku: 'CON-SRM-NIA-30',
+    name: 'ContrÂge 10% Niacinamide + 2% Zinc PCA Blemish Barrier Serum',
+    slug: 'contrage-10-niacinamide-2-zinc-pca-blemish-serum',
+    tagline: 'High-purity clinical serum to regulate excess sebum, refine pore diameter, and fade post-inflammatory hyperpigmentation.',
+    category: 'Serums & Boosters',
+    primaryConcern: 'Acne & Blemishes',
+    concerns: ['Acne & Blemishes', 'Open Pores & Oiliness', 'Hyperpigmentation'],
+    skinTypes: ['Oily / Combination', 'Acne-Prone', 'Sensitive', 'All Skin Types'],
+    price: 999,
+    salePrice: 849,
+    rating: 0,
+    reviewCount: 0,
+    stock: 110,
+    sizes: ['30ml', '50ml'],
+    heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'Ultra-Pure Niacinamide (USP Grade)', percentage: '10.0%', role: 'Inhibits melanosome transfer, suppresses sebum output, and strengthens ceramide synthesis.' },
+      { name: 'Zinc PCA', percentage: '2.0%', role: 'Synergistic anti-inflammatory zinc salt that targets blemish-causing bacteria.' },
+      { name: 'Centella Asiatica (Cica) Extract', percentage: '2.0%', role: 'Calms redness and accelerates dermal recovery.' }
+    ],
+    fullInci: 'Aqua, Niacinamide, Glycerin, Zinc PCA, Butylene Glycol, Centella Asiatica Leaf Extract, Propanediol, Sodium Hyaluronate, Allantoin, Phenoxyethanol, Ethylhexylglycerin, Disodium EDTA, Xanthan Gum.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 2: Treatment Serum',
+      instructions: 'Apply 2–3 drops morning and night to clean, damp face and neck before heavier creams.',
+      warning: 'Patch test before use. Compatible with all ContrÂge formulations.'
+    },
+    doctorNote: 'Ultra-low residual nicotinic acid content ensures zero flushing response even on sensitive post-acne skin.',
+    badge: 'Clinical Best Seller',
+    featured: true,
+    reviews: []
+  },
+  {
+    id: 'p-5',
+    sku: 'CON-SRM-RET-30',
+    name: 'ContrÂge 0.1% Retinaldehyde + 1% Bakuchiol Age-Renewal Elixir',
+    slug: 'contrage-01-retinaldehyde-1-bakuchiol-age-renewal-elixir',
+    tagline: 'Next-generation Vitamin A retinoid requiring only one conversion step to retinoic acid for 11x faster collagen stimulation than retinol.',
+    category: 'Serums & Boosters',
     primaryConcern: 'Aging & Fine Lines',
     concerns: ['Aging & Fine Lines', 'Hyperpigmentation', 'Open Pores & Oiliness'],
-    skinTypes: ['All Skin Types', 'Mature', 'Normal', 'Dry'],
-    price: 1199,
-    salePrice: 949,
-    rating: 4.94,
-    reviewCount: 382,
-    stock: 40,
+    skinTypes: ['All Skin Types', 'Mature', 'Normal'],
+    price: 1999,
+    salePrice: 1699,
+    rating: 0,
+    reviewCount: 0,
+    stock: 45,
     sizes: ['30ml'],
     heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
     gallery: [
@@ -105,558 +181,482 @@ export const initialProducts = [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Crystal-Encapsulated Retinaldehyde', percentage: '0.1%', role: 'Direct precursor to retinoic acid, accelerating cellular turnover 11x faster than standard retinol.' },
-      { name: 'Pure Bakuchiol Extract', percentage: '1%', role: 'Natural phyto-retinol synergy that boosts collagen synthesis while soothing.' },
-      { name: 'Bisabolol & Allantoin', percentage: '0.8%', role: 'Prevents retinization flaking and reinforces barrier integrity.' }
+      { name: 'Encapsulated Retinaldehyde', percentage: '0.1%', role: 'Potent precursor directly converting to active retinoic acid, minimizing irritation while boosting elastin.' },
+      { name: 'Bakuchiol (Psoralea Corylifolia)', percentage: '1.0%', role: 'Botanical retinoid-mimicking active that stabilizes retinal and boosts firmness.' },
+      { name: 'Ectoin', percentage: '1.5%', role: 'Extremolyte cellular membrane stabilizer that protects against oxidative stress.' }
     ],
-    fullInci: 'Aqua, Caprylic/Capric Triglyceride, Squalane, Glycerin, Bakuchiol, Retinal, Bisabolol, Sodium Hyaluronate, Ceramide NP, Tocopherol, Hydroxyethylcellulose, Phenoxyethanol, Ethylhexylglycerin.',
-    clinicalResults: {
-      stat1: '+34% Dermal Collagen density in 8 weeks',
-      stat2: '-27% Reduction in fine line depth after 6 weeks',
-      stat3: '94% reported smoother, firmer skin elasticity'
-    },
+    fullInci: 'Aqua, Caprylic/Capric Triglyceride, Glycerin, Bakuchiol, Ectoin, Retinal, Phospholipids, Sodium Hyaluronate, Tocopheryl Acetate, Bisabolol, Polyacrylamide, C13-14 Isoparaffin, Laureth-7, Phenoxyethanol, Ethylhexylglycerin.',
     howToUse: {
       am: false,
       pm: true,
-      step: 'Step 2: PM Treatment Serum',
-      instructions: 'Apply 1–2 pumps in the evening onto clean, dry skin. Follow with Ceramide Barrier Cream.',
-      warning: 'Use sunscreen every morning. Introduce gradually: twice a week for the first 2 weeks, then alternate nights.'
+      step: 'Step 2: Night Treatment',
+      instructions: 'Use PM only. Dispense 1 pump onto fingertips and distribute across face. Introduce 2–3 times per week, building up to nightly use.',
+      warning: 'Always apply broad-spectrum SPF 50+ the following morning. Not recommended during pregnancy.'
     },
-    doctorNote: 'Retinaldehyde provides prescription-like clinical results with minimal erythema. Formulated in airless protective pump packaging to preserve potency.',
-    badge: 'Clinical Gold Standard',
-    featured: true
+    doctorNote: 'Liposomal delivery shields the retinal molecule from photolytic degradation, maximizing nocturnal cellular renewal.',
+    badge: 'High Potency',
+    featured: true,
+    reviews: []
   },
   {
-    id: 'p-4',
-    name: '3% Ceramide Complex + Ectoin Intensive Barrier Repair Cream',
-    slug: '3-ceramide-complex-ectoin-intensive-barrier-cream',
-    tagline: 'Multi-lamellar emulsion with physiological 3:1:1 lipid ratio (Ceramides, Cholesterol, Fatty Acids) + Ectoin.',
+    id: 'p-6',
+    sku: 'CON-CRM-CER-50',
+    name: 'ContrÂge 5-Ceramide Biomimetic Barrier Repair Emulsion',
+    slug: 'contrage-5-ceramide-biomimetic-barrier-repair-emulsion',
+    tagline: 'Physiological 3:1:1:1 lipid ratio emulsion formulated with 5 human-identical ceramides, cholesterol, and free fatty acids.',
     category: 'Moisturizers & Creams',
-    primaryConcern: 'Damaged Barrier',
-    concerns: ['Damaged Barrier', 'Redness & Sensitivity', 'Dryness & Dehydration'],
-    skinTypes: ['Sensitive', 'Dry', 'Compromised Barrier', 'All Skin Types'],
-    price: 849,
-    salePrice: 699,
-    rating: 4.96,
-    reviewCount: 712,
-    stock: 95,
-    sizes: ['50g', '100g'],
+    primaryConcern: 'Barrier Repair',
+    concerns: ['Barrier Repair', 'Dryness & Dehydration', 'Redness & Sensitivity'],
+    skinTypes: ['Dry', 'Compromised Barrier', 'Sensitive', 'Normal'],
+    price: 1399,
+    salePrice: 1199,
+    rating: 0,
+    reviewCount: 0,
+    stock: 75,
+    sizes: ['50ml', '100ml'],
+    heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: '5-Ceramide Complex (EOP, NP, AP, AS, NS)', percentage: '3.0%', role: 'Identical lipid lamellae that rapidly repair damaged stratum corneum.' },
+      { name: 'Physiological Cholesterol & Free Fatty Acids', percentage: '2.0%', role: 'Essential co-factors necessary for spontaneous lipid bilayer assembly.' },
+      { name: 'Oat Beta-Glucan & Madecassoside', percentage: '1.5%', role: 'Deeply soothes stinging, erythema, and micro-fissures.' }
+    ],
+    fullInci: 'Aqua, Caprylic/Capric Triglyceride, Butyrospermum Parkii Butter, Ceramide EOP, Ceramide NP, Ceramide AP, Ceramide AS, Ceramide NS, Cholesterol, Phytosphingosine, Hydrogenated Lecithin, Avena Sativa Kernel Extract, Madecassoside, Glycerin, 1,2-Hexanediol, Carbomer.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 3: Barrier Seal',
+      instructions: 'Apply generously to face, neck, and any compromised zones requiring accelerated barrier recovery.',
+      warning: 'Sterile pump packaging ensures active lipid preservation.'
+    },
+    doctorNote: 'Essential post-peel, post-laser, or during retinoid acclimatization to eliminate flaking and restore barrier competence.',
+    badge: 'Barrier Fortification',
+    featured: true,
+    reviews: []
+  },
+  {
+    id: 'p-7',
+    sku: 'CON-SRM-TXA-30',
+    name: 'ContrÂge 3% Tranexamic Acid + 2% Alpha Arbutin Pigment Corrector',
+    slug: 'contrage-3-tranexamic-acid-2-alpha-arbutin-pigment-corrector',
+    tagline: 'Multi-pathway clinical melanosome inhibitor to clear stubborn melasma, sun spots, and post-acne dark marks.',
+    category: 'Serums & Boosters',
+    primaryConcern: 'Hyperpigmentation',
+    concerns: ['Hyperpigmentation', 'Aging & Fine Lines'],
+    skinTypes: ['All Skin Types', 'Hyperpigmented', 'Sensitive'],
+    price: 1299,
+    salePrice: 1099,
+    rating: 0,
+    reviewCount: 0,
+    stock: 55,
+    sizes: ['30ml'],
+    heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'Tranexamic Acid (USP Grade)', percentage: '3.0%', role: 'Inhibits plasmin-induced melanocyte activation and reduces vascular redness in melasma.' },
+      { name: 'Alpha Arbutin', percentage: '2.0%', role: 'Direct competitive tyrosinase enzyme inhibitor fading existing hyperpigmentation.' },
+      { name: 'N-Acetyl Glucosamine', percentage: '2.0%', role: 'Synergistically accelerates pigment shedding with zero peeling.' }
+    ],
+    fullInci: 'Aqua, Tranexamic Acid, Alpha-Arbutin, Acetyl Glucosamine, Glycerin, Propanediol, Sodium Hyaluronate, Hydroxyethylcellulose, Phenoxyethanol, Ethylhexylglycerin, Sodium Metabisulfite.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 2: Pigment Serum',
+      instructions: 'Apply 3–4 drops directly to hyperpigmented zones or entire face morning and night.',
+      warning: 'Pair with daily broad-spectrum sunscreen to prevent UV-mediated pigment recurrence.'
+    },
+    doctorNote: 'Dual action targeting both melanin synthesis and inflammatory angiogenesis associated with hormonal melasma.',
+    badge: 'Clinical Depigmenting',
+    featured: true,
+    reviews: []
+  },
+  {
+    id: 'p-8',
+    sku: 'CON-SPF-MIN-50',
+    name: 'ContrÂge Mineral Fluid Sunscreen SPF 50+ PA++++',
+    slug: 'contrage-mineral-fluid-sunscreen-spf-50-pa',
+    tagline: '100% mineral photostable photoprotection with non-nano Zinc Oxide, blue light defense, and invisible matte finish.',
+    category: 'Sun Protection',
+    primaryConcern: 'Sun Protection',
+    concerns: ['Sun Protection', 'Aging & Fine Lines', 'Redness & Sensitivity'],
+    skinTypes: ['All Skin Types', 'Sensitive', 'Post-Procedure', 'Acne-Prone'],
+    price: 1199,
+    salePrice: 999,
+    rating: 0,
+    reviewCount: 0,
+    stock: 90,
+    sizes: ['50ml'],
     heroImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Phyto-Ceramide Complex (NP, AP, EOP)', percentage: '3%', role: 'Mimics natural stratum corneum lipid bilayers to seal micro-fissures.' },
-      { name: 'Ectoin Extreme-Protection Molecule', percentage: '1.5%', role: 'Protects cells from environmental stressors and transepidermal water loss.' },
-      { name: 'Centella Asiatica (Madecassoside)', percentage: '1%', role: 'Immediate soothing of neuro-sensory redness and burning sensations.' }
+      { name: 'Non-Nano Zinc Oxide', percentage: '18.0%', role: 'Full-spectrum physical barrier reflecting UVA/UVB photons without chemical filter sensitization.' },
+      { name: 'Titanium Dioxide', percentage: '4.0%', role: 'Broad-spectrum UVB blocker and visible light shield.' },
+      { name: 'Iron Oxides & Ectoin', percentage: '1.5%', role: 'Neutralizes High-Energy Visible (HEV) blue light and infrared radiation.' }
     ],
-    fullInci: 'Aqua, Butylene Glycol, Caprylic/Capric Triglyceride, Hydrogenated Lecithin, Ceramide NP, Ceramide AP, Ceramide EOP, Phytosphingosine, Cholesterol, Ectoin, Madecassoside, Squalane, Panthenol, Carbomer.',
-    clinicalResults: {
-      stat1: '+68% Skin barrier recovery within 48 hours',
-      stat2: '-53% Transepidermal Water Loss (TEWL) in 7 days',
-      stat3: '98% relief in stinging & irritation on compromised skin'
-    },
-    howToUse: {
-      am: true,
-      pm: true,
-      step: 'Step 3: Moisturizer & Barrier Seal',
-      instructions: 'Apply generously to face and neck as the final hydrating step in your routine.',
-      warning: 'Safe for post-dermatological procedures, laser recovery, and chemical peel aftercare.'
-    },
-    doctorNote: 'Restores the exact biomimetic 3:1:1 lipid balance essential for clinical barrier recovery after over-exfoliation or harsh climates.',
-    badge: 'Dermatologist Prescribed',
-    featured: true
-  },
-  {
-    id: 'p-5',
-    name: '15% Vitamin C (Ethyl Ascorbic) + Ferulic Acid Radiance Serum',
-    slug: '15-vitamin-c-ethyl-ascorbic-ferulic-acid-serum',
-    tagline: 'High-potency ultra-stable Vitamin C formulation that brightens stubborn dark spots and neutralizes free radicals.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Hyperpigmentation',
-    concerns: ['Hyperpigmentation', 'Aging & Fine Lines'],
-    skinTypes: ['All Skin Types', 'Normal', 'Oily / Combination', 'Dry'],
-    price: 799,
-    salePrice: 649,
-    rating: 4.87,
-    reviewCount: 524,
-    stock: 65,
-    sizes: ['30ml'],
-    heroImage: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: '3-O-Ethyl Ascorbic Acid', percentage: '15%', role: '86% pure ascorbic acid conversion with 18-month oxidative stability without yellowing.' },
-      { name: 'Ferulic Acid', percentage: '0.5%', role: 'Doubles photoprotective efficacy and stabilizes active antioxidants.' },
-      { name: 'Glutathione & Sodium Hyaluronate', percentage: '1%', role: 'Master intracellular antioxidant booster for luminous radiance.' }
-    ],
-    fullInci: 'Aqua, 3-O-Ethyl Ascorbic Acid, Ethoxydiglycol, Propanediol, Ferulic Acid, Glutathione, Sodium Hyaluronate, Polyacrylate Crosspolymer-6, Phenoxyethanol, Ethylhexylglycerin.',
-    clinicalResults: {
-      stat1: '-46% Melanin index in sun spots in 4 weeks',
-      stat2: '89% demonstrated luminous complexion improvement',
-      stat3: '+8x Environmental free radical protection'
-    },
+    fullInci: 'Zinc Oxide, Aqua, Cyclopentasiloxane, Titanium Dioxide, Isododecane, Butyloctyl Salicylate, Silica, Propanediol, Ectoin, Tocopherol, Dimethicone/Vinyl Dimethicone Crosspolymer, Polyglyceryl-4 Diisostearate, Iron Oxides, Phenoxyethanol.',
     howToUse: {
       am: true,
       pm: false,
-      step: 'Step 2: AM Antioxidant Shield',
-      instructions: 'Apply 3-4 drops to cleansed face in the morning. Always follow with Broad Spectrum SPF 50+.',
-      warning: 'Store in a cool, dry place away from direct sunlight.'
+      step: 'Step 4: Morning Sun Shield',
+      instructions: 'Apply two finger-lengths generously to face and neck 15 minutes before sun exposure. Reapply every 2 hours if outdoors.',
+      warning: 'Shake well before use. Suitable for post-laser and compromised barrier skin.'
     },
-    doctorNote: 'Ethyl Ascorbic acid bypasses the rapid oxidation of L-Ascorbic acid while delivering equivalent cellular brightening.',
-    badge: 'Clinical Award Winner',
-    featured: true
-  },
-  {
-    id: 'p-6',
-    name: 'Invisible Fluid Sunscreen SPF 50+ PA++++ Hybrid UV Shield',
-    slug: 'invisible-fluid-sunscreen-spf-50-hybrid-uv-shield',
-    tagline: 'Ultra-lightweight, zero white cast fluid with Tinosorb S, Uvinul A Plus, and encapsulated mineral filters.',
-    category: 'Sun Protection',
-    primaryConcern: 'Sun Protection & UV Defense',
-    concerns: ['Sun Protection & UV Defense', 'Aging & Fine Lines', 'Hyperpigmentation'],
-    skinTypes: ['All Skin Types', 'Oily / Combination', 'Sensitive', 'Normal'],
-    price: 649,
-    salePrice: 519,
-    rating: 4.95,
-    reviewCount: 934,
-    stock: 140,
-    sizes: ['50ml', '100ml'],
-    heroImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: 'Tinosorb S & Uvinul A Plus', percentage: '6%', role: 'Photostable next-gen broad spectrum filters protecting against UVA I, UVA II, and UVB rays.' },
-      { name: 'Niacinamide', percentage: '2%', role: 'Prevents UV-induced hyperpigmentation and calms redness.' },
-      { name: 'Ectoin & Green Tea Leaf Extract', percentage: '1%', role: 'Defends against high-energy visible blue light and urban pollution.' }
-    ],
-    fullInci: 'Aqua, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine, Diethylamino Hydroxybenzoyl Hexyl Benzoate, Ethylhexyl Triazone, Niacinamide, Glycerin, Ectoin, Camellia Sinensis Leaf Extract, Silica, Carbomer, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: 'SPF 58.4 & PA++++ in-vivo certified clinical testing',
-      stat2: '0% White cast across all Fitzpatrick skin phototypes I–VI',
-      stat3: 'Water & sweat resistant for up to 80 minutes'
-    },
-    howToUse: {
-      am: true,
-      pm: false,
-      step: 'Step 4: AM Final Shield',
-      instructions: 'Apply 2 finger-lengths generously to face, neck, and ears 15 minutes before sun exposure. Reapply every 3 hours.',
-      warning: 'For external use only. Keep out of eyes.'
-    },
-    doctorNote: 'Non-comedogenic, oil-free aqueous emulsion that leaves a breathable velvet matte finish without clogging pores.',
-    badge: 'Voted Best Sunscreen 2026',
-    featured: true
-  },
-  {
-    id: 'p-7',
-    name: '2% Alpha Arbutin + 5% Tranexamic Acid Pigmentation Corrector',
-    slug: '2-alpha-arbutin-5-tranexamic-acid-pigmentation-corrector',
-    tagline: 'Targeted dual-action depigmenting suspension for melasma, PIH, and stubborn post-inflammatory brown spots.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Hyperpigmentation',
-    concerns: ['Hyperpigmentation', 'Acne & Blemishes'],
-    skinTypes: ['All Skin Types', 'Melasma-Prone', 'Uneven Tone'],
-    price: 899,
-    salePrice: 729,
-    rating: 4.89,
-    reviewCount: 412,
-    stock: 55,
-    sizes: ['30ml'],
-    heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: 'Pure Alpha Arbutin', percentage: '2%', role: 'Inhibits tyrosinase activity to prevent excessive melanin transfer.' },
-      { name: 'Tranexamic Acid', percentage: '5%', role: 'Suppresses plasmin-induced melanogenesis, specifically proven for stubborn hormonal melasma.' },
-      { name: 'Kojic Acid Dipalmitate', percentage: '1%', role: 'Enhances cellular depigmentation without cytotoxicity.' }
-    ],
-    fullInci: 'Aqua, Tranexamic Acid, Alpha-Arbutin, Ethoxydiglycol, Kojic Dipalmitate, Glycerin, Sodium Hyaluronate, Hydroxyethylcellulose, Phenoxyethanol, Disodium EDTA.',
-    clinicalResults: {
-      stat1: '-51% Melasma severity score in 6 weeks',
-      stat2: '93% visible fading of stubborn post-acne marks',
-      stat3: 'Zero rebound hyperpigmentation upon discontinuation'
-    },
-    howToUse: {
-      am: true,
-      pm: true,
-      step: 'Step 2: Pigment Targeted Treatment',
-      instructions: 'Apply 2-3 drops to areas with localized hyperpigmentation or all over face. Layer with moisturizer and SPF.',
-      warning: 'Continuous use for 6-8 weeks is recommended for optimal clinical outcomes.'
-    },
-    doctorNote: 'Combines two synergistic depigmenting pathways: tyrosinase inhibition and anti-plasmin inflammatory block.',
-    badge: 'Clinical Grade Pigment Solution',
-    featured: true
-  },
-  {
-    id: 'p-8',
-    name: 'Multi-Molecular 2% Hyaluronic Acid + Polyglutamic Hydrating Drops',
-    slug: 'multi-molecular-2-hyaluronic-acid-polyglutamic-drops',
-    tagline: '5 distinct molecular weights of Hyaluronic Acid + 0.5% Polyglutamic Acid for multi-depth cellular hydration.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Dryness & Dehydration',
-    concerns: ['Dryness & Dehydration', 'Damaged Barrier', 'Aging & Fine Lines'],
-    skinTypes: ['All Skin Types', 'Dehydrated', 'Dry', 'Sensitive'],
-    price: 649,
-    salePrice: 499,
-    rating: 4.91,
-    reviewCount: 580,
-    stock: 90,
-    sizes: ['30ml', '50ml'],
-    heroImage: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: '5-D Multi-Weight Hyaluronic Acid', percentage: '2%', role: 'Penetrates low, medium, and high dermal strata for instant and prolonged moisture.' },
-      { name: 'Polyglutamic Acid (PGA)', percentage: '0.5%', role: 'Holds 5x more water than HA, forming a breathable moisture-locking film.' },
-      { name: 'Pro-Vitamin B5 (Panthenol)', percentage: '1.5%', role: 'Supports tissue repair and enhances hydration retention.' }
-    ],
-    fullInci: 'Aqua, Sodium Hyaluronate, Hydrolyzed Hyaluronic Acid, Sodium Acetylated Hyaluronate, Sodium Hyaluronate Crosspolymer, Polyglutamic Acid, Panthenol, Glycerin, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: '+124% Instant epidermal hydration surge',
-      stat2: '48-hour continuous moisture retention reservoir',
-      stat3: '96% noticed instant plumping of dehydration lines'
-    },
-    howToUse: {
-      am: true,
-      pm: true,
-      step: 'Step 2: Hydration Layer',
-      instructions: 'Apply 2-3 drops onto damp skin immediately after cleansing. Gently pat and seal with a moisturizer.',
-      warning: 'Always apply to damp skin to maximize water attraction into the stratum corneum.'
-    },
-    doctorNote: 'Combining HA with high-molecular Polyglutamic Acid prevents rapid transepidermal evaporation in air-conditioned or arid environments.',
-    badge: 'Hydration Essential',
-    featured: false
+    doctorNote: 'Provides certified PA++++ critical wavelength protection (>370nm), essential for preventing pigment relapse.',
+    badge: 'Mineral Defense',
+    featured: true,
+    reviews: []
   },
   {
     id: 'p-9',
-    name: '10% Azelaic Acid + Centella Soothing Suspension for Redness',
-    slug: '10-azelaic-acid-centella-soothing-suspension',
-    tagline: 'Medical-grade dicarboxylic acid cream-gel to calm facial erythema, rosacea flaring, and bumpy texture.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Redness & Sensitivity',
-    concerns: ['Redness & Sensitivity', 'Acne & Blemishes', 'Hyperpigmentation'],
-    skinTypes: ['Sensitive', 'Rosacea-Prone', 'Acne-Prone', 'All Skin Types'],
-    price: 749,
-    salePrice: 599,
-    rating: 4.86,
-    reviewCount: 310,
-    stock: 50,
-    sizes: ['30g'],
-    heroImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
+    sku: 'CON-SRM-VITC-30',
+    name: 'ContrÂge 15% Ethyl Ascorbic Acid + 0.5% Ferulic Radiance Booster',
+    slug: 'contrage-15-ethyl-ascorbic-acid-05-ferulic-radiance-booster',
+    tagline: 'Next-generation stable Vitamin C derivative delivering 86% pure ascorbic acid conversion with zero oxidation or discoloration.',
+    category: 'Serums & Boosters',
+    primaryConcern: 'Aging & Fine Lines',
+    concerns: ['Aging & Fine Lines', 'Hyperpigmentation', 'Barrier Repair'],
+    skinTypes: ['All Skin Types', 'Dull', 'Normal', 'Combination'],
+    price: 1499,
+    salePrice: 1249,
+    rating: 0,
+    reviewCount: 0,
+    stock: 60,
+    sizes: ['30ml'],
+    heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Potassium Azeloyl Diglycinate & Azelaic Acid', percentage: '10%', role: 'Normalizes epidermal keratinization and calms inflammatory vascular flare-ups.' },
-      { name: 'Centella Asiatica (Cica)', percentage: '2%', role: 'Soothes reactive irritation and accelerates micro-repair.' },
-      { name: 'Colloidal Oat Extract', percentage: '1%', role: 'Natural beta-glucan barrier comfort.' }
+      { name: '3-O-Ethyl Ascorbic Acid', percentage: '15.0%', role: 'Highly stable etherified Vitamin C active directly neutralizing reactive oxygen species and boosting collagen synthesis.' },
+      { name: 'Ferulic Acid', percentage: '0.5%', role: 'Plant antioxidant that doubles the photoprotective efficiency of Vitamin C.' },
+      { name: 'Sodium Hyaluronate', percentage: '1.0%', role: 'Hydrating osmotic buffer.' }
     ],
-    fullInci: 'Aqua, Azelaic Acid, Potassium Azeloyl Diglycinate, Propanediol, Cetearyl Alcohol, Centella Asiatica Extract, Avena Sativa Kernel Extract, Allantoin, Carbomer, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: '-47% Facial erythema in 3 weeks',
-      stat2: '86% reduction in rosacea flushing episodes',
-      stat3: 'Safe for sensitive and reactive barrier conditions'
-    },
+    fullInci: 'Aqua, 3-O-Ethyl Ascorbic Acid, Propanediol, Ethoxydiglycol, Ferulic Acid, Sodium Hyaluronate, Tocopherol, Panthenol, Phenoxyethanol, Ethylhexylglycerin, Sodium Citrate.',
     howToUse: {
       am: true,
-      pm: true,
-      step: 'Step 2: Soothing Treatment',
-      instructions: 'Apply a pea-sized amount evenly across face. Can be used AM and PM.',
-      warning: 'A slight tingling sensation may occur in the first few applications as your skin acclimates.'
+      pm: false,
+      step: 'Step 2: Morning Antioxidant Shield',
+      instructions: 'Apply 3–4 drops in the morning to cleansed face and neck prior to moisturizer and SPF.',
+      warning: 'Store away from direct light. Stable formula does not require refrigeration.'
     },
-    doctorNote: 'Azelaic acid is a dermatologist favorite for dual-action targeting of both papulopustular rosacea and hyperpigmentation.',
-    badge: 'Rosacea & Calming Hero',
-    featured: false
+    doctorNote: 'Unlike conventional L-ascorbic acid, 3-O-Ethyl Ascorbic Acid does not require low irritating pH (<3.0) to penetrate the stratum corneum.',
+    badge: 'Radiance Booster',
+    featured: true,
+    reviews: []
   },
   {
     id: 'p-10',
-    name: 'Peptide Matrix 5% + Matrixyl 3000 Firming Neck & Face Cream',
-    slug: 'peptide-matrix-5-matrixyl-firming-cream',
-    tagline: 'Multi-peptide firming peptide complex with Copper Tripeptide-1, Matrixyl 3000, and Argireline for skin elasticity.',
-    category: 'Moisturizers & Creams',
-    primaryConcern: 'Aging & Fine Lines',
-    concerns: ['Aging & Fine Lines', 'Damaged Barrier'],
-    skinTypes: ['Mature', 'Dry', 'Normal', 'All Skin Types'],
-    price: 999,
-    salePrice: 849,
-    rating: 4.92,
-    reviewCount: 295,
-    stock: 45,
-    sizes: ['50g'],
-    heroImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
+    sku: 'CON-EXF-AHA-30',
+    name: 'ContrÂge 10% AHA + 2% BHA Chemical Resurfacing Solution',
+    slug: 'contrage-10-aha-2-bha-chemical-resurfacing-solution',
+    tagline: 'Dual-phase glycolic, lactic, and salicylic acid treatment to dissolve intercellular desmosomes and uncover radiant skin.',
+    category: 'Exfoliators & Masks',
+    primaryConcern: 'Open Pores & Oiliness',
+    concerns: ['Open Pores & Oiliness', 'Acne & Blemishes', 'Hyperpigmentation'],
+    skinTypes: ['Oily', 'Combination', 'Normal', 'Acne-Prone'],
+    price: 1199,
+    salePrice: 999,
+    rating: 0,
+    reviewCount: 0,
+    stock: 40,
+    sizes: ['30ml'],
+    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Matrixyl 3000 & Palmitoyl Tripeptide-38', percentage: '3%', role: 'Signal peptides signaling dermal fibroblasts to synthesize new collagen & elastin.' },
-      { name: 'Copper Tripeptide-1 (GHK-Cu)', percentage: '1%', role: 'Supports wound repair, tissue remodeling, and skin firmness.' },
-      { name: 'Argireline (Acetyl Hexapeptide-8)', percentage: '1%', role: 'Botox-mimetic neurotransmitter peptide reducing expression line tension.' }
+      { name: 'Glycolic & Lactic Acid Complex (AHA)', percentage: '10.0%', role: 'Loosens dead corneum corneocyte adhesion and stimulates cellular turnover.' },
+      { name: 'Salicylic Acid (BHA)', percentage: '2.0%', role: 'Unclogs congested pore infundibulum.' },
+      { name: 'Tasmanian Pepperberry Extract', percentage: '1.0%', role: 'Significantly reduces sensory discomfort and chemical erythema.' }
     ],
-    fullInci: 'Aqua, Glycerin, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Copper Tripeptide-1, Acetyl Hexapeptide-8, Squalane, Butyrospermum Parkii Butter, Ceramide NP, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: '+39% Skin elasticity & dermal firmness in 4 weeks',
-      stat2: '-21% Deep wrinkle volume in 28 days',
-      stat3: '92% noted visible jawline and neck tightening'
-    },
+    fullInci: 'Aqua, Glycolic Acid, Lactic Acid, Salicylic Acid, Glycerin, Sodium Hydroxide, Tasmannia Lanceolata Fruit Extract, Propanediol, Sodium Hyaluronate, Panthenol, Xanthan Gum, Phenoxyethanol.',
     howToUse: {
-      am: true,
+      am: false,
       pm: true,
-      step: 'Step 3: Firming Cream',
-      instructions: 'Smooth over face, neck, and décolletage in an upward sweeping motion.',
-      warning: 'Do not use simultaneously with strong acidic exfoliants (like 25% AHA) in the same routine to avoid peptide denaturation.'
+      step: 'Weekly Exfoliating Treatment',
+      instructions: 'Apply evenly to clean, dry skin. Leave on for maximum 10 minutes. Rinse thoroughly with lukewarm water. Use once weekly.',
+      warning: 'Do not leave on for longer than 10 minutes. Not suitable for compromised or broken skin. Use SPF daily.'
     },
-    doctorNote: 'Provides comprehensive peptide signal remodeling for patients who are retinol-sensitive or desiring collagen rejuvenation.',
-    badge: 'Clinical Firming Formula',
-    featured: false
+    doctorNote: 'Buffered at pH 3.6 for optimal free acid availability with minimal stinging index.',
+    badge: 'Weekly Intensive',
+    featured: false,
+    reviews: []
   },
   {
     id: 'p-11',
-    name: 'AHA 25% + BHA 2% + PHA 5% Weekly Peeling Solution',
-    slug: 'aha-25-bha-2-pha-5-weekly-peeling-solution',
-    tagline: 'Professional-strength at-home chemical peel with Glycolic, Lactic, Salicylic, and Gluconolactone acids + Tasmanian Pepperberry.',
-    category: 'Exfoliants & Toners',
-    primaryConcern: 'Open Pores & Oiliness',
-    concerns: ['Open Pores & Oiliness', 'Hyperpigmentation', 'Acne & Blemishes'],
-    skinTypes: ['Tolerant Skin', 'Oily / Combination', 'Dull / Textured'],
-    price: 699,
-    salePrice: 579,
-    rating: 4.85,
-    reviewCount: 620,
-    stock: 75,
-    sizes: ['30ml'],
+    sku: 'CON-GEL-CICA-60',
+    name: 'ContrÂge Centella Asiatica & Madecassoside Calming Recovery Gel',
+    slug: 'contrage-centella-asiatica-madecassoside-calming-recovery-gel',
+    tagline: 'Sterile soothing recovery gel engineered with pure titrated Cica extracts for compromised, irritated, or post-procedure skin.',
+    category: 'Moisturizers & Creams',
+    primaryConcern: 'Redness & Sensitivity',
+    concerns: ['Redness & Sensitivity', 'Barrier Repair'],
+    skinTypes: ['Sensitive', 'Reactive', 'Post-Procedure', 'All Skin Types'],
+    price: 999,
+    salePrice: 849,
+    rating: 0,
+    reviewCount: 0,
+    stock: 70,
+    sizes: ['60ml'],
+    heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'Titrated Centella Asiatica (TECA)', percentage: '3.0%', role: 'Standardized Asiaticoside, Madecassic, and Asiatic acids promoting micro-vascular healing.' },
+      { name: 'Madecassoside', percentage: '0.5%', role: 'Inhibits inflammatory cytokines and calms burning sensations.' },
+      { name: 'Allantoin & Panthenol', percentage: '2.0%', role: 'Accelerates re-epithelialization.' }
+    ],
+    fullInci: 'Centella Asiatica Leaf Water, Aqua, Glycerin, Butylene Glycol, Madecassoside, Asiaticoside, Asiatic Acid, Madecassic Acid, Panthenol, Allantoin, Carbomer, Arginine, 1,2-Hexanediol, Hydroxyethylcellulose.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 3: Soothing Gel',
+      instructions: 'Apply a generous layer over sensitized areas. Can be applied as an intensive overnight sleeping soothing pack.',
+      warning: 'Hypoallergenic and fragrance-free.'
+    },
+    doctorNote: 'Ideal soothing emergency care after chemical peels, microneedling, or acute barrier degradation.',
+    badge: 'Post-Care Shield',
+    featured: false,
+    reviews: []
+  },
+  {
+    id: 'p-12',
+    sku: 'CON-EYE-PEP-15',
+    name: 'ContrÂge Multi-Peptide & Caffeine Eye Contour Complex',
+    slug: 'contrage-multi-peptide-caffeine-eye-contour-complex',
+    tagline: 'Targeted periorbital treatment addressing micro-circulatory stagnation, dark shadows, and fine expression lines.',
+    category: 'Serums & Boosters',
+    primaryConcern: 'Aging & Fine Lines',
+    concerns: ['Aging & Fine Lines', 'Hyperpigmentation'],
+    skinTypes: ['All Skin Types', 'Mature', 'Sensitive'],
+    price: 1399,
+    salePrice: 1199,
+    rating: 0,
+    reviewCount: 0,
+    stock: 50,
+    sizes: ['15ml'],
     heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Glycolic & Lactic Acid (AHA)', percentage: '25%', role: 'Dissolves desmosomes holding dead cells together on skin surface for glass-skin luminosity.' },
-      { name: 'Salicylic Acid (BHA)', percentage: '2%', role: 'Penetrates oil glands to clear stubborn comedones.' },
-      { name: 'Gluconolactone (PHA) & Tasmanian Pepperberry', percentage: '5%', role: 'Gentle large-molecule acid + plant active to neutralize acid stinging.' }
+      { name: 'Encapsulated Caffeine', percentage: '3.0%', role: 'Vasoconstrictor that drains excess lymphatic fluid and reduces sub-orbital puffiness.' },
+      { name: 'Eyeseryl® Tetrapeptide', percentage: '2.0%', role: 'Prevents vascular permeability and cross-linking of dermal collagen.' },
+      { name: 'Matrixyl Synthe\'6', percentage: '2.0%', role: 'Fills crow\'s feet and under-eye hollows.' }
     ],
-    fullInci: 'Aqua, Glycolic Acid, Lactic Acid, Gluconolactone, Salicylic Acid, Tasmannia Lanceolata Fruit Extract, Sodium Hyaluronate, Hydroxyethylcellulose, Sodium Hydroxide, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: 'Immediate 10-minute skin clarity & pore unblocking',
-      stat2: '89% smoother dermal texture within 2 weekly uses',
-      stat3: 'Buffered pH 3.6 for clinical safety and efficacy'
-    },
-    howToUse: {
-      am: false,
-      pm: true,
-      step: 'Weekly Treatment (1x per week)',
-      instructions: 'Apply evenly across clean, dry face. Leave on for NO MORE than 10 minutes. Rinse thoroughly with lukewarm water.',
-      warning: 'Do not use on wet or peeling skin. Always use SPF 50+ during the week following chemical peeling.'
-    },
-    doctorNote: 'Formulated at buffered pH 3.5–3.7 to optimize free acid bioavailability while preventing epidermal burns.',
-    badge: '10-Minute Clinical Glow',
-    featured: false
-  },
-  {
-    id: 'p-12',
-    name: 'Micro-Exfoliating 5% Mandelic Acid Gentle Toner',
-    slug: '5-mandelic-acid-gentle-exfoliating-toner',
-    tagline: 'Large-molecule gentle AHA derived from bitter almonds, safe for sensitive skin and melanin-rich Fitzpatrick tones.',
-    category: 'Exfoliants & Toners',
-    primaryConcern: 'Open Pores & Oiliness',
-    concerns: ['Open Pores & Oiliness', 'Hyperpigmentation', 'Redness & Sensitivity'],
-    skinTypes: ['Sensitive', 'Uneven Texture', 'All Skin Types'],
-    price: 549,
-    salePrice: 449,
-    rating: 4.81,
-    reviewCount: 260,
-    stock: 80,
-    sizes: ['150ml'],
-    heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: 'Mandelic Acid', percentage: '5%', role: 'Gentle large molecular structure penetrates slower, avoiding inflammatory rebound.' },
-      { name: 'Panthenol & Allantoin', percentage: '2%', role: 'Hydrating, skin-soothing conditioning.' }
-    ],
-    fullInci: 'Aqua, Mandelic Acid, Propanediol, Glycerin, Panthenol, Allantoin, Disodium EDTA, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: '94% reported zero stinging or irritation',
-      stat2: '-36% dead skin cell buildup in 10 days',
-      stat3: 'Safe for daily or alternate night usage'
-    },
-    howToUse: {
-      am: false,
-      pm: true,
-      step: 'Step 1.5: PM Toning Clarifier',
-      instructions: 'Pour onto a reusable cotton pad or palms and sweep gently across face avoiding immediate eye contour.',
-      warning: 'Use SPF the next morning.'
-    },
-    doctorNote: 'The gold-standard chemical exfoliant for sensitive, rosacea, or dark-skin patients susceptible to post-inflammatory pigment.',
-    badge: 'Gentle Daily Exfoliant',
-    featured: false
-  },
-  {
-    id: 'p-13',
-    name: 'Caffeine 5% + EGCG De-Puffing & Dark Circle Eye Contour Serum',
-    slug: 'caffeine-5-egcg-eye-contour-serum',
-    tagline: 'Vasoconstrictor caffeine solution with green tea epigallocatechin gallatyl glucoside to diminish periorbital puffiness.',
-    category: 'Eye Care',
-    primaryConcern: 'Aging & Fine Lines',
-    concerns: ['Aging & Fine Lines', 'Hyperpigmentation'],
-    skinTypes: ['All Skin Types'],
-    price: 599,
-    salePrice: 479,
-    rating: 4.84,
-    reviewCount: 390,
-    stock: 65,
-    sizes: ['15ml'],
-    heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
-    ],
-    activeIngredients: [
-      { name: 'Pharmaceutical Grade Caffeine', percentage: '5%', role: 'Topical vasoconstrictor that rapidly drains fluid retention under the ocular orbital.' },
-      { name: 'Green Tea EGCG Extract', percentage: '1%', role: 'Potent polyphenol neutralizing dark periorbital oxidative discoloration.' },
-      { name: 'Micro-Hyaluronic Acid', percentage: '0.5%', role: 'Plumps delicate tear-trough fine lines without causing fluid edema.' }
-    ],
-    fullInci: 'Aqua, Caffeine, Epigallocatechin Gallatyl Glucoside, Glycerin, Sodium Hyaluronate, Hydroxyethylcellulose, Phenoxyethanol, Ethylhexylglycerin.',
-    clinicalResults: {
-      stat1: '-41% Under-eye puffiness in 30 minutes',
-      stat2: '84% saw noticeable lightening of vascular dark circles in 4 weeks',
-      stat3: 'Ophthalmologically tested and safe for contact lens wearers'
-    },
+    fullInci: 'Aqua, Caffeine, Glycerin, Acetyl Tetrapeptide-5, Palmitoyl Tripeptide-38, Niacinamide, Sodium Hyaluronate, Hesperidin Methyl Chalcone, Carbomer, Phenoxyethanol, Ethylhexylglycerin.',
     howToUse: {
       am: true,
       pm: true,
-      step: 'Step 2.5: Eye Contour Care',
-      instructions: 'Massage 1 drop around the eye contour in gentle tapping motions with ring finger.',
-      warning: 'Avoid direct eye contact.'
+      step: 'Step 2: Eye Treatment',
+      instructions: 'Dot half a pump along the orbital bone. Gently tap with ring finger until fully absorbed.',
+      warning: 'Avoid getting product directly into the eyes.'
     },
-    doctorNote: 'Addresses both vascular fluid accumulation (caffeine) and hyperpigmentation deposits around the delicate periorbital area.',
-    badge: 'Eye Care Favorite',
-    featured: false
+    doctorNote: 'Ophthalmologist-evaluated formula suitable for contact lens wearers.',
+    badge: 'Eye Care Precision',
+    featured: false,
+    reviews: []
   },
   {
-    id: 'p-14',
-    name: 'Squalane + 5-Lipid Cleansing Oil with Vitamin E',
-    slug: 'squalane-5-lipid-cleansing-oil',
-    tagline: 'Silky, water-emulsifying oil cleanser to dissolve stubborn waterproof SPF, heavy makeup, and trapped sebum plugs.',
-    category: 'Cleansers',
-    primaryConcern: 'Open Pores & Oiliness',
-    concerns: ['Open Pores & Oiliness', 'Damaged Barrier', 'Dryness & Dehydration'],
-    skinTypes: ['All Skin Types', 'Dry', 'Oily / Combination', 'Sensitive'],
-    price: 649,
-    salePrice: 529,
-    rating: 4.90,
-    reviewCount: 345,
-    stock: 70,
-    sizes: ['150ml'],
+    id: 'p-13',
+    sku: 'CON-CLN-MIC-200',
+    name: 'ContrÂge Purifying Micellar pH 5.5 Gentle Cleanser',
+    slug: 'contrage-purifying-micellar-ph-55-gentle-cleanser',
+    tagline: 'Non-ionic micellar surfactant wash buffered at biological pH 5.5 to remove particulate matter without barrier disruption.',
+    category: 'Cleansers & Toners',
+    primaryConcern: 'Barrier Repair',
+    concerns: ['Barrier Repair', 'Redness & Sensitivity', 'Dryness & Dehydration'],
+    skinTypes: ['Sensitive', 'Dry', 'Normal', 'Post-Procedure'],
+    price: 799,
+    salePrice: 699,
+    rating: 0,
+    reviewCount: 0,
+    stock: 120,
+    sizes: ['200ml'],
     heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: '100% Plant-Derived Squalane', percentage: '15%', role: 'Biocompatible lipid that dissolves stubborn sebum and silicones effortlessly.' },
-      { name: 'Jojoba & Camellia Seed Oil Complex', percentage: '20%', role: 'Balances skin fatty acid composition without clogging pores.' },
-      { name: 'Tocopherol (Pure Vitamin E)', percentage: '1%', role: 'Prevents lipid peroxidation.' }
+      { name: 'Non-Ionic Poloxamer Micelles', percentage: '5.0%', role: 'Attracts lipophilic debris and dirt without stripping stratum corneum lipids.' },
+      { name: 'Panthenol (Pro-Vitamin B5)', percentage: '1.5%', role: 'Prevents transepidermal water loss during rinsing.' },
+      { name: 'Chamomile Bisabolol', percentage: '0.5%', role: 'Anti-irritant that soothes tight skin.' }
     ],
-    fullInci: 'Caprylic/Capric Triglyceride, Squalane, Simmondsia Chinensis Seed Oil, Camellia Oleifera Seed Oil, PEG-20 Glyceryl Triisostearate, Tocopherol.',
-    clinicalResults: {
-      stat1: '100% removal of waterproof sunscreen & pollutants in 1 step',
-      stat2: '0% greasy residue after water rinse',
-      stat3: 'Leaves barrier moisture levels elevated by +42%'
-    },
+    fullInci: 'Aqua, Poloxamer 184, Glycerin, Panthenol, Bisabolol, Disodium Cocoamphodiacetate, Citric Acid, Disodium EDTA, Sodium Benzoate, Potassium Sorbate.',
     howToUse: {
-      am: false,
+      am: true,
       pm: true,
-      step: 'Step 1: PM First Cleanse (Double Cleansing)',
-      instructions: 'Pump 2–3 drops into dry hands. Massage onto dry face for 60 seconds. Add warm water to emulsify into a milky lotion, then rinse clean.',
-      warning: 'Follow with BHA or gentle gel cleanser for complete double cleansing.'
+      step: 'Step 1: Gentle Cleanser',
+      instructions: 'Apply to wet skin or with a soft cotton pad. Gently cleanse face and neck. Rinse with lukewarm water.',
+      warning: 'Suitable for daily morning and evening use.'
     },
-    doctorNote: 'Non-comedogenic hydrophilic formula that rinses clean without leaving an occlusive film that causes breakout breakouts.',
-    badge: 'First Cleanse Essential',
-    featured: false
+    doctorNote: 'Buffered at exact skin barrier pH 5.5 to safeguard acid mantle microbiome integrity.',
+    badge: 'Gentle Care',
+    featured: false,
+    reviews: []
+  },
+  {
+    id: 'p-14',
+    sku: 'CON-CRM-CRF-50',
+    name: 'ContrÂge CereFino Liposomal Biomimetic Restorative Cream',
+    slug: 'contrage-cerefino-liposomal-biomimetic-restorative-cream',
+    tagline: 'Advanced European biotechnology cream utilizing CereFino lipid sphere delivery to transform skin resilience and density from within.',
+    category: 'Moisturizers & Creams',
+    primaryConcern: 'Aging & Fine Lines',
+    concerns: ['Aging & Fine Lines', 'Barrier Repair', 'Dryness & Dehydration'],
+    skinTypes: ['All Skin Types', 'Mature', 'Compromised'],
+    price: 2499,
+    salePrice: 2199,
+    rating: 0,
+    reviewCount: 0,
+    stock: 35,
+    sizes: ['50ml'],
+    heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'CereFino® Bio-Lipid Delivery Spheres', percentage: '4.0%', role: 'Encapsulated restorative lipids penetrating deep intercellular pathways.' },
+      { name: 'Copper Tripeptide-1', percentage: '1.0%', role: 'Accelerates wound remodeling and collagen matrix density.' },
+      { name: 'Niacinamide USP', percentage: '3.0%', role: 'Strengthens dermal barrier resilience.' }
+    ],
+    fullInci: 'Aqua, Caprylic/Capric Triglyceride, CereFino Lipid Complex, Copper Tripeptide-1, Niacinamide, Squalane, Butyrospermum Parkii, Dimethicone, Cetearyl Olivate, Sorbitan Olivate, Phenoxyethanol, Ethylhexylglycerin.',
+    howToUse: {
+      am: true,
+      pm: true,
+      step: 'Step 3: Advanced Bio-Restoration',
+      instructions: 'Warm between fingertips and gently press into cleansed face and neck morning and evening.',
+      warning: 'Store below 25°C.'
+    },
+    doctorNote: 'Dr. Siddhi Masterpiece: Combines Belgian cosmeceutical lipid technology with regenerative copper peptides.',
+    badge: 'CereFino Technology',
+    featured: true,
+    reviews: []
   },
   {
     id: 'p-15',
-    name: 'Cica Soothing Gel Moisturizer with Madecassoside',
-    slug: 'cica-soothing-gel-moisturizer-madecassoside',
-    tagline: 'Ultralight oil-free calming gel formulated for oily, acne-prone, and heat-inflamed reactive complexions.',
-    category: 'Moisturizers & Creams',
-    primaryConcern: 'Acne & Blemishes',
-    concerns: ['Acne & Blemishes', 'Redness & Sensitivity', 'Open Pores & Oiliness'],
-    skinTypes: ['Oily / Combination', 'Acne-Prone', 'Sensitive'],
-    price: 649,
-    salePrice: 519,
-    rating: 4.88,
-    reviewCount: 460,
-    stock: 95,
-    sizes: ['50g', '100g'],
+    sku: 'CON-MSK-HYD-5PK',
+    name: 'ContrÂge Bio-Cellulose Hyaluronic Infusion Mask (Box of 5)',
+    slug: 'contrage-bio-cellulose-hyaluronic-infusion-mask-box-of-5',
+    tagline: 'Fermented coconut bio-cellulose sheet mask drenched in 28ml of sterile multi-molecular hydration serum per pouch.',
+    category: 'Exfoliators & Masks',
+    primaryConcern: 'Dryness & Dehydration',
+    concerns: ['Dryness & Dehydration', 'Redness & Sensitivity'],
+    skinTypes: ['All Skin Types', 'Dehydrated', 'Post-Treatment'],
+    price: 1299,
+    salePrice: 1099,
+    rating: 0,
+    reviewCount: 0,
+    stock: 55,
+    sizes: ['5 Sheets (28ml each)'],
     heroImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Centella Asiatica Leaf Water & Madecassoside', percentage: '70%', role: 'Cools surface skin temperature and down-regulates inflammatory cytokines.' },
-      { name: 'Niacinamide & Zinc Gluconate', percentage: '2%', role: 'Controls shine and mattifies T-zone throughout the day.' }
+      { name: '4D Hyaluronic Acid Matrix', percentage: '2.0%', role: 'Targeted hydration across surface, epidermal, and deep layers.' },
+      { name: 'Polyglutamic Acid', percentage: '1.0%', role: 'Holds 5000x its weight in water, locking moisture inside skin cells.' },
+      { name: 'Cucumber & Allantoin Elixir', percentage: '2.0%', role: 'Instantly cools skin temperature by 3°C.' }
     ],
-    fullInci: 'Centella Asiatica Leaf Water, Aqua, Glycerin, Madecassoside, Asiaticoside, Niacinamide, Zinc Gluconate, Betaine, Carbomer, Arginine, Phenoxyethanol.',
-    clinicalResults: {
-      stat1: '-3.2°C Instant skin cooling sensation upon contact',
-      stat2: '8-Hour oil-control shine reduction',
-      stat3: '95% reported zero clogged pores or greasy sheen'
-    },
+    fullInci: 'Aqua, Glycerin, Sodium Hyaluronate Crosspolymer, Polyglutamic Acid, Cucumis Sativus Extract, Allantoin, Betaine, Hydroxyethylcellulose, Phenoxyethanol, Ethylhexylglycerin.',
     howToUse: {
-      am: true,
+      am: false,
       pm: true,
-      step: 'Step 3: Lightweight Moisturizer',
-      instructions: 'Apply a dime-sized amount across face and neck. Absorbs within 30 seconds to a refreshing matte finish.',
-      warning: 'Ideal for tropical climates and humid summer seasons.'
+      step: 'Intensive Hydration Mask',
+      instructions: 'Unfold mask, remove protective mesh, and apply closely to contours of face. Relax for 20 minutes. Pat remaining serum into skin.',
+      warning: 'Single use bio-cellulose mask.'
     },
-    doctorNote: 'The ultimate weightless moisturizer for oily and blemish-prone patients who hate the heavy feel of traditional creams.',
-    badge: 'Oil-Free Calming Gel',
-    featured: false
+    doctorNote: 'Second-skin bio-cellulose adhesion allows 10x higher serum absorption than traditional paper sheet masks.',
+    badge: 'Express Hydration',
+    featured: false,
+    reviews: []
   },
   {
     id: 'p-16',
-    name: 'Overnight Blemish Drying Lotion with Colloidal Sulfur & Zinc Oxide',
-    slug: 'overnight-blemish-drying-lotion',
-    tagline: 'Emergency spot treatment that visibly shrinks active inflammatory whiteheads and hormonal cystic bumps overnight.',
-    category: 'Serums & Treatments',
-    primaryConcern: 'Acne & Blemishes',
-    concerns: ['Acne & Blemishes'],
-    skinTypes: ['Acne-Prone', 'Emergency Spot Care'],
-    price: 499,
-    salePrice: 399,
-    rating: 4.89,
-    reviewCount: 512,
-    stock: 85,
-    sizes: ['30ml'],
+    sku: 'CON-PRO-PEEL-100',
+    name: 'ContrÂge Professional Medical Peeling Complex 30% (Clinical Backbar)',
+    slug: 'contrage-professional-medical-peeling-complex-30',
+    tagline: 'Exclusive clinical backbar formulation for certified dermatologists and aesthetic clinics. Multi-acid peeling solution.',
+    category: 'Professional & Backbar',
+    primaryConcern: 'Hyperpigmentation',
+    concerns: ['Hyperpigmentation', 'Aging & Fine Lines', 'Acne & Blemishes'],
+    skinTypes: ['Professional Clinical Use Only'],
+    price: 3499,
+    salePrice: 2999,
+    rating: 0,
+    reviewCount: 0,
+    stock: 25,
+    sizes: ['100ml'],
+    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+    ],
+    activeIngredients: [
+      { name: 'Glycolic, Mandelic & Salicylic Acid Complex', percentage: '30.0%', role: 'Deep epidermolysis and controlled stratum corneum renewal under professional neutralization.' },
+      { name: 'Glutathione & Kojic Acid', percentage: '3.0%', role: 'Targeted inhibition of dermal melanin clusters.' }
+    ],
+    fullInci: 'Aqua, Glycolic Acid, Mandelic Acid, Salicylic Acid, Kojic Acid, Glutathione, Sodium Hydroxide, Propylene Glycol, Hydroxyethylcellulose.',
+    howToUse: {
+      am: false,
+      pm: false,
+      step: 'In-Clinic Treatment Only',
+      instructions: 'For registered dermatologists and certified clinicians only. Apply with fan brush according to clinic protocol.',
+      warning: 'RESTRICTED: Medical registration required. Not for retail home use.'
+    },
+    doctorNote: 'Designed strictly for professional clinical dispensing and in-office chemical resurfacing protocols.',
+    badge: 'Clinic Professional Only',
+    featured: false,
+    reviews: []
+  },
+  {
+    id: 'p-17',
+    sku: 'CON-PRO-MESO-50',
+    name: 'ContrÂge Professional Meso-Infusion Multivitamin Ampoules (5 x 10ml)',
+    slug: 'contrage-professional-meso-infusion-multivitamin-ampoules',
+    tagline: 'Sterile clinical infusion vials with 50+ bio-revitalizing active molecules, hyaluronic acid, and oligopeptides.',
+    category: 'Professional & Backbar',
+    primaryConcern: 'Aging & Fine Lines',
+    concerns: ['Aging & Fine Lines', 'Barrier Repair', 'Dryness & Dehydration'],
+    skinTypes: ['Professional Clinical Use Only'],
+    price: 4999,
+    salePrice: 4299,
+    rating: 0,
+    reviewCount: 0,
+    stock: 20,
+    sizes: ['5 x 10ml Vials'],
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
-      { name: 'Colloidal Bio-Sulfur', percentage: '10%', role: 'Rapidly dehydrates surface sebum and sheds dead cells blocking the pore.' },
-      { name: 'Zinc Oxide & Calamine', percentage: '8%', role: 'Calms redness, swelling, and localized skin heat.' },
-      { name: 'Salicylic Acid', percentage: '2%', role: 'Clears deep follicular impactions.' }
+      { name: '56 Bio-Revitalizing Active Nutrient Complex', percentage: '10.0%', role: 'Amino acids, co-enzymes, minerals, and nucleic acids for intense cellular revitalizing.' },
+      { name: 'Uncross-Linked High Molecular HA', percentage: '1.5%', role: 'Immediate deep hydration and dermal volume replenishment.' }
     ],
-    fullInci: 'Isopropyl Alcohol, Aqua, Zinc Oxide, Sulfur, Calamine, Salicylic Acid, Talc, Glycerin, Camphor.',
-    clinicalResults: {
-      stat1: '88% reduction in pimple size in 8 hours (overnight)',
-      stat2: 'Prevents picking and scarring',
-      stat3: 'Dries out active whiteheads without spreading bacteria'
-    },
+    fullInci: 'Aqua, Sodium Hyaluronate, Alanine, Arginine, Asparagine, Glutamine, Glycine, Histidine, Isoleucine, Leucine, Lysine, Methionine, Phenylalanine, Proline, Serine, Threonine, Tryptophan, Tyrosine, Valine, Ascorbic Acid, Biotin, Cyanocobalamin, Folic Acid.',
     howToUse: {
       am: false,
-      pm: true,
-      step: 'PM Emergency Spot Care',
-      instructions: 'DO NOT SHAKE THE BOTTLE. Dip a clean cotton swab into the pink sediment at the bottom. Dab directly onto blemishes. Leave overnight and wash off in AM.',
-      warning: 'Do not apply to broken or open wounds.'
+      pm: false,
+      step: 'In-Clinic Infusion Only',
+      instructions: 'For use with clinical electroporation, sonophoresis, and professional transdermal delivery devices.',
+      warning: 'Medical license verification required for wholesale purchase.'
     },
-    doctorNote: 'Preserves the bi-phase solution so the isopropyl alcohol acts as an antiseptic vehicle while the active sediment dries the lesion.',
-    badge: 'Overnight Rescue',
-    featured: false
+    doctorNote: 'Sterile grade bio-revitalizing cocktail meeting highest pharmaceutical purity standards.',
+    badge: 'Clinic Professional Only',
+    featured: false,
+    reviews: []
   }
 ];

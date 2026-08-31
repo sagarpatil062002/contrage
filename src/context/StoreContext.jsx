@@ -7,7 +7,7 @@ import { initialBlogs } from '../data/seedBlogs';
 import { initialDoctors } from '../data/seedDoctors';
 import { initialTestimonials } from '../data/seedTestimonials';
 import { initialCoupons, initialFAQs } from '../data/seedCoupons';
-import { initialSiteContent, initialClinicalTrials, initialInquiries } from '../data/seedSiteContent';
+import { initialSiteContent, initialClinicalTrials, initialInquiries, initialDermatologistInquiries, initialMarketingLeads } from '../data/seedSiteContent';
 
 const StoreContext = createContext();
 
@@ -33,86 +33,40 @@ export const StoreProvider = ({ children }) => {
   const [testimonials, setTestimonials] = useState(initialTestimonials);
   const [coupons, setCoupons] = useState(initialCoupons);
 
-  // 2. Auth State
+  // Marketing & B2B Leads States
+  const [marketingLeads, setMarketingLeads] = useState(() => {
+    const saved = localStorage.getItem('contrage_marketing_leads');
+    return saved ? JSON.parse(saved) : initialMarketingLeads;
+  });
+
+  const [dermatologistInquiries, setDermatologistInquiries] = useState(() => {
+    const saved = localStorage.getItem('contrage_dermatologist_inquiries');
+    return saved ? JSON.parse(saved) : initialDermatologistInquiries;
+  });
+
+  // 2. Auth State (Starts as Guest unless token exists)
   const [token, setToken] = useState(() => localStorage.getItem('contrage_token') || null);
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('contrage_user') || localStorage.getItem('aesthederm_user');
+    const saved = localStorage.getItem('contrage_user');
     return saved ? JSON.parse(saved) : {
-      isLoggedIn: true,
-      name: 'Priya Sharma',
-      email: 'priya.sharma@example.com',
-      phone: '+91 98765 43210',
-      role: 'CUSTOMER',
-      skinType: 'Oily / Combination',
-      primaryConcern: 'Acne & Blemishes',
-      sensitivity: 'Low-Medium',
-      addresses: [
-        {
-          id: 'addr-1',
-          name: 'Priya Sharma',
-          phone: '+91 98765 43210',
-          street: 'Flat 402, Lotus Greens, Sector 45',
-          city: 'Gurugram',
-          state: 'Haryana',
-          pincode: '122003',
-          isDefault: true
-        }
-      ],
-      wishlist: ['p-1', 'p-4']
+      isLoggedIn: false,
+      name: '',
+      email: '',
+      phone: '',
+      role: 'GUEST',
+      addresses: []
     };
   });
 
-  // 3. User Specific States
+  // 3. User Specific States (Wishlist & Orders start empty unless fetched)
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem('contrage_wishlist');
-    return saved ? JSON.parse(saved) : (user?.wishlist || ['p-1', 'p-4']);
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('contrage_orders') || localStorage.getItem('aesthederm_orders');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 'ORD-84920',
-        trackingNumber: 'DERMA-EXP-84920IN',
-        date: '2026-08-20T10:30:00Z',
-        status: 'In Transit',
-        total: 1248,
-        subtotal: 1248,
-        discount: 0,
-        shippingFee: 0,
-        paymentMethod: 'UPI (Instant Verified)',
-        customer: {
-          name: 'Priya Sharma',
-          email: 'priya.sharma@example.com',
-          phone: '+91 98765 43210',
-          address: 'Flat 402, Lotus Greens, Sector 45',
-          city: 'Gurugram',
-          state: 'Haryana',
-          pincode: '122003'
-        },
-        items: [
-          {
-            product: initialProducts[0],
-            quantity: 1,
-            selectedSize: '30ml',
-            price: 549
-          },
-          {
-            product: initialProducts[3],
-            quantity: 1,
-            selectedSize: '50g',
-            price: 699
-          }
-        ],
-        checkpoints: [
-          { status: 'Order Placed', time: 'Aug 20, 10:30 AM', completed: true, note: 'Prescription & formulation verified by clinical lab.' },
-          { status: 'Formulation Packed', time: 'Aug 20, 02:15 PM', completed: true, note: 'Packed in cold-chain UV protective container.' },
-          { status: 'Dispatched', time: 'Aug 21, 09:00 AM', completed: true, note: 'Handed over to Express Medical Logistics courier.' },
-          { status: 'In Transit', time: 'Aug 22, 06:45 AM', completed: true, current: true, note: 'Out for local delivery via Delhi Central Hub.' },
-          { status: 'Delivered', time: 'Estimated Today by 5:00 PM', completed: false, note: 'Pending customer doorstep delivery.' }
-        ]
-      }
-    ];
+    const saved = localStorage.getItem('contrage_orders');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [appliedCoupon, setAppliedCoupon] = useState(() => {
@@ -123,7 +77,7 @@ export const StoreProvider = ({ children }) => {
   const [announcement, setAnnouncement] = useState(() => {
     const saved = localStorage.getItem('contrage_announcement');
     return saved ? JSON.parse(saved) : {
-      text: '🌿 Formulated by 42+ Global Dermatologists • FREE Express Delivery Above ₹999 • Use Code FIRSTSKIN for 15% Off',
+      text: '🔬 ContrÂge Clinical Formulations • Formulated under Dr. Siddhi Advisory • FREE Delivery Above ₹499 • Code: CONTRAGE10',
       link: '/shop',
       enabled: true
     };
@@ -302,6 +256,14 @@ export const StoreProvider = ({ children }) => {
   }, [orders]);
 
   useEffect(() => {
+    localStorage.setItem('contrage_marketing_leads', JSON.stringify(marketingLeads));
+  }, [marketingLeads]);
+
+  useEffect(() => {
+    localStorage.setItem('contrage_dermatologist_inquiries', JSON.stringify(dermatologistInquiries));
+  }, [dermatologistInquiries]);
+
+  useEffect(() => {
     localStorage.setItem('contrage_user', JSON.stringify(user));
   }, [user]);
 
@@ -382,14 +344,66 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  const sendMobileOtp = async (phone) => {
+    try {
+      const res = await api.auth.sendOtp(phone);
+      if (res?.data) {
+        showToast(`OTP sent to +91 ${res.data.phone}! Code: ${res.data.otp}`, 'info');
+        return { success: true, ...res.data };
+      }
+    } catch (error) {
+      showToast(error.message || 'Failed to send OTP. Please check your mobile number.', 'error');
+      return { success: false, message: error.message };
+    }
+  };
+
+  const verifyMobileOtp = async ({ phone, otp, name, email }) => {
+    try {
+      const res = await api.auth.verifyOtp({ phone, otp, name, email });
+      if (res?.data?.token) {
+        localStorage.setItem('contrage_token', res.data.token);
+        setToken(res.data.token);
+        setUser({ ...res.data.user, isLoggedIn: true });
+        if (res.data.user.wishlist) setWishlist(res.data.user.wishlist);
+
+        // Fetch user orders by phone or account
+        try {
+          const userOrders = await api.orders.getByPhone(phone);
+          if (userOrders?.data && userOrders.data.length > 0) {
+            setOrders(userOrders.data);
+          }
+        } catch (err) {}
+
+        showToast(`Logged in successfully! Welcome, ${res.data.user.name}.`);
+        return { success: true, user: res.data.user, isNewUser: res.data.isNewUser };
+      }
+    } catch (error) {
+      showToast(error.message || 'Invalid or expired OTP. Please try again.', 'error');
+      return { success: false, message: error.message };
+    }
+  };
+
+  const fetchOrdersByPhone = async (phone) => {
+    try {
+      const res = await api.orders.getByPhone(phone);
+      if (res?.data) {
+        return { success: true, orders: res.data };
+      }
+      return { success: false, orders: [] };
+    } catch (error) {
+      return { success: false, message: error.message, orders: [] };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('contrage_token');
     setToken(null);
     setUser({
       isLoggedIn: false,
-      name: 'Guest Customer',
+      name: '',
       email: '',
-      role: 'CUSTOMER',
+      phone: '',
+      role: 'GUEST',
       addresses: []
     });
     setAppliedCoupon(null);
@@ -397,25 +411,64 @@ export const StoreProvider = ({ children }) => {
   };
 
   // ==========================================
-  // CART OPERATIONS
+  // CART OPERATIONS & ROBUST PRICING
   // ==========================================
-  const addToCart = async (product, quantity = 1, selectedSize = null) => {
+  const getItemPrice = (item) => {
+    const p = Number(item?.price ?? item?.product?.salePrice ?? item?.product?.price ?? 0);
+    return isNaN(p) ? 0 : p;
+  };
+
+  const getItemQty = (item) => {
+    const q = Number(item?.quantity);
+    return isNaN(q) || q <= 0 ? 1 : q;
+  };
+
+  const addToCart = async (product, arg2 = 1, arg3 = null) => {
+    if (!product || product.stock <= 0) {
+      showToast(`"${product?.name || 'Product'}" is currently out of stock.`, 'error');
+      return;
+    }
+
+    let quantity = 1;
+    let selectedSize = null;
+
+    if (typeof arg2 === 'number') {
+      quantity = arg2;
+      selectedSize = typeof arg3 === 'string' ? arg3 : (product.sizes ? product.sizes[0] : 'Standard');
+    } else if (typeof arg2 === 'string') {
+      selectedSize = arg2;
+      quantity = typeof arg3 === 'number' ? arg3 : 1;
+    } else {
+      quantity = 1;
+      selectedSize = product.sizes ? product.sizes[0] : 'Standard';
+    }
+
+    quantity = isNaN(quantity) || quantity <= 0 ? 1 : Number(quantity);
     const size = selectedSize || (product.sizes ? product.sizes[0] : 'Standard');
-    const price = product.salePrice || product.price;
+    const price = Number(product.salePrice || product.price) || 0;
 
     // Optimistic UI update
     setCart(prev => {
       const existingIndex = prev.findIndex(item => item.product.id === product.id && item.selectedSize === size);
       if (existingIndex > -1) {
         const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
+        const currentQty = getItemQty(updated[existingIndex]);
+        if (currentQty + quantity > product.stock) {
+          showToast(`Cannot add more. Only ${product.stock} unit(s) available in stock.`, 'error');
+          return updated;
+        }
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: currentQty + quantity,
+          price
+        };
         return updated;
       } else {
         return [...prev, { product, quantity, selectedSize: size, price }];
       }
     });
 
-    showToast(`Added "${product.name.slice(0, 30)}..." to your clinical cart.`);
+    showToast(`Added "${product.name.slice(0, 32)}..." to your cart.`);
     setIsCartOpen(true);
 
     // If logged in, sync with MongoDB
@@ -430,24 +483,27 @@ export const StoreProvider = ({ children }) => {
 
   const addRoutineBundleToCart = async (bundleProducts) => {
     for (const prod of bundleProducts) {
-      const size = prod.sizes ? prod.sizes[0] : 'Standard';
-      const price = prod.salePrice || prod.price;
+      if (prod.stock > 0) {
+        const size = prod.sizes ? prod.sizes[0] : 'Standard';
+        const price = Number(prod.salePrice || prod.price) || 0;
 
-      setCart(prev => {
-        const existingIndex = prev.findIndex(item => item.product.id === prod.id && item.selectedSize === size);
-        if (existingIndex > -1) {
-          const updated = [...prev];
-          updated[existingIndex].quantity += 1;
-          return updated;
-        } else {
-          return [...prev, { product: prod, quantity: 1, selectedSize: size, price }];
+        setCart(prev => {
+          const existingIndex = prev.findIndex(item => item.product.id === prod.id && item.selectedSize === size);
+          if (existingIndex > -1) {
+            const updated = [...prev];
+            updated[existingIndex].quantity = getItemQty(updated[existingIndex]) + 1;
+            updated[existingIndex].price = price;
+            return updated;
+          } else {
+            return [...prev, { product: prod, quantity: 1, selectedSize: size, price }];
+          }
+        });
+
+        if (token) {
+          try {
+            await api.cart.addItem(prod.id, 1, size);
+          } catch (err) {}
         }
-      });
-
-      if (token) {
-        try {
-          await api.cart.addItem(prod.id, 1, size);
-        } catch (err) {}
       }
     }
     showToast(`Added Complete Routine Bundle (${bundleProducts.length} items) to cart!`);
@@ -460,9 +516,16 @@ export const StoreProvider = ({ children }) => {
       return;
     }
 
+    const product = products.find(p => p.id === productId);
+    if (product && newQty > product.stock) {
+      showToast(`Maximum available stock is ${product.stock} units.`, 'error');
+      return;
+    }
+
     setCart(prev => prev.map(item => {
       if (item.product.id === productId && item.selectedSize === selectedSize) {
-        return { ...item, quantity: newQty };
+        const price = Number(item.price || item.product?.salePrice || item.product?.price) || 0;
+        return { ...item, quantity: Number(newQty), price };
       }
       return item;
     }));
@@ -498,8 +561,8 @@ export const StoreProvider = ({ children }) => {
   // ==========================================
   // CART CALCULATIONS
   // ==========================================
-  const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const cartSubtotal = cart.reduce((sum, item) => sum + (getItemPrice(item) * getItemQty(item)), 0);
+  const cartCount = cart.reduce((count, item) => count + getItemQty(item), 0);
 
   let discountAmount = 0;
   if (appliedCoupon) {
@@ -510,8 +573,8 @@ export const StoreProvider = ({ children }) => {
     }
   }
 
-  const freeShippingThreshold = 999;
-  const shippingFee = (cartSubtotal >= freeShippingThreshold || (appliedCoupon && appliedCoupon.code === 'FREESHIP') || cartSubtotal === 0) ? 0 : 99;
+  const freeShippingThreshold = 499;
+  const shippingFee = (cartSubtotal >= freeShippingThreshold || (appliedCoupon && appliedCoupon.code === 'FREESHIP') || cartSubtotal === 0) ? 0 : 50;
   const cartTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
   // ==========================================
@@ -621,7 +684,7 @@ export const StoreProvider = ({ children }) => {
 
       // Local fallback in case server was in disconnected mode
       const newOrderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-      const newTrackingNum = `DERMA-EXP-${Math.floor(10000 + Math.random() * 90000)}IN`;
+      const newTrackingNum = `DELHIVERY-AWB-${Math.floor(100000000 + Math.random() * 900000000)}`;
       const now = new Date();
       const formattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' +
         now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -629,6 +692,7 @@ export const StoreProvider = ({ children }) => {
       const fallbackOrder = {
         id: newOrderId,
         trackingNumber: newTrackingNum,
+        courier: 'Delhivery Surface & Express Air',
         date: now.toISOString(),
         status: 'Processing',
         subtotal: cartSubtotal,
@@ -636,7 +700,7 @@ export const StoreProvider = ({ children }) => {
         shippingFee: shippingFee,
         total: cartTotal,
         couponApplied: appliedCoupon ? appliedCoupon.code : null,
-        paymentMethod: orderData.paymentMethod || 'Credit/Debit Card (Simulated)',
+        paymentMethod: orderData.paymentMethod || 'Razorpay UPI / Cards',
         customer: {
           name: orderData.name,
           email: orderData.email,
@@ -648,11 +712,11 @@ export const StoreProvider = ({ children }) => {
         },
         items: [...cart],
         checkpoints: [
-          { status: 'Order Placed', time: formattedTime, completed: true, current: true, note: 'Order received and verified for clinical batch packaging.' },
-          { status: 'Formulation Packed', time: 'Pending (~2-4 hours)', completed: false, note: 'UV & temperature controlled packaging.' },
-          { status: 'Dispatched', time: 'Estimated Tomorrow', completed: false, note: 'Handover to express courier.' },
-          { status: 'In Transit', time: 'Estimated 2-3 Days', completed: false, note: 'Local distribution dispatch.' },
-          { status: 'Delivered', time: 'Estimated 3-4 Days', completed: false, note: 'Doorstep verification.' }
+          { status: 'Order Placed', time: formattedTime, completed: true, current: true, note: 'Order received & verified by Contrage dispensary.' },
+          { status: 'Formulation Packed', time: 'Pending (~2-4 hours)', completed: false, note: 'UV-protective medical packaging seal applied.' },
+          { status: 'Dispatched via Delhivery', time: 'Estimated Tomorrow', completed: false, note: 'Manifested and handed over to Delhivery Logistics hub.' },
+          { status: 'In Transit', time: 'Estimated 2-3 Days', completed: false, note: 'Express courier transit to destination delivery center.' },
+          { status: 'Delivered', time: 'Estimated 3-4 Days', completed: false, note: 'Doorstep clinical delivery with OTP/signature verification.' }
         ]
       };
 
@@ -1077,6 +1141,48 @@ export const StoreProvider = ({ children }) => {
     showToast(`Updated site content for "${sectionKey}".`);
   };
 
+  // ==========================================
+  // MARKETING LEADS & DERMATOLOGIST B2B HANDLERS
+  // ==========================================
+  const addMarketingLead = (leadData) => {
+    const newLead = {
+      ...leadData,
+      id: `lead-${Date.now()}`,
+      couponGenerated: 'CONTRAGE10',
+      createdAt: new Date().toISOString()
+    };
+    setMarketingLeads(prev => [newLead, ...prev]);
+    showToast('🎉 Welcome! 10% coupon code CONTRAGE10 unlocked & copied.');
+    return newLead;
+  };
+
+  const deleteMarketingLead = (id) => {
+    setMarketingLeads(prev => prev.filter(l => l.id !== id));
+    showToast('Marketing subscriber removed.', 'info');
+  };
+
+  const addDermatologistInquiry = (inqData) => {
+    const newInquiry = {
+      ...inqData,
+      id: `b2b-${Date.now()}`,
+      status: 'Pending Review',
+      date: new Date().toISOString()
+    };
+    setDermatologistInquiries(prev => [newInquiry, ...prev]);
+    showToast('Clinic wholesale inquiry submitted! Our clinical manager will reach out within 4 business hours.');
+    return newInquiry;
+  };
+
+  const updateDermatologistInquiryStatus = (id, newStatus) => {
+    setDermatologistInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, status: newStatus } : inq));
+    showToast(`B2B inquiry status updated to "${newStatus}".`);
+  };
+
+  const deleteDermatologistInquiry = (id) => {
+    setDermatologistInquiries(prev => prev.filter(inq => inq.id !== id));
+    showToast('B2B inquiry record removed.', 'info');
+  };
+
   const resetDemoData = () => {
     localStorage.clear();
     setProducts(initialProducts);
@@ -1086,6 +1192,8 @@ export const StoreProvider = ({ children }) => {
     setClinicalTrials(initialClinicalTrials);
     setSiteContent(initialSiteContent);
     setInquiries(initialInquiries);
+    setMarketingLeads(initialMarketingLeads);
+    setDermatologistInquiries(initialDermatologistInquiries);
     setBlogs(initialBlogs);
     setFaqs(initialFAQs);
     setTestimonials(initialTestimonials);
@@ -1105,6 +1213,8 @@ export const StoreProvider = ({ children }) => {
     clinicalTrials,
     siteContent,
     inquiries,
+    marketingLeads,
+    dermatologistInquiries,
     blogs,
     faqs,
     testimonials,
@@ -1153,7 +1263,17 @@ export const StoreProvider = ({ children }) => {
     setAnnouncement,
     fetchAllData,
 
-    // Auth Handlers
+    // Marketing & B2B methods
+    addMarketingLead,
+    deleteMarketingLead,
+    addDermatologistInquiry,
+    updateDermatologistInquiryStatus,
+    deleteDermatologistInquiry,
+
+    // Auth Handlers (The Derma Co Mobile OTP + Standard)
+    sendMobileOtp,
+    verifyMobileOtp,
+    fetchOrdersByPhone,
     login,
     register,
     logout,

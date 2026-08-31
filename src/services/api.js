@@ -35,6 +35,8 @@ export const api = {
 
   // Auth
   auth: {
+    sendOtp: (phone) => request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ phone }) }),
+    verifyOtp: (payload) => request('/auth/verify-otp', { method: 'POST', body: JSON.stringify(payload) }),
     register: (userData) => request('/auth/register', { method: 'POST', body: JSON.stringify(userData) }),
     login: (credentials) => request('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
     getMe: () => request('/auth/me'),
@@ -85,6 +87,7 @@ export const api = {
   orders: {
     create: (orderPayload) => request('/orders', { method: 'POST', body: JSON.stringify(orderPayload) }),
     getMyOrders: () => request('/orders/myorders'),
+    getByPhone: (phone) => request(`/orders/by-phone/${encodeURIComponent(phone)}`),
     getById: (idOrTracking) => request(`/orders/${idOrTracking}`),
     getAll: () => request('/orders/all'),
     updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) })

@@ -221,12 +221,12 @@ export default function CartPage() {
                   </button>
 
                   <div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--teal-950)' }}>
-                      ₹{item.price * item.quantity}
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#0F172A' }}>
+                      ₹{(Number(item.price || item.product?.salePrice || item.product?.price) || 0) * (typeof item.quantity === 'number' ? item.quantity : 1)}
                     </div>
-                    {item.product.price > item.price && (
+                    {item.product && item.product.price > (item.price || item.product.salePrice) && (
                       <div style={{ fontSize: '0.75rem', color: '#94A3B8', textDecoration: 'line-through' }}>
-                        ₹{item.product.price * item.quantity}
+                        ₹{item.product.price * (typeof item.quantity === 'number' ? item.quantity : 1)}
                       </div>
                     )}
                   </div>

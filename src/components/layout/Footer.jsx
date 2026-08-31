@@ -9,23 +9,23 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   const brand = siteContent?.brand || {
-    name: 'AESTHEDERM',
-    tagline: 'LABORATOIRES DERMATOLOGIQUES',
-    shortDescription: 'Advanced dermatological skincare formulations developed with global clinical expertise and 100% molecular transparency.'
+    name: 'CONTRÂGE',
+    tagline: 'YOUR PARTNER IN SKIN IMPROVEMENT',
+    shortDescription: 'At ContrÂge, we develop high-quality cosmeceutical formulations, non-invasive treatments, and advanced home care lines with clinical precision and multidisciplinary medical expertise.'
   };
 
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (email.trim()) {
       setSubscribed(true);
-      showToast('Thank you for subscribing to our clinical research newsletter.');
+      showToast('Thank you! 10% coupon code CONTRAGE10 sent to your email.');
       setEmail('');
     }
   };
 
   return (
     <footer style={{
-      backgroundColor: '#17213A',
+      backgroundColor: '#0F172A',
       color: '#FFFFFF',
       paddingTop: '4.5rem',
       paddingBottom: '2.5rem',
@@ -44,18 +44,18 @@ export default function Footer() {
             <div style={{ marginBottom: '1.25rem' }}>
               <span style={{
                 fontFamily: 'var(--font-serif)',
-                fontSize: '1.6rem',
-                fontWeight: '600',
-                letterSpacing: '0.04em',
+                fontSize: '1.65rem',
+                fontWeight: '800',
+                letterSpacing: '0.06em',
                 color: '#FFFFFF',
                 display: 'block'
               }}>
                 {brand.name}
               </span>
               <span style={{
-                fontSize: '0.65rem',
-                letterSpacing: '0.2em',
-                color: '#D8D2E7',
+                fontSize: '0.62rem',
+                letterSpacing: '0.18em',
+                color: '#38BDF8',
                 textTransform: 'uppercase',
                 fontWeight: '700'
               }}>
@@ -69,7 +69,7 @@ export default function Footer() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#D8D2E7' }}>
               <ShieldCheck size={16} />
-              <span>Dermatologically Evaluated & Non-Comedogenic</span>
+              <span>Dermatologist Approved & CDSCO In-Process</span>
             </div>
           </div>
 
@@ -90,28 +90,28 @@ export default function Footer() {
           {/* Col 3: Discover & Science */}
           <div>
             <h4 style={{ fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#FFFFFF', marginBottom: '1.25rem' }}>
-              Science & Research
+              Science & B2B Clinic
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#A3ABB9' }}>
+              <li><Link to="/dermatologist-b2b" style={{ color: '#D8D2E7', fontWeight: '700' }}>★ Dermatologist & Clinic Bulk B2B</Link></li>
               <li><Link to="/concerns" style={{ color: 'inherit' }}>Skin Concerns Index</Link></li>
               <li><Link to="/ingredients" style={{ color: 'inherit' }}>Active Ingredients Lab</Link></li>
               <li><Link to="/research" style={{ color: 'inherit' }}>Clinical Trial Whitepapers</Link></li>
               <li><Link to="/blog" style={{ color: 'inherit' }}>Clinical Journal & Insights</Link></li>
-              <li><Link to="/#skin-quiz" style={{ color: 'inherit' }}>Skin Diagnostic Consultation</Link></li>
             </ul>
           </div>
 
           {/* Col 4: Help & Legal */}
           <div>
             <h4 style={{ fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#FFFFFF', marginBottom: '1.25rem' }}>
-              Support & Ethics
+              Support & Logistics
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.85rem', color: '#A3ABB9' }}>
-              <li><Link to="/contact" style={{ color: 'inherit' }}>Customer Care & B2B Inquiries</Link></li>
+              <li><Link to="/contact" style={{ color: 'inherit' }}>Customer Care & Inquiries</Link></li>
               <li><Link to="/faq" style={{ color: 'inherit' }}>Help Center & FAQ</Link></li>
-              <li><Link to="/legal/shipping" style={{ color: 'inherit' }}>Cold-Chain Logistics Policy</Link></li>
-              <li><Link to="/legal/refunds" style={{ color: 'inherit' }}>30-Day Clinical Guarantee</Link></li>
-              <li><Link to="/legal/privacy" style={{ color: 'inherit' }}>Privacy & Data Security</Link></li>
+              <li><Link to="/legal/shipping" style={{ color: 'inherit' }}>Delhivery Logistics & Shipping</Link></li>
+              <li><Link to="/legal/refunds" style={{ color: 'inherit' }}>30-Day Guarantee & Returns</Link></li>
+              <li><Link to="/legal/privacy" style={{ color: 'inherit' }}>Privacy Policy (WhatsApp/SMS Opt-in)</Link></li>
             </ul>
           </div>
 

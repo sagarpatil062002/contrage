@@ -88,23 +88,23 @@ export default function Navbar() {
             <Link to="/" style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{
                 fontFamily: 'var(--font-serif)',
-                fontSize: '1.5rem',
-                fontWeight: '600',
-                letterSpacing: '0.04em',
+                fontSize: '1.65rem',
+                fontWeight: '800',
+                letterSpacing: '0.06em',
                 color: 'var(--text-primary)',
                 lineHeight: '1'
               }}>
-                AESTHEDERM
+                CONTRÂGE
               </span>
               <span style={{
-                fontSize: '0.62rem',
+                fontSize: '0.6rem',
                 fontWeight: '700',
-                letterSpacing: '0.2em',
-                color: 'var(--text-secondary)',
+                letterSpacing: '0.18em',
+                color: 'var(--accent-blue-dark)',
                 textTransform: 'uppercase',
                 marginTop: '3px'
               }}>
-                LABORATOIRES DERMATOLOGIQUES
+                YOUR PARTNER IN SKIN IMPROVEMENT
               </span>
             </Link>
           </div>
@@ -305,6 +305,22 @@ export default function Navbar() {
               })}
             >
               Journal
+            </NavLink>
+
+            <NavLink
+              to="/dermatologist-b2b"
+              style={({ isActive }) => ({
+                fontSize: '0.85rem',
+                fontWeight: '700',
+                letterSpacing: '0.02em',
+                color: isActive ? 'var(--accent-blue-dark)' : 'var(--text-secondary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              })}
+            >
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--accent-blue-dark)' }}></span>
+              Clinic B2B
             </NavLink>
 
             <NavLink
