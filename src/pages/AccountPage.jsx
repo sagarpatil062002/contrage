@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import ProductCard from '../components/common/ProductCard';
 import {
   User,
@@ -252,19 +253,20 @@ export default function AccountPage() {
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', paddingBottom: '5rem' }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: '2.5rem 0 2rem 0' }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        padding: 'clamp(1.75rem, 3.5vw, 2.5rem) 0 clamp(1.25rem, 3vw, 2rem) 0'
+      }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#64748B', marginBottom: '0.5rem' }}>
-            <Link to="/" style={{ color: 'inherit' }}>Home</Link> &gt;
-            <span style={{ color: '#0F172A', fontWeight: '600' }}>Customer Portal</span>
-          </div>
+          <Breadcrumbs embedded items={[{ label: 'Home', to: '/' }, { label: 'Customer Portal' }]} />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h1 style={{ fontSize: '2.2rem', color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+              <h1 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.2rem)', color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
                 {user?.isLoggedIn ? `Welcome, ${user.name || 'Customer'}` : 'Customer Portal & Order Tracking'}
               </h1>
-              <p style={{ fontSize: '0.92rem', color: '#64748B', marginTop: '0.35rem' }}>
+              <p style={{ fontSize: 'clamp(0.85rem, 1.8vw, 0.92rem)', color: '#64748B', marginTop: '0.35rem' }}>
                 {user?.isLoggedIn ? `Linked mobile: ${user.phone || 'N/A'} • Authenticated clinical session` : 'Access your formulations, track live Delhivery dispatches, and manage addresses.'}
               </p>
             </div>
@@ -729,6 +731,10 @@ export default function AccountPage() {
                           <img
                             src={item.product?.heroImage || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80'}
                             alt={item.product?.name || 'Formulation'}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                            }}
                             style={{ width: '44px', height: '44px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #E2E8F0' }}
                           />
                           <div style={{ flex: 1 }}>

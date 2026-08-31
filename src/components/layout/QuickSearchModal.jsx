@@ -100,23 +100,24 @@ export default function QuickSearchModal() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.85rem',
-          padding: '1.25rem 1.5rem',
+          gap: 'clamp(0.5rem, 2vw, 0.85rem)',
+          padding: 'clamp(0.85rem, 2.5vw, 1.25rem) clamp(0.85rem, 2.5vw, 1.5rem)',
           borderBottom: '1px solid #E2E8F0',
           backgroundColor: '#FAF9F6'
         }}>
-          <Search size={22} color="var(--teal-700)" />
+          <Search size={20} color="var(--teal-700)" style={{ flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search by active molecule, skin concern, or category..."
+            placeholder="Search active molecules, concerns..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               flex: 1,
+              minWidth: 0,
               border: 'none',
               backgroundColor: 'transparent',
-              fontSize: '1.05rem',
+              fontSize: 'clamp(0.88rem, 2.5vw, 1.05rem)',
               fontWeight: '500',
               color: 'var(--text-primary)',
               outline: 'none'
@@ -125,7 +126,7 @@ export default function QuickSearchModal() {
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: '2px', display: 'flex', alignItems: 'center' }}
             >
               <X size={18} />
             </button>
@@ -139,7 +140,8 @@ export default function QuickSearchModal() {
               borderRadius: 'var(--radius-xs)',
               fontSize: '0.75rem',
               color: 'var(--text-secondary)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              flexShrink: 0
             }}
           >
             ESC
@@ -223,6 +225,10 @@ export default function QuickSearchModal() {
                     <img
                       src={prod.heroImage}
                       alt={prod.name}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                      }}
                       style={{
                         width: '56px',
                         height: '56px',
@@ -311,20 +317,33 @@ export default function QuickSearchModal() {
 
               <div style={{
                 backgroundColor: 'var(--teal-50)',
-                padding: '1rem',
+                padding: 'clamp(0.85rem, 2.5vw, 1.15rem)',
                 borderRadius: 'var(--radius-md)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.85rem',
                 border: '1px solid var(--teal-200)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <Sparkles size={20} color="var(--teal-700)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 200px', minWidth: '180px' }}>
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(67, 142, 117, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={18} color="var(--teal-700)" />
+                  </div>
                   <div>
-                    <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--teal-950)' }}>
+                    <div style={{ fontWeight: '700', fontSize: '0.86rem', color: 'var(--teal-950)', lineHeight: '1.3' }}>
                       Need a personalized doctor regimen?
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--teal-800)' }}>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--teal-800)', lineHeight: '1.35', marginTop: '2px' }}>
                       Take our 4-step skin diagnostic quiz in 60 seconds.
                     </div>
                   </div>
@@ -333,9 +352,21 @@ export default function QuickSearchModal() {
                   to="/#skin-quiz"
                   onClick={() => setIsSearchOpen(false)}
                   className="btn btn-primary btn-sm"
-                  style={{ fontSize: '0.78rem', padding: '0.4rem 0.8rem' }}
+                  style={{
+                    fontSize: '0.82rem',
+                    padding: '0.5rem 1.15rem',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    borderRadius: 'var(--radius-full)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem',
+                    fontWeight: '600'
+                  }}
                 >
-                  Start Quiz
+                  <span>Start Quiz</span>
+                  <ArrowRight size={14} />
                 </Link>
               </div>
             </div>

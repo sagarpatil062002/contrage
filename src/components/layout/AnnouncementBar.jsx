@@ -9,19 +9,33 @@ export default function AnnouncementBar() {
   if (!announcement || !announcement.enabled) return null;
 
   return (
-    <div style={{
-      background: 'linear-gradient(90deg, #EDEAF4 0%, #E5EBF5 50%, #EDEAF4 100%)',
-      color: '#17213A',
-      fontSize: '0.78rem',
-      fontWeight: '600',
-      padding: '0.45rem 1rem',
-      textAlign: 'center',
-      letterSpacing: '0.04em',
-      position: 'relative',
-      zIndex: 50,
-      borderBottom: '1px solid rgba(23, 33, 58, 0.06)'
-    }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+    <aside
+      aria-label="Promotional Announcement"
+      style={{
+        background: 'linear-gradient(90deg, #ECE8F4 0%, #E2E8F5 50%, #ECE8F4 100%)',
+        color: '#17213A',
+        fontSize: 'clamp(0.72rem, 1.8vw, 0.78rem)',
+        fontWeight: '600',
+        padding: '0.45rem 1rem',
+        textAlign: 'center',
+        letterSpacing: '0.02em',
+        lineHeight: '1.45',
+        position: 'relative',
+        zIndex: 50,
+        borderBottom: '1px solid rgba(23, 33, 58, 0.08)'
+      }}
+    >
+      <div
+        className="container"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.35rem 0.5rem',
+          flexWrap: 'wrap',
+          textAlign: 'center'
+        }}
+      >
         <span>{announcement.text}</span>
         {announcement.link && (
           <Link
@@ -33,14 +47,14 @@ export default function AnnouncementBar() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.2rem',
-              marginLeft: '0.35rem',
-              fontSize: '0.76rem'
+              whiteSpace: 'nowrap',
+              fontSize: 'inherit'
             }}
           >
-            Explore <ArrowRight size={11} />
+            Explore <ArrowRight size={11} aria-hidden="true" />
           </Link>
         )}
       </div>
-    </div>
+    </aside>
   );
 }

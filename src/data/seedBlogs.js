@@ -8,7 +8,7 @@ export const initialBlogs = [
     publishedDate: 'August 14, 2026',
     author: 'Dr. Alistair Vance, MD',
     authorRole: 'Chief Scientific Officer',
-    coverImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=1200&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1200&q=80',
     excerpt: 'Explore the biological pathway of Vitamin A conversions in keratinocytes and how retinaldehyde delivers prescription-like collagen synthesis with minimal retinization dermatitis.',
     content: `
       <h2>The Retinoid Conversion Cascade</h2>

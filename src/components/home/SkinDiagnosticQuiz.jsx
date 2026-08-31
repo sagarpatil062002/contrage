@@ -175,7 +175,7 @@ export default function SkinDiagnosticQuiz() {
                 How does your skin feel 1 hour after cleansing without any moisturizers applied?
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {skinTypes.map(st => (
                   <button
                     key={st.id}
@@ -225,7 +225,7 @@ export default function SkinDiagnosticQuiz() {
                 Select the skin condition you would like our clinical actives to prioritize.
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {concerns.map(c => (
                   <button
                     key={c.id}
@@ -341,7 +341,7 @@ export default function SkinDiagnosticQuiz() {
               </div>
 
               {/* 3 Step Regimen Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {prescribedRoutine.steps.map((st, i) => (
                   <div
                     key={i}
@@ -362,6 +362,10 @@ export default function SkinDiagnosticQuiz() {
                       <img
                         src={st.product.heroImage}
                         alt={st.product.name}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                        }}
                         style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-xs)', marginBottom: '0.75rem' }}
                       />
                       <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>

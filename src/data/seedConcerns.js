@@ -59,7 +59,7 @@ export const initialConcerns = [
     slug: 'aging-fine-lines-firmness',
     shortDesc: 'Collagen depletion, oxidative stress, dynamic wrinkles, and loss of dermal density.',
     iconName: 'Clock',
-    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1200&q=80',
     clinicalBackground: 'Intrinsic cellular senescence combined with photoaging reduces fibroblast collagen synthesis. Dermal extracellular matrix thins, leading to fine lines and loss of elasticity.',
     recommendedActives: ['NDGA (Nordihydroguaiaretic Acid)', 'Retinaldehyde 0.1%', 'Copper Tripeptide-1', 'Bakuchiol 1%'],
     contraindications: ['Skipping sunscreen', 'Over-drying alcohol toners'],

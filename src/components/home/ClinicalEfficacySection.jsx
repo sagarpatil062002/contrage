@@ -18,7 +18,7 @@ export default function ClinicalEfficacySection() {
         { label: 'Blemish Redness Reduction', value: '88%', instrument: 'Mexameter® MX 18' },
         { label: 'Patient Barrier Improvement', value: '94%', instrument: 'Corneometer® CM 825' }
       ],
-      beforeImage: 'https://images.unsplash.com/photo-1512290900672-1f02e75e921d?auto=format&fit=crop&w=800&q=80',
+      beforeImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
       afterImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
       notes: 'Formulation introduced daily PM after mild cleansing. Zero transepidermal barrier disruption noted.'
     }
@@ -94,7 +94,7 @@ export default function ClinicalEfficacySection() {
         {/* 2-Column Clinical Showcase */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
           gap: '3rem',
           alignItems: 'center',
           background: 'linear-gradient(135deg, #F7F5F7 0%, #EDEAF4 50%, #E5EBF5 100%)',
@@ -137,34 +137,55 @@ export default function ClinicalEfficacySection() {
             </p>
 
             {/* Metrics Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: 'clamp(0.4rem, 1.5vw, 0.75rem)',
+              marginBottom: '2rem'
+            }}>
               {(current.metrics || []).map((m, i) => (
                 <div
                   key={i}
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(8px)',
-                    padding: '1.15rem 0.75rem',
+                    padding: 'clamp(0.75rem, 2vw, 1.15rem) clamp(0.35rem, 1vw, 0.75rem)',
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid rgba(23, 33, 58, 0.08)',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    minWidth: 0
                   }}
                 >
-                  <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.1' }}>
+                  <div style={{ fontSize: 'clamp(1.35rem, 3.5vw, 1.75rem)', fontWeight: '800', color: 'var(--text-primary)', lineHeight: '1.1' }}>
                     {m.value}
                   </div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: '700', color: 'var(--text-primary)', marginTop: '0.35rem' }}>
+                  <div style={{ fontSize: 'clamp(0.65rem, 1.6vw, 0.72rem)', fontWeight: '700', color: 'var(--text-primary)', marginTop: '0.35rem', lineHeight: 1.3 }}>
                     {m.label}
                   </div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  <div style={{ fontSize: 'clamp(0.58rem, 1.4vw, 0.65rem)', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.2 }}>
                     {m.instrument}
                   </div>
                 </div>
               ))}
             </div>
 
-            <Link to="/research" className="btn btn-primary btn-md">
-              <FlaskConical size={16} /> Explore Research Whitepapers &rarr;
+            <Link
+              to="/research"
+              className="btn btn-primary btn-md"
+              style={{
+                width: '100%',
+                maxWidth: '100%',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.45rem',
+                padding: '0.75rem clamp(0.75rem, 2.5vw, 1.6rem)',
+                fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                boxSizing: 'border-box'
+              }}
+            >
+              <FlaskConical size={16} style={{ flexShrink: 0 }} />
+              <span>Explore Research Whitepapers &rarr;</span>
             </Link>
           </div>
         </div>

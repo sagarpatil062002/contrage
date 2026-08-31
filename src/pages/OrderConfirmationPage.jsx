@@ -150,6 +150,10 @@ export default function OrderConfirmationPage() {
                     <img
                       src={item.product?.heroImage || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80'}
                       alt={item.product?.name}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                      }}
                       style={{ width: '44px', height: '44px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #E2E8F0' }}
                     />
                     <div>

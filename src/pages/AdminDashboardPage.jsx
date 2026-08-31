@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from '../components/common/CustomSelect';
 import confetti from 'canvas-confetti';
 import {
   LayoutDashboard,
@@ -39,6 +40,7 @@ import {
   Stethoscope,
   Send,
   FileSpreadsheet,
+  Menu,
   Lock,
   LogOut,
   KeyRound,
@@ -96,7 +98,8 @@ export default function AdminDashboardPage() {
     showToast
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'products' | 'concerns' | 'ingredients' | 'trials' | 'content' | 'inquiries' | 'leads' | 'b2b' | 'orders' | 'coupons' | 'editorial' | 'settings'
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ==========================================
   // HIGH-SECURITY CLINICAL ADMIN AUTH STATE
@@ -364,7 +367,7 @@ export default function AdminDashboardPage() {
     duration: '4-Week Blinded Study (n=120)',
     formulation: '10% Niacinamide + 2% Zinc PCA Serum',
     notes: 'Zero transepidermal barrier disruption noted during trial period.',
-    beforeImage: 'https://images.unsplash.com/photo-1512290900672-1f02e75e921d?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
     afterImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
     metric1Label: 'Sebum Reduction',
     metric1Value: '43%',
@@ -391,7 +394,7 @@ export default function AdminDashboardPage() {
     secondaryCtaLink: siteContent?.hero?.secondaryCtaLink || '/concerns',
     badgeText: siteContent?.hero?.badgeText || '100% Active Transparency',
     leftProductImage: siteContent?.hero?.leftProductImage || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
-    centerProductImage: siteContent?.hero?.centerProductImage || 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80',
+    centerProductImage: siteContent?.hero?.centerProductImage || 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
     rightProductImage: siteContent?.hero?.rightProductImage || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80'
   });
 
@@ -722,6 +725,22 @@ export default function AdminDashboardPage() {
     return i.type === inquiryFilter;
   });
 
+  const adminTabs = [
+    { id: 'overview', label: 'Overview & Reports', icon: <LayoutDashboard size={17} /> },
+    { id: 'content', label: 'Site Content & Hero', icon: <SlidersHorizontal size={17} /> },
+    { id: 'products', label: `Formulations (${products.length})`, icon: <Package size={17} /> },
+    { id: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingBag size={17} /> },
+    { id: 'leads', label: `Marketing Leads (${marketingLeads.length})`, icon: <Users size={17} /> },
+    { id: 'b2b', label: `Dermatologist B2B (${dermatologistInquiries.length})`, icon: <Stethoscope size={17} /> },
+    { id: 'inquiries', label: `Inquiries (${pendingInquiriesCount} new)`, icon: <Mail size={17} /> },
+    { id: 'concerns', label: `Skin Concerns (${concerns.length})`, icon: <ShieldCheck size={17} /> },
+    { id: 'ingredients', label: `Ingredients (${ingredients.length})`, icon: <Sparkles size={17} /> },
+    { id: 'trials', label: `Clinical Trials (${clinicalTrials.length})`, icon: <FlaskConical size={17} /> },
+    { id: 'coupons', label: `Promo Codes (${coupons.length})`, icon: <Tag size={17} /> },
+    { id: 'editorial', label: 'Journal & FAQs', icon: <FileText size={17} /> },
+    { id: 'settings', label: 'Announcement Bar', icon: <Megaphone size={17} /> }
+  ];
+
   // ==========================================
   // HIGH-SECURITY CLINICAL ADMIN GATEWAY
   // ==========================================
@@ -1047,12 +1066,13 @@ export default function AdminDashboardPage() {
   }
 
   // ==========================================
+  // ==========================================
   // AUTHENTICATED ADMIN DASHBOARD
   // ==========================================
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', color: '#0F172A', paddingBottom: '5rem' }}>
       {/* Top Admin Header */}
-      <header style={{
+      <header className="admin-header" style={{
         backgroundColor: '#FFFFFF',
         borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
         padding: '1.15rem 2rem',
@@ -1064,6 +1084,15 @@ export default function AdminDashboardPage() {
         boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="admin-header-hamburger"
+            aria-label="Open Admin Menu"
+            title="Open Admin Navigation"
+          >
+            <Menu size={20} />
+          </button>
+
           <div style={{
             width: '40px',
             height: '40px',
@@ -1072,7 +1101,8 @@ export default function AdminDashboardPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#FFFFFF'
+            color: '#FFFFFF',
+            flexShrink: 0
           }}>
             <ShieldCheck size={22} />
           </div>
@@ -1086,7 +1116,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+        <div className="admin-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
           {/* Active Admin Session Status Badge */}
           <div style={{
             display: 'flex',
@@ -1111,13 +1141,13 @@ export default function AdminDashboardPage() {
               backgroundColor: '#FEF2F2',
               color: '#DC2626',
               border: '1px solid rgba(220, 38, 38, 0.25)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
               fontWeight: '700'
             }}
           >
-            <RotateCcw size={13} /> Reset Catalog Seed
+            <RotateCcw size={13} /> <span>Reset Catalog Seed</span>
           </button>
 
           <button
@@ -1127,13 +1157,13 @@ export default function AdminDashboardPage() {
               backgroundColor: '#0F172A',
               color: '#FFFFFF',
               border: 'none',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
               fontWeight: '700'
             }}
           >
-            <LogOut size={13} /> Secure Logout
+            <LogOut size={13} /> <span>Secure Logout</span>
           </button>
 
           <Link
@@ -1145,41 +1175,92 @@ export default function AdminDashboardPage() {
               gap: '0.35rem'
             }}
           >
-            <ArrowLeft size={14} /> Storefront
+            <ArrowLeft size={14} /> <span>Storefront</span>
           </Link>
         </div>
       </header>
 
+      {/* Mobile Slide-in Drawer with Backdrop */}
+      {isSidebarOpen && (
+        <div className="admin-drawer-backdrop" onClick={() => setIsSidebarOpen(false)}>
+          <div className="admin-drawer-panel" onClick={e => e.stopPropagation()}>
+            <div className="admin-drawer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: '#17213A',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF'
+                }}>
+                  <Layers size={16} />
+                </div>
+                <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#17213A', fontFamily: 'var(--font-serif)' }}>
+                  Admin Navigation
+                </span>
+              </div>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0.25rem' }}
+                aria-label="Close Admin Navigation"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <nav className="admin-drawer-nav">
+              {adminTabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem 0.95rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: 'none',
+                    backgroundColor: activeTab === tab.id ? 'var(--bg-lavender)' : 'transparent',
+                    color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontWeight: activeTab === tab.id ? '800' : '600',
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                    width: '100%'
+                  }}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            <div style={{ padding: '1rem', borderTop: '1px solid rgba(23, 33, 58, 0.08)' }}>
+              <Link
+                to="/"
+                className="btn btn-secondary btn-sm"
+                style={{ width: '100%', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                onClick={() => setIsSidebarOpen(false)}
+              >
+                <ArrowLeft size={14} /> Back to Live Storefront
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Admin Layout */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '260px 1fr',
-        minHeight: 'calc(100vh - 4.5rem)'
-      }}>
-        {/* Sidebar Tabs */}
-        <aside style={{
-          backgroundColor: '#FFFFFF',
-          borderRight: '1px solid rgba(23, 33, 58, 0.08)',
-          padding: '1.5rem 1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.4rem'
-        }}>
-          {[
-            { id: 'overview', label: 'Overview & Reports', icon: <LayoutDashboard size={17} /> },
-            { id: 'content', label: 'Site Content & Hero', icon: <SlidersHorizontal size={17} /> },
-            { id: 'products', label: `Formulations (${products.length})`, icon: <Package size={17} /> },
-            { id: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingBag size={17} /> },
-            { id: 'leads', label: `Marketing Leads (${marketingLeads.length})`, icon: <Users size={17} /> },
-            { id: 'b2b', label: `Dermatologist B2B (${dermatologistInquiries.length})`, icon: <Stethoscope size={17} /> },
-            { id: 'inquiries', label: `Inquiries (${pendingInquiriesCount} new)`, icon: <Mail size={17} /> },
-            { id: 'concerns', label: `Skin Concerns (${concerns.length})`, icon: <ShieldCheck size={17} /> },
-            { id: 'ingredients', label: `Ingredients (${ingredients.length})`, icon: <Sparkles size={17} /> },
-            { id: 'trials', label: `Clinical Trials (${clinicalTrials.length})`, icon: <FlaskConical size={17} /> },
-            { id: 'coupons', label: `Promo Codes (${coupons.length})`, icon: <Tag size={17} /> },
-            { id: 'editorial', label: 'Journal & FAQs', icon: <FileText size={17} /> },
-            { id: 'settings', label: 'Announcement Bar', icon: <Megaphone size={17} /> }
-          ].map(tab => (
+      <div className="admin-layout-wrapper">
+        {/* Desktop Sticky Sidebar */}
+        <aside className="admin-sidebar-desktop">
+          {adminTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -1206,7 +1287,7 @@ export default function AdminDashboardPage() {
         </aside>
 
         {/* Main Panel View */}
-        <main style={{ padding: '2.5rem', overflowX: 'auto' }}>
+        <main className="admin-main-panel">
           {/* TAB 1: OVERVIEW METRICS */}
           {activeTab === 'overview' && (
             <div>
@@ -1222,8 +1303,8 @@ export default function AdminDashboardPage() {
               {/* Metric Cards */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '1.5rem',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
+                gap: 'clamp(1rem, 2.5vw, 1.5rem)',
                 marginBottom: '2.5rem'
               }}>
                 <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
@@ -1259,12 +1340,12 @@ export default function AdminDashboardPage() {
               <div style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 'var(--radius-md)',
-                padding: '1.75rem',
+                padding: 'clamp(1.25rem, 3vw, 1.75rem)',
                 border: '1px solid rgba(23, 33, 58, 0.08)',
                 marginBottom: '2.5rem'
               }}>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: '700', marginBottom: '1rem' }}>Instant CMS Actions</h3>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <button onClick={() => setActiveTab('content')} className="btn btn-secondary btn-sm">
                     <SlidersHorizontal size={14} /> Edit Homepage Hero & Copy
                   </button>
@@ -1287,7 +1368,7 @@ export default function AdminDashboardPage() {
               <div style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 'var(--radius-md)',
-                padding: '1.75rem',
+                padding: 'clamp(1.25rem, 3vw, 1.75rem)',
                 border: '1px solid rgba(23, 33, 58, 0.08)',
                 boxShadow: 'var(--shadow-sm)'
               }}>
@@ -1302,7 +1383,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                   <button
                     onClick={exportOrdersCSV}
                     className="btn btn-secondary btn-sm"
@@ -1356,10 +1437,11 @@ export default function AdminDashboardPage() {
               <div style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 'var(--radius-md)',
-                padding: '2rem',
+                padding: 'clamp(1.25rem, 3vw, 2rem)',
                 border: '1px solid rgba(23, 33, 58, 0.08)',
                 boxShadow: 'var(--shadow-sm)',
-                maxWidth: '900px'
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
                 <form onSubmit={handleHeroSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: 0, borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem' }}>
@@ -1377,7 +1459,7 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label className="form-label">Title Line 1 (Bold Serif)</label>
                       <input
@@ -1411,7 +1493,7 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label className="form-label">Primary CTA Button Label</label>
                       <input
@@ -1432,7 +1514,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label className="form-label">Secondary CTA Button Label</label>
                       <input
@@ -1467,7 +1549,7 @@ export default function AdminDashboardPage() {
                     2. Hero Trio Product Composition Images
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label className="form-label">Left Serum Bottle URL</label>
                       <input
@@ -1518,14 +1600,14 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <div style={{ position: 'relative' }}>
+                <div className="admin-search-wrapper">
+                  <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
                     <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                       type="text"
                       placeholder="Search formulas..."
                       className="form-control"
-                      style={{ paddingLeft: '2.4rem', width: '240px' }}
+                      style={{ paddingLeft: '2.4rem' }}
                       value={productSearch}
                       onChange={e => setProductSearch(e.target.value)}
                     />
@@ -1534,6 +1616,7 @@ export default function AdminDashboardPage() {
                   <button
                     onClick={() => { setEditingProductId(null); setShowProductModal(true); }}
                     className="btn btn-primary"
+                    style={{ whiteSpace: 'nowrap' }}
                   >
                     <Plus size={16} /> Add Formulation
                   </button>
@@ -1541,66 +1624,123 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Products Table */}
-              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', border: '1px solid rgba(23, 33, 58, 0.08)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+              <div className="admin-table-container">
+                <table style={{ width: '100%' }}>
                   <thead>
-                    <tr style={{ backgroundColor: 'var(--bg-lavender)', borderBottom: '1px solid rgba(23, 33, 58, 0.08)' }}>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Product</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Category</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Active Molecule</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Pricing</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Inventory</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700', textAlign: 'right' }}>Actions</th>
+                    <tr>
+                      <th style={{ width: '28%', minWidth: '220px' }}>Product</th>
+                      <th style={{ width: '20%', minWidth: '160px' }}>Category</th>
+                      <th style={{ width: '20%', minWidth: '160px' }}>Active Molecule</th>
+                      <th style={{ width: '12%', minWidth: '100px' }}>Pricing</th>
+                      <th style={{ width: '12%', minWidth: '100px' }}>Inventory</th>
+                      <th style={{ width: '8%', minWidth: '80px', textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredProducts.map(p => (
-                      <tr key={p.id} style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.06)' }}>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <img src={p.heroImage} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
-                            <div>
-                              <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{p.name}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.sizes ? p.sizes.join(' / ') : 'Standard'}</div>
+                      <tr key={p.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', maxWidth: '100%' }}>
+                            <img
+                              src={p.heroImage}
+                              alt={p.name}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80';
+                              }}
+                              style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #E2E8F0', flexShrink: 0 }}
+                            />
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div
+                                className="table-cell-truncate"
+                                style={{ fontWeight: '700', color: 'var(--text-primary)' }}
+                                title={p.name}
+                              >
+                                {p.name}
+                              </div>
+                              <div
+                                className="table-cell-truncate"
+                                style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}
+                                title={p.sizes ? p.sizes.join(' / ') : 'Standard'}
+                              >
+                                {p.sizes ? p.sizes.join(' / ') : 'Standard'}
+                              </div>
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <span className="badge badge-lavender" style={{ fontSize: '0.72rem' }}>{p.category}</span>
+                        <td>
+                          <span
+                            className="badge badge-teal table-cell-truncate"
+                            style={{ fontSize: '0.72rem', display: 'inline-block' }}
+                            title={p.category}
+                          >
+                            {p.category}
+                          </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <span style={{ fontWeight: '600', color: '#6C5B8B' }}>{p.activeIngredients?.[0]?.name || 'Active Bio-Complex'}</span>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{p.activeIngredients?.[0]?.percentage || 'Clinical Potency'}</div>
+                        <td>
+                          <span
+                            className="table-cell-truncate"
+                            style={{ fontWeight: '600', color: '#0F172A' }}
+                            title={p.activeIngredients?.[0]?.name || 'Active Bio-Complex'}
+                          >
+                            {p.activeIngredients?.[0]?.name || 'Active Bio-Complex'}
+                          </span>
+                          <div
+                            className="table-cell-truncate"
+                            style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}
+                            title={p.activeIngredients?.[0]?.percentage || 'Clinical Potency'}
+                          >
+                            {p.activeIngredients?.[0]?.percentage || 'Clinical Potency'}
+                          </div>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <div style={{ fontWeight: '700' }}>₹{p.salePrice || p.price}</div>
-                          {p.salePrice && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>₹{p.price}</div>}
+                        <td>
+                          <div
+                            className="table-cell-truncate"
+                            style={{ fontWeight: '700', color: 'var(--text-primary)' }}
+                            title={`₹${p.salePrice || p.price}`}
+                          >
+                            ₹{p.salePrice || p.price}
+                          </div>
+                          {p.salePrice && (
+                            <div
+                              className="table-cell-truncate"
+                              style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}
+                              title={`₹${p.price}`}
+                            >
+                              ₹{p.price}
+                            </div>
+                          )}
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.6rem',
-                            borderRadius: 'var(--radius-full)',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            backgroundColor: (p.stock || 50) < 30 ? '#FDF2F4' : '#F0F9F5',
-                            color: (p.stock || 50) < 30 ? '#D96B7D' : '#438E75'
-                          }}>
+                        <td>
+                          <span
+                            className="table-cell-truncate"
+                            style={{
+                              padding: '0.25rem 0.6rem',
+                              borderRadius: 'var(--radius-full)',
+                              fontSize: '0.75rem',
+                              fontWeight: '700',
+                              backgroundColor: (p.stock || 50) < 30 ? '#FDF2F4' : '#F0F9F5',
+                              color: (p.stock || 50) < 30 ? '#EF4444' : '#438E75',
+                              display: 'inline-block'
+                            }}
+                            title={`${p.stock || 50} units in stock`}
+                          >
                             {p.stock || 50} units
                           </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
+                        <td style={{ textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button
                               onClick={() => handleEditProductClick(p)}
-                              style={{ background: 'none', border: 'none', color: '#6C5B8B', cursor: 'pointer', padding: '0.35rem' }}
-                              title="Edit Formulation"
+                              style={{ background: 'none', border: 'none', color: '#0284C7', cursor: 'pointer', padding: '0.35rem' }}
+                              title={`Edit ${p.name}`}
                             >
                               <Edit size={16} />
                             </button>
                             <button
                               onClick={() => deleteProduct(p.id)}
-                              style={{ background: 'none', border: 'none', color: '#D96B7D', cursor: 'pointer', padding: '0.35rem' }}
-                              title="Delete Formulation"
+                              style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '0.35rem' }}
+                              title={`Delete ${p.name}`}
                             >
                               <Trash2 size={16} />
                             </button>
@@ -1635,7 +1775,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 'clamp(1rem, 2.5vw, 1.5rem)' }}>
                 {concerns.map(c => (
                   <div key={c.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.5rem', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
@@ -1688,40 +1828,90 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', border: '1px solid rgba(23, 33, 58, 0.08)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+              <div className="admin-table-container">
+                <table style={{ width: '100%' }}>
                   <thead>
-                    <tr style={{ backgroundColor: 'var(--bg-lavender)', borderBottom: '1px solid rgba(23, 33, 58, 0.08)' }}>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Active Molecule</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Category</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>EWG Score</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Optimal pH</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700' }}>Molecular Weight</th>
-                      <th style={{ padding: '1rem 1.25rem', fontWeight: '700', textAlign: 'right' }}>Actions</th>
+                    <tr>
+                      <th style={{ width: '26%', minWidth: '190px' }}>Active Molecule</th>
+                      <th style={{ width: '26%', minWidth: '190px' }}>Category</th>
+                      <th style={{ width: '16%', minWidth: '120px' }}>EWG Score</th>
+                      <th style={{ width: '12%', minWidth: '95px' }}>Optimal pH</th>
+                      <th style={{ width: '12%', minWidth: '105px' }}>Molecular Weight</th>
+                      <th style={{ width: '8%', minWidth: '70px', textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ingredients.map(ing => (
-                      <tr key={ing.id} style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.06)' }}>
-                        <td style={{ padding: '1rem 1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                          {ing.name}
+                      <tr key={ing.id}>
+                        <td>
+                          <div
+                            className="table-cell-truncate"
+                            style={{ fontWeight: '700', color: 'var(--text-primary)' }}
+                            title={ing.name}
+                          >
+                            {ing.name}
+                          </div>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          <span className="badge badge-lavender" style={{ fontSize: '0.72rem' }}>{ing.category}</span>
+                        <td>
+                          <span
+                            className="badge badge-teal table-cell-truncate"
+                            style={{ fontSize: '0.72rem', display: 'inline-block', textTransform: 'capitalize', letterSpacing: '0.02em' }}
+                            title={ing.category}
+                          >
+                            {ing.category}
+                          </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem', color: '#438E75', fontWeight: '700' }}>
-                          {ing.ewgScore}
+                        <td>
+                          <span
+                            className="table-cell-truncate"
+                            style={{
+                              padding: '0.25rem 0.6rem',
+                              borderRadius: 'var(--radius-full)',
+                              backgroundColor: '#F0F9F5',
+                              color: '#438E75',
+                              fontWeight: '700',
+                              fontSize: '0.75rem',
+                              display: 'inline-block'
+                            }}
+                            title={`EWG Safety Score: ${ing.ewgScore}`}
+                          >
+                            {ing.ewgScore}
+                          </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem' }}>
-                          {ing.optimalPh}
+                        <td>
+                          <span
+                            className="table-cell-truncate"
+                            style={{ fontWeight: '600', color: 'var(--text-primary)' }}
+                            title={`Optimal pH Range: ${ing.optimalPh}`}
+                          >
+                            {ing.optimalPh}
+                          </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                          {ing.molecularWeight}
+                        <td>
+                          <span
+                            className="table-cell-truncate"
+                            style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+                            title={`Molecular Weight: ${ing.molecularWeight}`}
+                          >
+                            {ing.molecularWeight}
+                          </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
+                        <td style={{ textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                            <button onClick={() => handleEditIngredientClick(ing)} style={{ background: 'none', border: 'none', color: '#6C5B8B', cursor: 'pointer' }}><Edit size={16} /></button>
-                            <button onClick={() => deleteIngredient(ing.id)} style={{ background: 'none', border: 'none', color: '#D96B7D', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                            <button
+                              onClick={() => handleEditIngredientClick(ing)}
+                              style={{ background: 'none', border: 'none', color: '#0284C7', cursor: 'pointer', padding: '0.35rem' }}
+                              title={`Edit ${ing.name}`}
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => deleteIngredient(ing.id)}
+                              style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '0.35rem' }}
+                              title={`Delete ${ing.name}`}
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1753,7 +1943,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 'clamp(1rem, 2.5vw, 1.5rem)' }}>
                 {clinicalTrials.map(t => (
                   <div key={t.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.75rem', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
@@ -1771,7 +1961,7 @@ export default function AdminDashboardPage() {
                       Formulation: {t.formulation}
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 80px), 1fr))', gap: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}>
                       {(t.metrics || []).map((m, idx) => (
                         <div key={idx} style={{ backgroundColor: 'var(--bg-lavender)', padding: '0.6rem 0.4rem', borderRadius: '6px' }}>
                           <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>{m.value}</div>
@@ -1781,8 +1971,24 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.75rem', height: '100px' }}>
-                      <img src={t.beforeImage} alt="Before" style={{ width: '50%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
-                      <img src={t.afterImage} alt="After" style={{ width: '50%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
+                      <img
+                        src={t.beforeImage}
+                        alt="Before"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80';
+                        }}
+                        style={{ width: '50%', height: '100%', objectFit: 'cover', borderRadius: '6px' }}
+                      />
+                      <img
+                        src={t.afterImage}
+                        alt="After"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80';
+                        }}
+                        style={{ width: '50%', height: '100%', objectFit: 'cover', borderRadius: '6px' }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -1803,7 +2009,7 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="admin-filter-scroll">
                   {['all', 'pending', 'wholesale', 'general'].map(f => (
                     <button
                       key={f}
@@ -1817,7 +2023,8 @@ export default function AdminDashboardPage() {
                         border: inquiryFilter === f ? '1px solid var(--accent-navy)' : '1px solid #CBD5E1',
                         backgroundColor: inquiryFilter === f ? 'var(--accent-navy)' : '#FFFFFF',
                         color: inquiryFilter === f ? '#FFFFFF' : 'var(--text-secondary)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       {f}
@@ -1938,77 +2145,129 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid rgba(23, 33, 58, 0.08)',
-                boxShadow: 'var(--shadow-sm)',
-                overflow: 'hidden'
-              }}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid rgba(23, 33, 58, 0.08)' }}>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Name & Date</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Email & WhatsApp</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Primary Concern</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Channels Opted In</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700' }}>Coupon Issued</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: '700', textAlign: 'right' }}>Actions</th>
+              <div className="admin-table-container">
+                <table style={{ width: '100%' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '20%', minWidth: '160px' }}>Name & Date</th>
+                      <th style={{ width: '24%', minWidth: '180px' }}>Email & WhatsApp</th>
+                      <th style={{ width: '20%', minWidth: '160px' }}>Primary Concern</th>
+                      <th style={{ width: '18%', minWidth: '140px' }}>Channels Opted In</th>
+                      <th style={{ width: '12%', minWidth: '100px' }}>Coupon Issued</th>
+                      <th style={{ width: '6%', minWidth: '60px', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {marketingLeads.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          No marketing leads captured yet.
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {marketingLeads.length === 0 ? (
-                        <tr>
-                          <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                            No marketing leads captured yet.
+                    ) : (
+                      marketingLeads.map(l => (
+                        <tr key={l.id}>
+                          <td>
+                            <div
+                              className="table-cell-truncate"
+                              style={{ fontWeight: '700', color: 'var(--text-primary)' }}
+                              title={l.name}
+                            >
+                              {l.name}
+                            </div>
+                            <div
+                              className="table-cell-truncate"
+                              style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}
+                              title={`${new Date(l.createdAt).toLocaleDateString('en-IN')} • ${l.source || 'Popup'}`}
+                            >
+                              {new Date(l.createdAt).toLocaleDateString('en-IN')} • {l.source || 'Popup'}
+                            </div>
+                          </td>
+                          <td>
+                            <div
+                              className="table-cell-truncate"
+                              style={{ color: 'var(--text-primary)', fontWeight: '500' }}
+                              title={l.email}
+                            >
+                              {l.email}
+                            </div>
+                            <div
+                              className="table-cell-truncate"
+                              style={{ fontSize: '0.78rem', color: '#0284C7', fontWeight: '600' }}
+                              title={l.phone || 'No phone provided'}
+                            >
+                              {l.phone || '—'}
+                            </div>
+                          </td>
+                          <td>
+                            <span
+                              className="badge badge-teal table-cell-truncate"
+                              style={{ fontSize: '0.72rem', display: 'inline-block' }}
+                              title={l.skinConcern || 'General Skincare'}
+                            >
+                              {l.skinConcern || 'General Skincare'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                              {l.channels?.whatsapp && (
+                                <span
+                                  style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EFF8F4', color: '#438E75', borderRadius: '4px', fontWeight: '700', whiteSpace: 'nowrap' }}
+                                  title="Subscribed to WhatsApp updates"
+                                >
+                                  WhatsApp
+                                </span>
+                              )}
+                              {l.channels?.email && (
+                                <span
+                                  style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#E5EBF5', color: '#3B5D92', borderRadius: '4px', fontWeight: '700', whiteSpace: 'nowrap' }}
+                                  title="Subscribed to Email newsletter"
+                                >
+                                  Email
+                                </span>
+                              )}
+                              {l.channels?.sms && (
+                                <span
+                                  style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EDEAF4', color: '#6C5B8B', borderRadius: '4px', fontWeight: '700', whiteSpace: 'nowrap' }}
+                                  title="Subscribed to SMS alerts"
+                                >
+                                  SMS
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <code
+                              className="table-cell-truncate"
+                              style={{
+                                backgroundColor: '#F1F5F9',
+                                color: '#0F172A',
+                                padding: '0.25rem 0.6rem',
+                                borderRadius: '4px',
+                                fontSize: '0.78rem',
+                                fontWeight: '700',
+                                border: '1px solid #E2E8F0',
+                                display: 'inline-block'
+                              }}
+                              title={`Issued Promo Code: ${l.couponGenerated || 'CONTRAGE10'}`}
+                            >
+                              {l.couponGenerated || 'CONTRAGE10'}
+                            </code>
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              onClick={() => deleteMarketingLead(l.id)}
+                              style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '0.35rem' }}
+                              title={`Delete Lead: ${l.name}`}
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </td>
                         </tr>
-                      ) : (
-                        marketingLeads.map(l => (
-                          <tr key={l.id} style={{ borderBottom: '1px solid rgba(23, 33, 58, 0.06)' }}>
-                            <td style={{ padding: '1rem' }}>
-                              <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{l.name}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                {new Date(l.createdAt).toLocaleDateString('en-IN')} • {l.source || 'Popup'}
-                              </div>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                              <div>{l.email}</div>
-                              <div style={{ fontSize: '0.78rem', color: '#6C5B8B', fontWeight: '600' }}>{l.phone}</div>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                              <span className="badge badge-lavender" style={{ fontSize: '0.72rem' }}>
-                                {l.skinConcern || 'General Skincare'}
-                              </span>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                                {l.channels?.whatsapp && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EFF8F4', color: '#438E75', borderRadius: '4px', fontWeight: '700' }}>WhatsApp</span>}
-                                {l.channels?.email && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#E5EBF5', color: '#3B5D92', borderRadius: '4px', fontWeight: '700' }}>Email</span>}
-                                {l.channels?.sms && <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: '#EDEAF4', color: '#6C5B8B', borderRadius: '4px', fontWeight: '700' }}>SMS</span>}
-                              </div>
-                            </td>
-                            <td style={{ padding: '1rem' }}>
-                              <code style={{ backgroundColor: 'var(--bg-primary)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.78rem', fontWeight: '700' }}>
-                                {l.couponGenerated || 'CONTRAGE10'}
-                              </code>
-                            </td>
-                            <td style={{ padding: '1rem', textAlign: 'right' }}>
-                              <button
-                                onClick={() => deleteMarketingLead(l.id)}
-                                style={{ background: 'none', border: 'none', color: '#D96B7D', cursor: 'pointer' }}
-                                title="Delete Lead"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
@@ -2047,14 +2306,14 @@ export default function AdminDashboardPage() {
                       style={{
                         backgroundColor: '#FFFFFF',
                         borderRadius: 'var(--radius-md)',
-                        padding: '1.75rem',
+                        padding: 'clamp(1.25rem, 3vw, 1.75rem)',
                         border: '1px solid rgba(23, 33, 58, 0.08)',
                         boxShadow: 'var(--shadow-sm)'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
                               {b.doctorName}
                             </span>
@@ -2065,7 +2324,7 @@ export default function AdminDashboardPage() {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: '700' }}>Inquiry Status:</span>
                           <select
                             value={b.status}
@@ -2098,7 +2357,7 @@ export default function AdminDashboardPage() {
 
                       <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                         gap: '1rem',
                         fontSize: '0.82rem',
                         backgroundColor: 'var(--bg-primary)',
@@ -2142,7 +2401,7 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB 9: ORDERS & FULFILLMENT LOGISTICS */}
+          {/* TAB 10: ORDERS & FULFILLMENT LOGISTICS */}
           {activeTab === 'orders' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -2164,7 +2423,7 @@ export default function AdminDashboardPage() {
                     <Download size={15} /> Export Orders (CSV)
                   </button>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div className="admin-filter-scroll">
                     {['all', 'processing', 'in transit', 'delivered'].map(f => (
                       <button
                         key={f}
@@ -2178,7 +2437,8 @@ export default function AdminDashboardPage() {
                           border: orderFilter === f ? '1px solid var(--accent-navy)' : '1px solid #CBD5E1',
                           backgroundColor: orderFilter === f ? 'var(--accent-navy)' : '#FFFFFF',
                           color: orderFilter === f ? '#FFFFFF' : 'var(--text-secondary)',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {f}
@@ -2190,14 +2450,14 @@ export default function AdminDashboardPage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {filteredOrders.map(o => (
-                  <div key={o.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.75rem', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
+                  <div key={o.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: 'clamp(1.25rem, 3vw, 1.75rem)', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                       <div>
                         <span style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)' }}>{o.id}</span>
                         <span style={{ marginLeft: '0.75rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>AWB: {o.trackingNumber}</span>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '0.82rem', fontWeight: '700' }}>Change Status:</span>
                         <select
                           value={o.status}
@@ -2219,7 +2479,7 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.85rem', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #F1F5F9' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem', fontSize: '0.85rem', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #F1F5F9' }}>
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Customer</div>
                         <div style={{ fontWeight: '700' }}>{o.customer?.name}</div>
@@ -2241,7 +2501,7 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB 9: PROMO CODES & COUPONS */}
+          {/* TAB 11: PROMO CODES & COUPONS */}
           {activeTab === 'coupons' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -2259,7 +2519,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 'clamp(1rem, 2.5vw, 1.5rem)' }}>
                 {coupons.map(c => (
                   <div key={c.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.5rem', border: '1px solid rgba(23, 33, 58, 0.08)', boxShadow: 'var(--shadow-sm)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
@@ -2281,7 +2541,7 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB 10: EDITORIAL & FAQS */}
+          {/* TAB 12: EDITORIAL & FAQS */}
           {activeTab === 'editorial' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -2303,7 +2563,7 @@ export default function AdminDashboardPage() {
 
               {/* Blogs Grid */}
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem' }}>Published Journal Entries ({blogs.length})</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
                 {blogs.map(b => (
                   <div key={b.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '1.25rem', border: '1px solid rgba(23, 33, 58, 0.08)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
@@ -2318,9 +2578,9 @@ export default function AdminDashboardPage() {
 
               {/* FAQs Section */}
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem' }}>Frequently Asked Questions ({faqs.length})</h3>
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
+              <div style={{ backgroundColor: '#FFFFFF', padding: 'clamp(1.25rem, 3vw, 1.5rem)', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
                 <form onSubmit={handleFAQSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                     <input type="text" placeholder="Question..." className="form-control" value={faqQuestion} onChange={e => setFaqQuestion(e.target.value)} required />
                     <input type="text" placeholder="Category" className="form-control" value={faqCategory} onChange={e => setFaqCategory(e.target.value)} />
                   </div>
@@ -2331,7 +2591,7 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB 11: ANNOUNCEMENT BAR SETTINGS */}
+          {/* TAB 13: ANNOUNCEMENT BAR SETTINGS */}
           {activeTab === 'settings' && (
             <div>
               <div style={{ marginBottom: '2rem' }}>
@@ -2343,7 +2603,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '2rem', border: '1px solid rgba(23, 33, 58, 0.08)', maxWidth: '680px' }}>
+              <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: 'clamp(1.25rem, 3vw, 2rem)', border: '1px solid rgba(23, 33, 58, 0.08)', maxWidth: '680px' }}>
                 <form onSubmit={handleAnnouncementSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div className="form-group">
                     <label className="form-label">Announcement Text</label>
@@ -2373,8 +2633,8 @@ export default function AdminDashboardPage() {
 
       {/* PRODUCT MODAL */}
       {showProductModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(720px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>
                 {editingProductId ? 'Edit Formulation' : 'Add New Clinical Formulation'}
@@ -2388,34 +2648,42 @@ export default function AdminDashboardPage() {
                 <input type="text" className="form-control" value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Category</label>
-                  <select className="form-control" value={productForm.category} onChange={e => setProductForm({ ...productForm, category: e.target.value })}>
-                    <option value="Serums & Boosters">Serums & Boosters</option>
-                    <option value="Moisturizers & Creams">Moisturizers & Creams</option>
-                    <option value="Cleansers & Toners">Cleansers & Toners</option>
-                    <option value="Exfoliators & Masks">Exfoliators & Masks</option>
-                    <option value="Sun Protection">Sun Protection</option>
-                    <option value="Professional & Backbar">Professional & Backbar</option>
-                  </select>
+                  <label className="form-label" style={{ display: 'block', marginBottom: '0.35rem' }}>Category</label>
+                  <CustomSelect
+                    value={productForm.category}
+                    onChange={val => setProductForm({ ...productForm, category: val })}
+                    options={[
+                      'Serums & Boosters',
+                      'Moisturizers & Creams',
+                      'Cleansers & Toners',
+                      'Exfoliators & Masks',
+                      'Sun Protection',
+                      'Professional & Backbar'
+                    ]}
+                  />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Primary Skin Concern</label>
-                  <select className="form-control" value={productForm.primaryConcern} onChange={e => setProductForm({ ...productForm, primaryConcern: e.target.value })}>
-                    <option value="Acne & Blemishes">Acne & Blemishes</option>
-                    <option value="Aging & Fine Lines">Aging & Fine Lines</option>
-                    <option value="Hyperpigmentation">Hyperpigmentation</option>
-                    <option value="Barrier Repair">Barrier Repair</option>
-                    <option value="Dryness & Dehydration">Dryness & Dehydration</option>
-                    <option value="Redness & Sensitivity">Redness & Sensitivity</option>
-                    <option value="Open Pores & Oiliness">Open Pores & Oiliness</option>
-                    <option value="Sun Protection">Sun Protection</option>
-                  </select>
+                  <label className="form-label" style={{ display: 'block', marginBottom: '0.35rem' }}>Primary Skin Concern</label>
+                  <CustomSelect
+                    value={productForm.primaryConcern}
+                    onChange={val => setProductForm({ ...productForm, primaryConcern: val })}
+                    options={[
+                      'Acne & Blemishes',
+                      'Aging & Fine Lines',
+                      'Hyperpigmentation',
+                      'Barrier Repair',
+                      'Dryness & Dehydration',
+                      'Redness & Sensitivity',
+                      'Open Pores & Oiliness',
+                      'Sun Protection'
+                    ]}
+                  />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Original Price (₹)</label>
                   <input type="number" className="form-control" value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} required />
@@ -2435,7 +2703,7 @@ export default function AdminDashboardPage() {
                 <input type="url" className="form-control" value={productForm.heroImage} onChange={e => setProductForm({ ...productForm, heroImage: e.target.value })} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Active Ingredient Molecule</label>
                   <input type="text" className="form-control" value={productForm.activeName} onChange={e => setProductForm({ ...productForm, activeName: e.target.value })} required />
@@ -2462,8 +2730,8 @@ export default function AdminDashboardPage() {
 
       {/* CONCERN MODAL */}
       {showConcernModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(600px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>
                 {editingConcernId ? 'Edit Skin Concern' : 'Add New Skin Concern'}
@@ -2503,8 +2771,8 @@ export default function AdminDashboardPage() {
 
       {/* INGREDIENT MODAL */}
       {showIngredientModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(600px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>
                 {editingIngredientId ? 'Edit Ingredient Molecule' : 'Add New Active Molecule'}
@@ -2518,7 +2786,7 @@ export default function AdminDashboardPage() {
                 <input type="text" className="form-control" value={ingredientForm.name} onChange={e => setIngredientForm({ ...ingredientForm, name: e.target.value })} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Optimal pH</label>
                   <input type="text" className="form-control" value={ingredientForm.optimalPh} onChange={e => setIngredientForm({ ...ingredientForm, optimalPh: e.target.value })} />
@@ -2545,8 +2813,8 @@ export default function AdminDashboardPage() {
 
       {/* CLINICAL TRIAL MODAL */}
       {showTrialModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(640px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>
                 {editingTrialId ? 'Edit Clinical Study' : 'Publish Clinical Trial Study'}
@@ -2560,7 +2828,7 @@ export default function AdminDashboardPage() {
                 <input type="text" className="form-control" value={trialForm.title} onChange={e => setTrialForm({ ...trialForm, title: e.target.value })} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Duration & Cohort</label>
                   <input type="text" className="form-control" value={trialForm.duration} onChange={e => setTrialForm({ ...trialForm, duration: e.target.value })} required />
@@ -2571,7 +2839,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Before Image URL</label>
                   <input type="url" className="form-control" value={trialForm.beforeImage} onChange={e => setTrialForm({ ...trialForm, beforeImage: e.target.value })} required />
@@ -2584,7 +2852,7 @@ export default function AdminDashboardPage() {
 
               <div className="form-group">
                 <label className="form-label">Primary Metric (Label, Value, Instrument)</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: '0.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 120px), 1fr))', gap: '0.5rem' }}>
                   <input type="text" placeholder="Label" className="form-control" value={trialForm.metric1Label} onChange={e => setTrialForm({ ...trialForm, metric1Label: e.target.value })} />
                   <input type="text" placeholder="Value" className="form-control" value={trialForm.metric1Value} onChange={e => setTrialForm({ ...trialForm, metric1Value: e.target.value })} />
                   <input type="text" placeholder="Instrument" className="form-control" value={trialForm.metric1Inst} onChange={e => setTrialForm({ ...trialForm, metric1Inst: e.target.value })} />
@@ -2602,8 +2870,8 @@ export default function AdminDashboardPage() {
 
       {/* COUPON MODAL */}
       {showCouponModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '500px', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(500px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Create Promo Code</h3>
               <button onClick={() => setShowCouponModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
@@ -2615,13 +2883,17 @@ export default function AdminDashboardPage() {
                 <input type="text" placeholder="e.g. DERMA20" className="form-control" value={couponCode} onChange={e => setCouponCode(e.target.value)} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Discount Type</label>
-                  <select className="form-control" value={couponType} onChange={e => setCouponType(e.target.value)}>
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed Amount (₹)</option>
-                  </select>
+                  <label className="form-label" style={{ display: 'block', marginBottom: '0.35rem' }}>Discount Type</label>
+                  <CustomSelect
+                    value={couponType}
+                    onChange={setCouponType}
+                    options={[
+                      { label: 'Percentage (%)', value: 'percentage' },
+                      { label: 'Fixed Amount (₹)', value: 'fixed' }
+                    ]}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Value</label>
@@ -2645,8 +2917,8 @@ export default function AdminDashboardPage() {
 
       {/* BLOG MODAL */}
       {showBlogModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(23, 33, 58, 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 'min(640px, calc(100vw - 24px))', maxHeight: '90vh', overflowY: 'auto', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Publish Journal Article</h3>
               <button onClick={() => setShowBlogModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
@@ -2658,7 +2930,7 @@ export default function AdminDashboardPage() {
                 <input type="text" className="form-control" value={blogTitle} onChange={e => setBlogTitle(e.target.value)} required />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <input type="text" className="form-control" value={blogCategory} onChange={e => setBlogCategory(e.target.value)} />

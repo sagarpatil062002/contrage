@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Calendar, User, Clock, ArrowRight, Search } from 'lucide-react';
+import { Calendar, User, Clock, ArrowRight, Search, X } from 'lucide-react';
 
 export default function BlogPage() {
   const { blogs } = useStore();
@@ -52,7 +52,7 @@ export default function BlogPage() {
           boxShadow: 'var(--shadow-sm)'
         }}>
           {/* Search */}
-          <div style={{ position: 'relative', flex: 1, minWidth: '240px', maxWidth: '400px' }}>
+          <div style={{ position: 'relative', flex: '1 1 260px', minWidth: '220px', maxWidth: '420px', width: '100%' }}>
             <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
@@ -61,35 +61,67 @@ export default function BlogPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '0.6rem 0.85rem 0.6rem 2.5rem',
+                padding: '0.6rem 2.2rem 0.6rem 2.5rem',
                 fontSize: '0.88rem',
                 borderRadius: 'var(--radius-xs)',
                 border: '1px solid #CBD5E1',
-                outline: 'none'
+                outline: 'none',
+                boxSizing: 'border-box',
+                backgroundColor: '#F8FAFC'
               }}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                aria-label="Clear search"
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#94A3B8',
+                  padding: '4px'
+                }}
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
 
           {/* Category Tabs */}
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '0.45rem 0.95rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.82rem',
-                  fontWeight: '600',
-                  border: selectedCategory === cat ? '1px solid var(--teal-800)' : '1px solid #CBD5E1',
-                  backgroundColor: selectedCategory === cat ? 'var(--teal-800)' : '#FFFFFF',
-                  color: selectedCategory === cat ? '#FFFFFF' : 'var(--text-secondary)',
-                  cursor: 'pointer'
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
+            {categories.map(cat => {
+              const isSelected = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  style={{
+                    padding: '0.45rem 1rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.82rem',
+                    fontWeight: '600',
+                    border: isSelected ? '1px solid #0F172A' : '1px solid #CBD5E1',
+                    backgroundColor: isSelected ? '#0F172A' : '#FFFFFF',
+                    color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
+                    boxShadow: isSelected ? '0 2px 6px rgba(15, 23, 42, 0.15)' : 'none'
+                  }}
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -117,7 +149,15 @@ export default function BlogPage() {
                   overflow: 'hidden',
                   marginBottom: '1.25rem'
                 }}>
-                  <img src={b.coverImage} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img
+                    src={b.coverImage}
+                    alt={b.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80';
+                    }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                   <span style={{
                     position: 'absolute',
                     top: '0.65rem',

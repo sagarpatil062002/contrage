@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from '../components/common/CustomSelect';
 import { Mail, Phone, MapPin, Clock, CheckCircle2, Send } from 'lucide-react';
 
 export default function ContactPage() {
@@ -142,7 +143,7 @@ export default function ContactPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
           <button
             onClick={() => setTab('general')}
             style={{
@@ -174,197 +175,256 @@ export default function ContactPage() {
             ✨ Clinic & Salon Wholesale Partner Application
           </button>
         </div>
-
-        {/* Form Container */}
+        {/* Form Container & Visual Support Desk */}
         <div style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: 'var(--radius-xl)',
-          border: '1px solid #E2E8F0',
-          padding: 'clamp(1.5rem, 4vw, 3rem)',
-          maxWidth: '740px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+          gap: '2.5rem',
+          maxWidth: '1100px',
           margin: '0 auto',
-          boxShadow: 'var(--shadow-luxury)'
+          alignItems: 'start'
         }}>
-          {tab === 'general' ? (
-            genSuccess ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--teal-900)' }}>
-                <CheckCircle2 size={48} color="var(--teal-700)" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Inquiry Received Successfully</h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  A clinical support specialist has been assigned to your ticket. Expect a reply within 4 business hours.
-                </p>
-                <button onClick={() => setGenSuccess(false)} className="btn btn-secondary btn-sm">
-                  Send Another Message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleGenSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: '700', margin: 0 }}>
-                  Send a Message to our Clinical Care Team
-                </h3>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Your Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Rahul Verma"
-                      value={genName}
-                      onChange={(e) => setGenName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Your Email</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="rahul@example.com"
-                      value={genEmail}
-                      onChange={(e) => setGenEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Subject</label>
-                  <select
-                    className="form-control"
-                    value={genSubject}
-                    onChange={(e) => setGenSubject(e.target.value)}
-                  >
-                    <option value="Product / Regimen Advice">Product Formulation / Regimen Consultation</option>
-                    <option value="Order Status & Delivery">Order Status & Delivery Logistics</option>
-                    <option value="Adverse Reaction / Patch Test">Adverse Reaction / Patch Test Guidance</option>
-                    <option value="Refund & Guarantee Claim">Refund & 30-Day Guarantee Claim</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Message Details</label>
-                  <textarea
-                    className="form-control"
-                    rows="5"
-                    placeholder="Describe your skin condition or inquiry in detail..."
-                    value={genMsg}
-                    onChange={(e) => setGenMsg(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-                  <Send size={16} /> Send Inquiry &rarr;
-                </button>
-              </form>
-            )
-          ) : (
-            b2bSuccess ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--teal-900)' }}>
-                <CheckCircle2 size={48} color="var(--teal-700)" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Professional Application Submitted</h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  Thank you for applying to the Aesthederm Clinic Collective. Our medical partnership manager will reach out with wholesale pricing and backbar catalogues.
-                </p>
-                <button onClick={() => setB2bSuccess(false)} className="btn btn-secondary btn-sm">
-                  Submit Another Application
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleB2bSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.35rem', fontWeight: '700', margin: '0 0 0.35rem 0' }}>
-                    Clinic Backbar & Salon Wholesale Application
-                  </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Exclusive volume wholesale discounts, clinical backbar sizes (500ml), and post-procedure protocols for licensed professionals.
+          {/* Form Card */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 'var(--radius-xl)',
+            border: '1px solid #E2E8F0',
+            padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+            boxShadow: 'var(--shadow-luxury)'
+          }}>
+            {tab === 'general' ? (
+              genSuccess ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--teal-900)' }}>
+                  <CheckCircle2 size={48} color="var(--teal-700)" style={{ margin: '0 auto 1rem auto' }} />
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Inquiry Received Successfully</h3>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    A clinical support specialist has been assigned to your ticket. Expect a reply within 4 business hours.
                   </p>
+                  <button onClick={() => setGenSuccess(false)} className="btn btn-secondary btn-sm">
+                    Send Another Message
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleGenSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: '700', margin: 0 }}>
+                    Send a Message to our Clinical Care Team
+                  </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">Your Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="e.g. Rahul Verma"
+                        value={genName}
+                        onChange={(e) => setGenName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Your Email</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="rahul@example.com"
+                        value={genEmail}
+                        onChange={(e) => setGenEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div className="form-group">
-                    <label className="form-label">Practitioner / Owner Name</label>
+                    <label className="form-label">Inquiry Subject</label>
+                    <CustomSelect
+                      value={genSubject}
+                      onChange={setGenSubject}
+                      options={[
+                        'Product / Regimen Advice',
+                        'Order & Courier Status',
+                        'Ingredient Allergy / Sensitivity',
+                        'Dermatologist Prescription Advice',
+                        'Other Inquiry'
+                      ]}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Your Message or Skin Concern</label>
+                    <textarea
+                      className="form-control"
+                      rows={4}
+                      placeholder="Describe your skin concern or order questions in detail..."
+                      value={genMsg}
+                      onChange={(e) => setGenMsg(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
+                    <Send size={16} /> Submit Message to Care Desk
+                  </button>
+                </form>
+              )
+            ) : (
+              b2bSuccess ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--teal-900)' }}>
+                  <CheckCircle2 size={48} color="var(--teal-700)" style={{ margin: '0 auto 1rem auto' }} />
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>B2B Application Submitted</h3>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    Thank you for applying. A dedicated clinical account executive will verify your clinic credentials and contact you within 24 hours.
+                  </p>
+                  <button onClick={() => setB2bSuccess(false)} className="btn btn-secondary btn-sm">
+                    Submit Another Application
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleB2bSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: '700', margin: 0 }}>
+                    Apply for Clinic Backbar & Wholesale Dispensing
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">Full Name & Qualifications</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Dr. Smita Rao, MD (Derm)"
+                        value={b2bName}
+                        onChange={(e) => setB2bName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Professional Role</label>
+                      <CustomSelect
+                        value={b2bRole}
+                        onChange={setB2bRole}
+                        options={[
+                          'Dermatologist',
+                          'Plastic Surgeon',
+                          'Aesthetic Clinic Owner',
+                          'Medical Spa Director',
+                          'Cosmetic Pharmacist'
+                        ]}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Clinic / Hospital / Practice Name</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="e.g. Dr. Smita Nair"
-                      value={b2bName}
-                      onChange={(e) => setB2bName(e.target.value)}
+                      placeholder="e.g. AURA Derma Clinic & Laser Center"
+                      value={b2bClinic}
+                      onChange={(e) => setB2bClinic(e.target.value)}
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Professional Role</label>
-                    <select
-                      className="form-control"
-                      value={b2bRole}
-                      onChange={(e) => setB2bRole(e.target.value)}
-                    >
-                      <option value="Dermatologist">Dermatologist / Physician</option>
-                      <option value="Plastic Surgeon">Plastic / Aesthetic Surgeon</option>
-                      <option value="Cosmetologist">Cosmetologist / Trichologist</option>
-                      <option value="Salon Owner">Premium Aesthetic Salon Owner</option>
-                      <option value="Clinic Manager">Medical Spa / Clinic Director</option>
-                    </select>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">Official Work Email</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="dr.smita@auraderma.com"
+                        value={b2bEmail}
+                        onChange={(e) => setB2bEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Clinic Contact Phone / WhatsApp</label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        placeholder="+91 98765 43210"
+                        value={b2bPhone}
+                        onChange={(e) => setB2bPhone(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="form-group">
-                  <label className="form-label">Clinic / Salon Entity Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. AURA Derma Clinic & Laser Center"
-                    value={b2bClinic}
-                    onChange={(e) => setB2bClinic(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Official Work Email</label>
+                    <label className="form-label">Clinic Location (City & State)</label>
                     <input
-                      type="email"
+                      type="text"
                       className="form-control"
-                      placeholder="clinic@auraderma.com"
-                      value={b2bEmail}
-                      onChange={(e) => setB2bEmail(e.target.value)}
+                      placeholder="e.g. Bandra West, Mumbai, Maharashtra"
+                      value={b2bLocation}
+                      onChange={(e) => setB2bLocation(e.target.value)}
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Direct Phone / WhatsApp</label>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      placeholder="+91 98765 43210"
-                      value={b2bPhone}
-                      onChange={(e) => setB2bPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div className="form-group">
-                  <label className="form-label">Clinic Location (City & State)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Bandra West, Mumbai, Maharashtra"
-                    value={b2bLocation}
-                    onChange={(e) => setB2bLocation(e.target.value)}
-                    required
-                  />
-                </div>
+                  <button type="submit" className="btn btn-accent btn-lg" style={{ width: '100%' }}>
+                    Submit Professional Wholesale Application &rarr;
+                  </button>
+                </form>
+              )
+            )}
+          </div>
 
-                <button type="submit" className="btn btn-accent btn-lg" style={{ width: '100%' }}>
-                  Submit Professional Wholesale Application &rarr;
-                </button>
-              </form>
-            )
-          )}
+          {/* Clinical Concierge & Facilities Visual Card */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{
+              borderRadius: 'var(--radius-xl)',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-luxury)',
+              border: '1px solid #E2E8F0',
+              position: 'relative',
+              height: '260px'
+            }}>
+              <img
+                src="https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=800&q=80"
+                alt="ContrÂge Clinical Formulation Desk"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=800&q=80';
+                }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                left: '1rem',
+                right: '1rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                backdropFilter: 'blur(8px)',
+                padding: '0.85rem 1.15rem',
+                borderRadius: 'var(--radius-md)',
+                color: '#FFFFFF'
+              }}>
+                <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#5EEAD4', fontWeight: '800' }}>
+                  Dermatological Advisory Desk
+                </div>
+                <div style={{ fontSize: '0.88rem', fontWeight: '600' }}>
+                  Mon–Sat • 9:00 AM to 7:00 PM IST
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid #E2E8F0',
+              padding: '1.5rem',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                Direct Clinic & Prescription Support
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.55', margin: 0 }}>
+                Patients undergoing clinical regimens can reach out directly for ingredient tolerance verification, formula pH inquiries, or personalized step sequencing guidance from our dermatologists.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

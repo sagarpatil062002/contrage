@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
+import CustomSelect from './CustomSelect';
 import {
   Sparkles,
   X,
@@ -18,6 +19,7 @@ export default function MarketingLeadModal() {
   const { addMarketingLead, applyCoupon, showToast } = useStore();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isPillDismissed, setIsPillDismissed] = useState(false);
   const [hasDismissed, setHasDismissed] = useState(() => {
     return localStorage.getItem('contrage_lead_modal_dismissed') === 'true';
   });
@@ -103,36 +105,69 @@ export default function MarketingLeadModal() {
 
   return (
     <>
-      {/* Floating Trigger Pill (always accessible on storefront) */}
-      {!isOpen && (
-        <button
-          onClick={handleOpen}
+      {/* Floating Trigger Pill (always accessible on storefront unless dismissed) */}
+      {!isOpen && !isPillDismissed && (
+        <div
           style={{
             position: 'fixed',
-            bottom: '24px',
-            left: '24px',
+            bottom: 'clamp(12px, 2.5vw, 24px)',
+            left: 'clamp(12px, 2.5vw, 24px)',
             zIndex: 998,
-            backgroundColor: 'var(--accent-navy)',
-            color: '#FFFFFF',
-            padding: '0.65rem 1.15rem',
-            borderRadius: 'var(--radius-full)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 8px 24px rgba(23, 33, 58, 0.25)',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.85rem',
-            fontWeight: '700',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            animation: 'bounceSlow 3s infinite'
+            backgroundColor: '#0F172A',
+            borderRadius: '9999px',
+            border: '1px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.3)',
+            padding: '2px',
+            maxWidth: 'calc(100vw - 24px)'
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <Gift size={16} color="#FBBF24" />
-          <span>Get 10% Off VIP Code</span>
-        </button>
+          <button
+            onClick={handleOpen}
+            aria-label="Get 10% Off VIP Discount Code"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#FFFFFF',
+              padding: 'clamp(0.4rem, 1vw, 0.55rem) clamp(0.65rem, 1.5vw, 0.95rem)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: 'clamp(0.72rem, 1.6vw, 0.82rem)',
+              fontWeight: '700',
+              cursor: 'pointer',
+              letterSpacing: '0.01em'
+            }}
+          >
+            <Gift size={14} color="#FBBF24" aria-hidden="true" style={{ flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'nowrap' }}>Get 10% Off VIP</span>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPillDismissed(true);
+            }}
+            aria-label="Dismiss discount badge"
+            style={{
+              background: 'rgba(255, 255, 255, 0.12)',
+              border: 'none',
+              color: '#CBD5E1',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              marginRight: '4px',
+              flexShrink: 0
+            }}
+            title="Dismiss"
+          >
+            <X size={12} />
+          </button>
+        </div>
       )}
 
       {/* Modal Backdrop & Dialog */}
@@ -379,26 +414,18 @@ export default function MarketingLeadModal() {
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.35rem' }}>
                       Primary Skin Concern (For Custom Routine Advice):
                     </label>
-                    <select
-                      name="skinConcern"
+                    <CustomSelect
                       value={leadForm.skinConcern}
-                      onChange={handleInputChange}
-                      style={{
-                        width: '100%',
-                        padding: '0.7rem 0.9rem',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid rgba(23, 33, 58, 0.15)',
-                        fontSize: '0.85rem',
-                        backgroundColor: '#FFFFFF'
-                      }}
-                    >
-                      <option value="Acne & Blemishes">Acne & Active Blemishes</option>
-                      <option value="Hyperpigmentation & Dark Spots">Hyperpigmentation & Melasma</option>
-                      <option value="Open Pores & Oiliness">Open Pores & Excess Sebum</option>
-                      <option value="Damaged Barrier & Redness">Compromised Barrier & Redness</option>
-                      <option value="Aging & Fine Lines">Aging & Fine Lines</option>
-                      <option value="Dryness & Dehydration">Dryness & Rough Texture</option>
-                    </select>
+                      onChange={(val) => setLeadForm(prev => ({ ...prev, skinConcern: val }))}
+                      options={[
+                        { label: 'Acne & Active Blemishes', value: 'Acne & Blemishes' },
+                        { label: 'Hyperpigmentation & Melasma', value: 'Hyperpigmentation & Dark Spots' },
+                        { label: 'Open Pores & Excess Sebum', value: 'Open Pores & Oiliness' },
+                        { label: 'Compromised Barrier & Redness', value: 'Damaged Barrier & Redness' },
+                        { label: 'Aging & Fine Lines', value: 'Aging & Fine Lines' },
+                        { label: 'Dryness & Rough Texture', value: 'Dryness & Dehydration' }
+                      ]}
+                    />
                   </div>
 
                   {/* Multi-channel Opt-in checkboxes */}

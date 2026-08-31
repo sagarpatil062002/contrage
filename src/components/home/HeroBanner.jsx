@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../../context/StoreContext';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, FlaskConical, ShieldCheck } from 'lucide-react';
 
 export default function HeroBanner() {
   const { siteContent } = useStore();
@@ -16,7 +16,7 @@ export default function HeroBanner() {
     secondaryCtaLink: '/dermatologist-b2b',
     badgeText: '100% ACTIVE TRANSPARENCY',
     leftProductImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
-    centerProductImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80',
+    centerProductImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
     rightProductImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80'
   };
 
@@ -25,56 +25,53 @@ export default function HeroBanner() {
       position: 'relative',
       background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 45%, #E0F2FE 85%, #F0F9FF 100%)',
       overflow: 'hidden',
-      paddingTop: 'clamp(3rem, 6vw, 5.5rem)',
-      paddingBottom: 'clamp(3.5rem, 7vw, 6.5rem)',
-      borderBottom: '1px solid rgba(15, 23, 42, 0.08)'
+      paddingTop: 'clamp(2.5rem, 5vw, 5rem)',
+      paddingBottom: 'clamp(3rem, 6vw, 5.5rem)',
+      borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+      boxShadow: 'inset 0 -10px 25px rgba(15, 23, 42, 0.02)'
     }}>
-      {/* Soft Ambient Clinical Glow */}
+      {/* Background Subtle Gradient Blobs */}
       <div style={{
         position: 'absolute',
         top: '-15%',
-        right: '5%',
+        right: '-5%',
         width: '550px',
         height: '550px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(224, 242, 254, 0.8) 0%, rgba(240, 249, 255, 0.4) 50%, rgba(255,255,255,0) 70%)',
+        background: 'radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, rgba(240, 249, 255, 0) 70%)',
+        filter: 'blur(40px)',
         pointerEvents: 'none'
       }} />
 
       <div style={{
         position: 'absolute',
-        bottom: '-10%',
-        left: '-5%',
-        width: '450px',
-        height: '450px',
+        bottom: '-20%',
+        left: '-10%',
+        width: '600px',
+        height: '600px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(229, 235, 245, 0.8) 0%, rgba(247, 245, 247, 0) 70%)',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, rgba(240, 249, 255, 0) 70%)',
+        filter: 'blur(50px)',
         pointerEvents: 'none'
       }} />
 
-      {/* Floating Translucent Bubbles */}
-      <div className="ethereal-bubble animate-float-slow" style={{ top: '15%', left: '8%', width: '48px', height: '48px' }} />
-      <div className="ethereal-bubble animate-float-alt" style={{ top: '65%', left: '12%', width: '32px', height: '32px' }} />
-      <div className="ethereal-bubble animate-float-slow" style={{ top: '25%', right: '8%', width: '64px', height: '64px' }} />
-      <div className="ethereal-bubble animate-float-alt" style={{ bottom: '15%', right: '22%', width: '38px', height: '38px' }} />
-
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: 'clamp(2.5rem, 5vw, 4.5rem)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+          gap: 'clamp(2rem, 5vw, 4rem)',
           alignItems: 'center'
         }}>
-          {/* Left Column: Editorial Statement & CTAs */}
+          {/* Left Column: Typography & CTAs */}
           <div style={{ position: 'relative', zIndex: 5 }}>
             {/* Small Eyebrow */}
             <div style={{
-              fontSize: '0.78rem',
+              fontSize: 'clamp(0.7rem, 1.8vw, 0.78rem)',
               fontWeight: '700',
               textTransform: 'uppercase',
               letterSpacing: '0.18em',
               color: 'var(--text-secondary)',
-              marginBottom: '1.25rem',
+              marginBottom: '1rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem'
@@ -85,119 +82,152 @@ export default function HeroBanner() {
 
             {/* Large Serif Heading */}
             <h1 style={{
-              fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
-              lineHeight: '1.1',
+              fontSize: 'clamp(2.1rem, 4.8vw, 3.8rem)',
+              lineHeight: '1.12',
               color: 'var(--text-primary)',
-              marginBottom: '1.5rem',
+              marginBottom: '1.25rem',
               fontWeight: '500'
             }}>
               {hero.titleLine1} <br />
-              <span style={{ fontStyle: 'italic', fontWeight: '400' }}>
+              <span style={{
+                fontStyle: 'italic',
+                color: 'var(--teal-800)',
+                background: 'linear-gradient(135deg, #0369A1 0%, #0D9488 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
                 {hero.titleLine2}
               </span>
             </h1>
 
-            {/* Supporting Paragraph */}
+            {/* Subtitle / Paragraph */}
             <p style={{
-              fontSize: '1.05rem',
+              fontSize: 'clamp(0.95rem, 2.2vw, 1.12rem)',
+              lineHeight: '1.65',
               color: 'var(--text-secondary)',
-              lineHeight: '1.7',
-              marginBottom: '2.5rem',
-              maxWidth: '480px'
+              maxWidth: '540px',
+              marginBottom: '2rem'
             }}>
               {hero.description}
             </p>
 
-            {/* CTAs */}
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Link to={hero.primaryCtaLink || '/shop'} className="btn btn-primary btn-lg">
-                {hero.primaryCtaText} <ArrowRight size={16} />
+            {/* Action Buttons */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              marginBottom: '2.5rem'
+            }}>
+              <Link
+                to={hero.primaryCtaLink}
+                className="btn btn-primary"
+                style={{
+                  boxShadow: '0 8px 20px -4px rgba(2, 132, 199, 0.35)',
+                  padding: '0.85rem 1.8rem',
+                  fontSize: '0.95rem'
+                }}
+              >
+                {hero.primaryCtaText}
+                <ArrowRight size={18} />
               </Link>
-              <Link to={hero.secondaryCtaLink || '/concerns'} className="btn btn-secondary btn-lg">
+
+              <Link
+                to={hero.secondaryCtaLink}
+                className="btn btn-secondary"
+                style={{
+                  padding: '0.85rem 1.6rem',
+                  fontSize: '0.95rem'
+                }}
+              >
                 {hero.secondaryCtaText}
               </Link>
             </div>
+
+            {/* Clinical Evidence Pills */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'clamp(1rem, 3vw, 1.75rem)',
+              flexWrap: 'wrap',
+              paddingTop: '1.5rem',
+              borderTop: '1px solid rgba(15, 23, 42, 0.08)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '500' }}>
+                <FlaskConical size={18} color="var(--teal-700)" />
+                <span>Dr. Siddhi Formulated</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '500' }}>
+                <ShieldCheck size={18} color="var(--teal-700)" />
+                <span>Zero Fragrance / Hypoallergenic</span>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: Hero Product Composition on Soft Geometric Pedestals */}
-          <div style={{ position: 'relative', zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Right Column: Hero Visual Showcase */}
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 'clamp(320px, 45vw, 420px)'
+          }}>
+            {/* Ambient Background Disc */}
+            <div style={{
+              position: 'absolute',
+              width: 'clamp(280px, 40vw, 400px)',
+              height: 'clamp(280px, 40vw, 400px)',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, #FFFFFF 0%, #F0F9FF 60%, rgba(224, 242, 254, 0.4) 100%)',
+              boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8) inset',
+              zIndex: 1
+            }} />
+
+            {/* 3-Tier Staggered Product Trio Display */}
             <div style={{
               position: 'relative',
               width: '100%',
-              maxWidth: '520px',
-              height: '460px',
+              maxWidth: '440px',
+              height: 'clamp(300px, 42vw, 380px)',
+              zIndex: 3,
               display: 'flex',
-              alignItems: 'flex-end',
+              alignItems: 'center',
               justifyContent: 'center'
             }}>
-              {/* Soft Main Podium Base */}
+              {/* Left Product Bottle */}
               <div style={{
                 position: 'absolute',
-                bottom: '10px',
-                width: '92%',
-                height: '75px',
-                borderRadius: '50%',
-                background: 'radial-gradient(ellipse at center, rgba(23, 33, 58, 0.1) 0%, rgba(23, 33, 58, 0.02) 60%, transparent 80%)',
-                filter: 'blur(8px)',
-                zIndex: 1
-              }} />
-
-              {/* Tier 1 Lower Podium Platform */}
-              <div style={{
-                position: 'absolute',
-                bottom: '25px',
-                width: '85%',
-                height: '50px',
-                borderRadius: '50%',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEAF4 100%)',
-                boxShadow: '0 20px 40px rgba(23, 33, 58, 0.06), inset 0 2px 4px #FFFFFF',
-                border: '1px solid rgba(255, 255, 255, 0.95)',
-                zIndex: 2
-              }} />
-
-              {/* Tier 2 Elevated Center Pedestal */}
-              <div style={{
-                position: 'absolute',
-                bottom: '48px',
-                width: '55%',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, #E5EBF5 100%)',
-                boxShadow: '0 12px 28px rgba(23, 33, 58, 0.05), inset 0 2px 3px #FFFFFF',
-                border: '1px solid rgba(255, 255, 255, 0.95)',
-                zIndex: 3
-              }} />
-
-              {/* Left Product: Blemish Barrier Serum Bottle */}
-              <div style={{
-                position: 'absolute',
-                bottom: '58px',
-                left: '8%',
-                width: '155px',
+                bottom: '40px',
+                left: '6%',
+                width: 'clamp(95px, 25%, 140px)',
                 zIndex: 4,
                 filter: 'drop-shadow(0 15px 25px rgba(23, 33, 58, 0.12))',
                 transition: 'transform 0.4s ease'
               }}
-              className="animate-float-slow"
+                className="animate-float-slow"
               >
                 <img
                   src={hero.leftProductImage}
                   alt="Clinical Serum Formulation"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80';
+                  }}
                   style={{
                     width: '100%',
-                    height: '240px',
+                    height: 'clamp(150px, 35vw, 220px)',
                     objectFit: 'cover',
-                    borderRadius: 'var(--radius-lg)',
+                    borderRadius: 'var(--radius-md)',
                     border: '2px solid rgba(255, 255, 255, 0.8)'
                   }}
                 />
               </div>
 
-              {/* Center Main Product: Retinaldehyde Age-Renewal Bottle (Elevated) */}
+              {/* Center Main Product Bottle (Elevated) */}
               <div style={{
                 position: 'absolute',
-                bottom: '75px',
-                width: '190px',
+                bottom: '65px',
+                width: 'clamp(115px, 32%, 170px)',
                 zIndex: 6,
                 filter: 'drop-shadow(0 20px 35px rgba(23, 33, 58, 0.15))',
                 transition: 'transform 0.4s ease'
@@ -205,36 +235,44 @@ export default function HeroBanner() {
                 <img
                   src={hero.centerProductImage}
                   alt="Hero Clinical Retinaldehyde Bottle"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80';
+                  }}
                   style={{
                     width: '100%',
-                    height: '280px',
+                    height: 'clamp(180px, 42vw, 260px)',
                     objectFit: 'cover',
-                    borderRadius: 'var(--radius-lg)',
+                    borderRadius: 'var(--radius-md)',
                     border: '3px solid #FFFFFF'
                   }}
                 />
               </div>
 
-              {/* Right Product: Ceramide Barrier Cream Jar */}
+              {/* Right Product Jar */}
               <div style={{
                 position: 'absolute',
-                bottom: '50px',
-                right: '8%',
-                width: '160px',
+                bottom: '45px',
+                right: '6%',
+                width: 'clamp(95px, 25%, 145px)',
                 zIndex: 5,
                 filter: 'drop-shadow(0 15px 25px rgba(23, 33, 58, 0.12))',
                 transition: 'transform 0.4s ease'
               }}
-              className="animate-float-alt"
+                className="animate-float-alt"
               >
                 <img
                   src={hero.rightProductImage}
                   alt="Ceramide Barrier Repair Cream Jar"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80';
+                  }}
                   style={{
                     width: '100%',
-                    height: '220px',
+                    height: 'clamp(140px, 32vw, 200px)',
                     objectFit: 'cover',
-                    borderRadius: 'var(--radius-lg)',
+                    borderRadius: 'var(--radius-md)',
                     border: '2px solid rgba(255, 255, 255, 0.8)'
                   }}
                 />
@@ -243,23 +281,23 @@ export default function HeroBanner() {
               {/* Floating Pearl Shimmer Badge */}
               <div style={{
                 position: 'absolute',
-                top: '18px',
-                right: '12px',
+                top: '10px',
+                right: '8px',
                 zIndex: 8,
-                backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(12px)',
-                padding: '0.6rem 1rem',
+                padding: '0.4rem 0.75rem',
                 borderRadius: 'var(--radius-full)',
                 border: '1px solid rgba(255, 255, 255, 0.9)',
                 boxShadow: '0 8px 24px rgba(23, 33, 58, 0.08)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.45rem',
-                fontSize: '0.78rem',
+                gap: '0.35rem',
+                fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
                 fontWeight: '700',
                 color: 'var(--text-primary)'
               }}>
-                <Sparkles size={14} color="#6C5B8B" />
+                <Sparkles size={12} color="#0284C7" />
                 <span>{hero.badgeText}</span>
               </div>
             </div>

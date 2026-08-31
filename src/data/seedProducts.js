@@ -21,7 +21,7 @@ export const initialProducts = [
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
@@ -100,7 +100,7 @@ export const initialProducts = [
     heroImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: 'Encapsulated Salicylic Acid (BHA)', percentage: '2.0%', role: 'Time-released follicular exfoliant that clears comedones without surface irritation.' },
@@ -139,7 +139,7 @@ export const initialProducts = [
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: 'Ultra-Pure Niacinamide (USP Grade)', percentage: '10.0%', role: 'Inhibits melanosome transfer, suppresses sebum output, and strengthens ceramide synthesis.' },
@@ -175,9 +175,9 @@ export const initialProducts = [
     reviewCount: 0,
     stock: 45,
     sizes: ['30ml'],
-    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
@@ -256,7 +256,7 @@ export const initialProducts = [
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: 'Tranexamic Acid (USP Grade)', percentage: '3.0%', role: 'Inhibits plasmin-induced melanocyte activation and reduces vascular redness in melasma.' },
@@ -334,7 +334,7 @@ export const initialProducts = [
     heroImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: '3-O-Ethyl Ascorbic Acid', percentage: '15.0%', role: 'Highly stable etherified Vitamin C active directly neutralizing reactive oxygen species and boosting collagen synthesis.' },
@@ -370,9 +370,9 @@ export const initialProducts = [
     reviewCount: 0,
     stock: 40,
     sizes: ['30ml'],
-    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
@@ -448,9 +448,9 @@ export const initialProducts = [
     reviewCount: 0,
     stock: 50,
     sizes: ['15ml'],
-    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: 'Encapsulated Caffeine', percentage: '3.0%', role: 'Vasoconstrictor that drains excess lymphatic fluid and reduces sub-orbital puffiness.' },
@@ -601,9 +601,9 @@ export const initialProducts = [
     reviewCount: 0,
     stock: 25,
     sizes: ['100ml'],
-    heroImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80'
     ],
     activeIngredients: [
       { name: 'Glycolic, Mandelic & Salicylic Acid Complex', percentage: '30.0%', role: 'Deep epidermolysis and controlled stratum corneum renewal under professional neutralization.' },

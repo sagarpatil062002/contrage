@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from '../components/common/CustomSelect';
 import {
   Stethoscope,
   Building2,
@@ -164,51 +165,96 @@ CLINIC COMPLIANCE & TERMS:
         position: 'relative'
       }}>
         <div className="container">
-          <div style={{ maxWidth: '820px' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.4rem 0.85rem',
-              backgroundColor: 'var(--bg-lavender)',
-              color: 'var(--accent-lavender-dark)',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.78rem',
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              marginBottom: '1rem'
-            }}>
-              <Stethoscope size={15} />
-              Dermatologist & Clinic Wholesale Program
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 3.5rem)',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.4rem 0.85rem',
+                backgroundColor: 'var(--bg-lavender)',
+                color: 'var(--accent-lavender-dark)',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.78rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                marginBottom: '1rem'
+              }}>
+                <Stethoscope size={15} />
+                Dermatologist & Clinic Wholesale Program
+              </div>
+
+              <h1 style={{
+                fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
+                color: 'var(--text-primary)',
+                lineHeight: 1.15,
+                marginBottom: '1rem',
+                fontFamily: 'var(--font-serif)'
+              }}>
+                Clinical Formulations for Aesthetic Clinics & Dermatologists
+              </h1>
+
+              <p style={{
+                fontSize: '1.05rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.6,
+                marginBottom: '1.5rem'
+              }}>
+                Formulated under the medical supervision of <strong>Dr. Siddhi</strong>. Contrage provides direct wholesale supply, high-margin retail dispensing, and procedural backbar formulations for licensed dermatologists, plastic surgeons, and medical spas across India.
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <a href="#calculator" className="btn btn-primary btn-sm">
+                  Calculate Bulk Margins &rarr;
+                </a>
+                <a href="#inquiry-form" className="btn btn-secondary btn-sm">
+                  Register Your Clinic
+                </a>
+              </div>
             </div>
 
-            <h1 style={{
-              fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
-              color: 'var(--text-primary)',
-              lineHeight: 1.15,
-              marginBottom: '1rem',
-              fontFamily: 'var(--font-serif)'
+            <div style={{
+              borderRadius: 'var(--radius-xl)',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-luxury)',
+              border: '1px solid #E2E8F0',
+              position: 'relative',
+              height: 'clamp(260px, 35vw, 380px)'
             }}>
-              Clinical Formulations for Aesthetic Clinics & Dermatologists
-            </h1>
-
-            <p style={{
-              fontSize: '1.05rem',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-              marginBottom: '1.5rem'
-            }}>
-              Formulated under the medical supervision of <strong>Dr. Siddhi</strong>. Contrage provides direct wholesale supply, high-margin retail dispensing, and procedural backbar formulations for licensed dermatologists, plastic surgeons, and medical spas across India.
-            </p>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-              <a href="#calculator" className="btn btn-primary btn-sm">
-                Calculate Bulk Margins &rarr;
-              </a>
-              <a href="#inquiry-form" className="btn btn-secondary btn-sm">
-                Register Your Clinic
-              </a>
+              <img
+                src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=900&q=80"
+                alt="Aesthetic Clinic Backbar Dispensing"
+                loading="eager"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=800&q=80';
+                }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                left: '1rem',
+                right: '1rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                backdropFilter: 'blur(8px)',
+                padding: '0.85rem 1.15rem',
+                borderRadius: 'var(--radius-md)',
+                color: '#FFFFFF'
+              }}>
+                <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#5EEAD4', fontWeight: '800' }}>
+                  Professional Clinic Backbar
+                </div>
+                <div style={{ fontSize: '0.88rem', fontWeight: '600' }}>
+                  Sterile Cosmeceuticals • Cold-Chain Dispensing • 35–50% Margins
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -314,10 +360,10 @@ CLINIC COMPLIANCE & TERMS:
           </div>
 
           <div style={{
-            padding: '2.5rem',
+            padding: 'clamp(1.25rem, 3.5vw, 2.5rem)',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '2.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(1.5rem, 3vw, 2.5rem)',
             alignItems: 'center'
           }}>
             {/* Calculator Controls */}
@@ -326,25 +372,15 @@ CLINIC COMPLIANCE & TERMS:
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
                 Select Clinical Formulation:
               </label>
-              <select
+              <CustomSelect
                 value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(23, 33, 58, 0.2)',
-                  fontSize: '0.9rem',
-                  backgroundColor: '#FFFFFF',
-                  marginBottom: '1.5rem'
-                }}
-              >
-                {products.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (Retail ₹{p.salePrice})
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedProduct}
+                options={products.map(p => ({
+                  label: `${p.name} (Retail ₹${p.salePrice})`,
+                  value: p.id
+                }))}
+                style={{ marginBottom: '1.5rem' }}
+              />
 
               {/* Quantity Selector */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -377,7 +413,7 @@ CLINIC COMPLIANCE & TERMS:
               {/* Tier Pills */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 90px), 1fr))',
                 gap: '0.5rem',
                 marginTop: '1rem'
               }}>

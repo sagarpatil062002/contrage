@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+import Breadcrumbs from '../components/common/Breadcrumbs';
+
 export default function ConcernDetailPage() {
   const { slug } = useParams();
   const { concerns, products, addRoutineBundleToCart, showToast } = useStore();
@@ -40,26 +42,84 @@ export default function ConcernDetailPage() {
     }
   };
 
+  const breadcrumbItems = [
+    { label: 'Home', to: '/' },
+    { label: 'Concerns Hub', to: '/concerns' },
+    { label: concern.name }
+  ];
+
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: '5rem' }}>
       {/* Hero Header */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '3rem 0 2.5rem 0' }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
+        padding: 'clamp(1.75rem, 4vw, 3rem) 0 clamp(1.5rem, 3vw, 2.5rem) 0'
+      }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-            <Link to="/" style={{ color: 'inherit' }}>Home</Link> &gt;
-            <Link to="/concerns" style={{ color: 'inherit' }}>Concerns Hub</Link> &gt;
-            <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{concern.name}</span>
-          </div>
+          <Breadcrumbs embedded items={breadcrumbItems} />
 
-          <span className="badge badge-teal" style={{ marginBottom: '0.65rem' }}>
-            Dermatological Protocol
-          </span>
-          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
-            {concern.name}
-          </h1>
-          <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', maxWidth: '760px', lineHeight: '1.6' }}>
-            {concern.clinicalBackground}
-          </p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+            gap: 'clamp(1.5rem, 3vw, 3rem)',
+            alignItems: 'center',
+            marginTop: '0.5rem'
+          }}>
+            <div>
+              <span className="badge badge-teal" style={{ marginBottom: '0.65rem' }}>
+                Dermatological Protocol
+              </span>
+              <h1 style={{ fontSize: 'clamp(1.85rem, 4vw, 3.2rem)', color: 'var(--text-primary)', marginBottom: '0.75rem', fontFamily: 'var(--font-serif)' }}>
+                {concern.name}
+              </h1>
+              <p style={{ fontSize: 'clamp(0.92rem, 2vw, 1.05rem)', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
+                {concern.clinicalBackground}
+              </p>
+            </div>
+
+            {concern.heroImage && (
+              <div style={{
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-luxury)',
+                border: '1px solid #E2E8F0',
+                height: 'clamp(180px, 25vw, 240px)',
+                position: 'relative'
+              }}>
+                <img
+                  src={concern.heroImage}
+                  alt={concern.name}
+                  loading="eager"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80';
+                  }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0.75rem',
+                  left: '0.75rem',
+                  backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                  backdropFilter: 'blur(6px)',
+                  color: '#FFFFFF',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 'var(--radius-xs)',
+                  fontSize: '0.72rem',
+                  fontWeight: '700',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase'
+                }}>
+                  Clinical Case Protocol
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -67,8 +127,8 @@ export default function ConcernDetailPage() {
         {/* Doctor Protocol & Contraindications Summary */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+          gap: '1.25rem',
           marginBottom: '3rem'
         }}>
           {/* Doctor Strategy */}
