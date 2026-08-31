@@ -86,8 +86,8 @@ export default function LegalPage() {
       <div className="container" style={{ paddingTop: '2.5rem' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '240px 1fr',
-          gap: '2.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+          gap: 'clamp(1.5rem, 3vw, 2.5rem)',
           alignItems: 'start'
         }}>
           {/* Sidebar Nav */}

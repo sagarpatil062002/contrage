@@ -83,10 +83,10 @@ export default function IngredientSpotlight() {
           <div
             className="soft-translucent-card"
             style={{
-              padding: 'clamp(1.75rem, 4vw, 3rem)',
+              padding: 'clamp(1.25rem, 3.5vw, 2.5rem)',
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '2.5rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+              gap: 'clamp(1.5rem, 3vw, 2.5rem)',
               alignItems: 'center'
             }}
           >
@@ -98,10 +98,14 @@ export default function IngredientSpotlight() {
               </div>
 
               <h3 style={{
-                fontSize: '2.2rem',
+                fontSize: 'clamp(1.4rem, 3.5vw, 2.2rem)',
                 color: 'var(--text-primary)',
                 marginBottom: '0.75rem',
-                fontFamily: 'var(--font-serif)'
+                fontFamily: 'var(--font-serif)',
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+                hyphens: 'auto',
+                lineHeight: '1.2'
               }}>
                 {active.name}
               </h3>
@@ -118,23 +122,23 @@ export default function IngredientSpotlight() {
               {/* 3 Parameter Chips */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '0.75rem',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gap: 'clamp(0.4rem, 1.5vw, 0.75rem)',
                 marginBottom: '1.75rem'
               }}>
-                <div style={{ backgroundColor: '#FFFFFF', padding: '0.85rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Mol. Weight</div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{active.molecularWeight}</div>
+                <div style={{ backgroundColor: '#FFFFFF', padding: 'clamp(0.6rem, 1.5vw, 0.85rem) 0.35rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center', minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(0.6rem, 1.4vw, 0.68rem)', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', lineHeight: 1.2 }}>Mol. Weight</div>
+                  <div style={{ fontSize: 'clamp(0.78rem, 2vw, 0.92rem)', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.2rem', overflowWrap: 'break-word' }}>{active.molecularWeight}</div>
                 </div>
 
-                <div style={{ backgroundColor: '#FFFFFF', padding: '0.85rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Optimal pH</div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{active.optimalPh}</div>
+                <div style={{ backgroundColor: '#FFFFFF', padding: 'clamp(0.6rem, 1.5vw, 0.85rem) 0.35rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center', minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(0.6rem, 1.4vw, 0.68rem)', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', lineHeight: 1.2 }}>Optimal pH</div>
+                  <div style={{ fontSize: 'clamp(0.78rem, 2vw, 0.92rem)', fontWeight: '800', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{active.optimalPh}</div>
                 </div>
 
-                <div style={{ backgroundColor: '#FFFFFF', padding: '0.85rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Safety Rating</div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#438E75', marginTop: '0.2rem' }}>EWG {active.ewgScore}</div>
+                <div style={{ backgroundColor: '#FFFFFF', padding: 'clamp(0.6rem, 1.5vw, 0.85rem) 0.35rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(23, 33, 58, 0.08)', textAlign: 'center', minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(0.6rem, 1.4vw, 0.68rem)', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', lineHeight: 1.2 }}>Safety Rating</div>
+                  <div style={{ fontSize: 'clamp(0.78rem, 2vw, 0.92rem)', fontWeight: '800', color: '#438E75', marginTop: '0.2rem', lineHeight: 1.2 }}>EWG {active.ewgScore}</div>
                 </div>
               </div>
 
@@ -152,8 +156,23 @@ export default function IngredientSpotlight() {
                 </div>
               </div>
 
-              <Link to="/ingredients" className="btn btn-primary btn-md">
-                Explore Ingredient Directory <ArrowRight size={15} />
+              <Link
+                to="/ingredients"
+                className="btn btn-primary btn-md"
+                style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  padding: '0.75rem clamp(0.75rem, 2.5vw, 1.6rem)',
+                  fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <span>Explore Ingredient Directory</span>
+                <ArrowRight size={15} style={{ flexShrink: 0 }} />
               </Link>
             </div>
 
@@ -170,8 +189,19 @@ export default function IngredientSpotlight() {
                 border: '3px solid #FFFFFF'
               }}>
                 <img
-                  src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
+                  src={
+                    active.slug?.includes('retinal') ? 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=80' :
+                    active.slug?.includes('salicylic') ? 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80' :
+                    active.slug?.includes('ceramide') ? 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80' :
+                    active.slug?.includes('tranexamic') ? 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80' :
+                    active.slug?.includes('zinc') ? 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=800&q=80' :
+                    'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80'
+                  }
                   alt={active.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+                  }}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <div style={{

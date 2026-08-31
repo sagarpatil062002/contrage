@@ -41,13 +41,13 @@ export default function AboutPage() {
         <div className="container">
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '3.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: 'clamp(1.5rem, 4vw, 3.5rem)',
             alignItems: 'center'
           }}>
             <div>
               <span className="badge badge-teal" style={{ marginBottom: '0.5rem' }}>Our Origin & Manifesto</span>
-              <h2 style={{ fontSize: '2.2rem', color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
+              <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.2rem)', color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
                 Bridging Hospital Dermatology & Daily Patient Care
               </h2>
               <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '1rem' }}>
@@ -83,7 +83,7 @@ export default function AboutPage() {
               <img
                 src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1000&q=80"
                 alt="Aesthederm Clinical Laboratory Research"
-                style={{ width: '100%', height: '440px', objectFit: 'cover' }}
+                style={{ width: '100%', height: 'clamp(260px, 45vw, 440px)', objectFit: 'cover' }}
               />
               <div style={{
                 position: 'absolute',

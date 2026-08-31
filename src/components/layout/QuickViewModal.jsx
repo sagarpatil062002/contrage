@@ -51,7 +51,7 @@ export default function QuickViewModal() {
       <div style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '840px',
+        maxWidth: 'min(840px, calc(100vw - 24px))',
         maxHeight: '90vh',
         overflowY: 'auto',
         backgroundColor: '#FFFFFF',
@@ -60,9 +60,9 @@ export default function QuickViewModal() {
         border: '1px solid #E2E8F0',
         zIndex: 111,
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '2rem',
-        padding: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+        gap: 'clamp(1rem, 3vw, 2rem)',
+        padding: 'clamp(1.25rem, 3.5vw, 2rem)'
       }}>
         {/* Close Button */}
         <button
@@ -97,6 +97,10 @@ export default function QuickViewModal() {
             <img
               src={quickViewProduct.heroImage}
               alt={quickViewProduct.name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+              }}
               style={{
                 width: '100%',
                 height: '360px',

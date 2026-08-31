@@ -28,8 +28,8 @@ export default function ResearchPage() {
         {/* 4 Pillars Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '1.75rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+          gap: 'clamp(1rem, 2.5vw, 1.75rem)',
           marginBottom: '4rem'
         }}>
           <div className="clinical-card" style={{ padding: '1.75rem' }}>
@@ -78,6 +78,78 @@ export default function ResearchPage() {
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.55' }}>
               Formulations are thoroughly tested across all Fitzpatrick skin phototypes to ensure zero post-inflammatory rebound hyperpigmentation.
             </p>
+          </div>
+        </div>
+
+        {/* Laboratory & Bio-Instrumentation Facility Visual Showcase */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+          gap: '1.5rem',
+          marginBottom: '4rem'
+        }}>
+          <div style={{
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-luxury)',
+            border: '1px solid #E2E8F0',
+            position: 'relative',
+            height: '240px'
+          }}>
+            <img
+              src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=800&q=80"
+              alt="Clinical Chromatography & HPLC Assays"
+              loading="lazy"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80';
+              }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '1rem',
+              background: 'linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 100%)',
+              color: '#FFFFFF'
+            }}>
+              <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#5EEAD4', fontWeight: '800' }}>Purity Verification</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700' }}>HPLC Active Concentration & Molecular Mass Assays</div>
+            </div>
+          </div>
+
+          <div style={{
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-luxury)',
+            border: '1px solid #E2E8F0',
+            position: 'relative',
+            height: '240px'
+          }}>
+            <img
+              src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80"
+              alt="In-Vivo Optical Profilometry"
+              loading="lazy"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80';
+              }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '1rem',
+              background: 'linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 100%)',
+              color: '#FFFFFF'
+            }}>
+              <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#5EEAD4', fontWeight: '800' }}>Double-Blind Testing</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700' }}>In-Vivo Corneometer® & Optical Bio-Profilometry</div>
+            </div>
           </div>
         </div>
 

@@ -49,8 +49,8 @@ export default function ConcernNavigator() {
         {/* Soft Translucent Concern Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+          gap: '1.25rem'
         }}>
           {concerns.map((item) => (
             <Link

@@ -142,6 +142,10 @@ export default function ProductCard({ product }) {
             src={product.heroImage}
             alt={product.name}
             loading="lazy"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80';
+            }}
             style={{
               width: '82%',
               height: '82%',

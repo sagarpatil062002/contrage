@@ -341,25 +341,25 @@ export default function CheckoutPage() {
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', paddingBottom: '5rem' }}>
-      {/* Checkout Navbar */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: '1.25rem 0' }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={20} />
+      {/* Header */}
+      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid rgba(15, 23, 42, 0.08)', padding: 'clamp(0.85rem, 2vw, 1.25rem) 0' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ShieldCheck size={18} />
             </div>
-            <div>
-              <span style={{ fontSize: '1.3rem', fontFamily: 'var(--font-serif)', fontWeight: '800', color: '#0F172A', letterSpacing: '0.04em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem 0.5rem', minWidth: 0 }}>
+              <Link to="/" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)', fontFamily: 'var(--font-serif)', fontWeight: '800', color: '#0F172A', letterSpacing: '0.04em', textDecoration: 'none' }}>
                 CONTRÂGE
-              </span>
-              <span style={{ fontSize: '0.72rem', color: '#0284C7', fontWeight: '800', marginLeft: '0.5rem', textTransform: 'uppercase' }}>
+              </Link>
+              <span style={{ fontSize: '0.7rem', color: '#0284C7', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
                 Clinical Checkout
               </span>
             </div>
-          </Link>
+          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#64748B', fontWeight: '600' }}>
-            <Lock size={14} color="#059669" /> 256-Bit SSL Encrypted
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: '#64748B', fontWeight: '600', whiteSpace: 'nowrap' }}>
+            <Lock size={13} color="#059669" /> 256-Bit SSL Encrypted
           </div>
         </div>
       </div>
@@ -368,8 +368,8 @@ export default function CheckoutPage() {
         {/* 2-Column Checkout Layout */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '2.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+          gap: 'clamp(1.5rem, 3.5vw, 2.5rem)',
           alignItems: 'start'
         }}>
           {/* Left Column: Unified Checkout Container */}
@@ -818,6 +818,10 @@ export default function CheckoutPage() {
                   <img
                     src={item.product.heroImage}
                     alt={item.product.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                    }}
                     style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>

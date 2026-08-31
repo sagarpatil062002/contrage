@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import {
   ShoppingBag,
   Trash2,
@@ -92,13 +93,14 @@ export default function CartPage() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: '5rem' }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '2.5rem 0 2rem 0' }}>
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
+        padding: 'clamp(1.75rem, 3.5vw, 2.5rem) 0 clamp(1.25rem, 3vw, 2rem) 0'
+      }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-            <Link to="/" style={{ color: 'inherit' }}>Home</Link> &gt;
-            <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>Clinical Cart</span>
-          </div>
-          <h1 style={{ fontSize: '2.2rem', color: 'var(--text-primary)', margin: 0 }}>
+          <Breadcrumbs embedded items={[{ label: 'Home', to: '/' }, { label: 'Clinical Cart' }]} />
+          <h1 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.2rem)', color: 'var(--text-primary)', margin: 0 }}>
             Your Formulation Cart ({cart.length} {cart.length === 1 ? 'item' : 'items'})
           </h1>
         </div>
@@ -136,8 +138,8 @@ export default function CartPage() {
         {/* 2-Column Cart Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 380px',
-          gap: '2.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+          gap: 'clamp(1.5rem, 3.5vw, 2.5rem)',
           alignItems: 'start'
         }}>
           {/* Left: Line Items List */}
@@ -145,7 +147,7 @@ export default function CartPage() {
             backgroundColor: '#FFFFFF',
             borderRadius: 'var(--radius-md)',
             border: '1px solid #E2E8F0',
-            padding: '1.5rem',
+            padding: 'clamp(1rem, 3vw, 1.5rem)',
             boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
@@ -156,8 +158,8 @@ export default function CartPage() {
                 key={`${item.product.id}-${item.selectedSize}`}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '88px 1fr auto',
-                  gap: '1.25rem',
+                  gridTemplateColumns: 'clamp(64px, 18vw, 88px) 1fr auto',
+                  gap: 'clamp(0.75rem, 2vw, 1.25rem)',
                   alignItems: 'center',
                   paddingBottom: '1.5rem',
                   borderBottom: idx === cart.length - 1 ? 'none' : '1px solid #F1F5F9'
@@ -166,7 +168,11 @@ export default function CartPage() {
                 <img
                   src={item.product.heroImage}
                   alt={item.product.name}
-                  style={{ width: '88px', height: '88px', borderRadius: 'var(--radius-xs)', objectFit: 'cover', border: '1px solid #E2E8F0' }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                  }}
+                  style={{ width: 'clamp(64px, 18vw, 88px)', height: 'clamp(64px, 18vw, 88px)', borderRadius: 'var(--radius-xs)', objectFit: 'cover', border: '1px solid #E2E8F0' }}
                 />
 
                 <div>

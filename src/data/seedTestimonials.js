@@ -4,7 +4,7 @@ export const initialTestimonials = [
     name: 'Dr. Elena Rostova',
     title: 'Consultant Aesthetic Physician, Geneva',
     concern: 'Clinical Endorsement',
-    avatar: 'https://images.unsplash.com/photo-1594824813629-873b5e40e0c0?auto=format&fit=crop&w=300&q=80',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
     rating: 5,
     verifiedDerm: true,
     verifiedBuyer: true,
@@ -58,7 +58,7 @@ export const initialTestimonials = [
     productUsed: '0.1% Retinaldehyde + 1% Bakuchiol Age-Renewal Elixir',
     duration: '8 Weeks',
     resultMetric: '+40% Noticeable firming in forehead and nasolabial folds',
-    beforeImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=400&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80',
     afterImage: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80'
   }
 ];

@@ -10,7 +10,7 @@ export const initialSiteContent = {
     secondaryCtaLink: '/concerns',
     badgeText: '100% Active Transparency',
     leftProductImage: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
-    centerProductImage: 'https://images.unsplash.com/photo-1608248597359-0f4f9db5642c?auto=format&fit=crop&w=600&q=80',
+    centerProductImage: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80',
     rightProductImage: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80'
   },
   trustStrip: [
@@ -87,7 +87,7 @@ export const initialClinicalTrials = [
       { label: 'Blemish Redness Reduction', value: '88%', instrument: 'Mexameter® MX 18' },
       { label: 'Patient Barrier Improvement', value: '94%', instrument: 'Corneometer® CM 825' }
     ],
-    beforeImage: 'https://images.unsplash.com/photo-1512290900672-1f02e75e921d?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
     afterImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
     notes: 'Formulation introduced daily PM after mild cleansing. Zero transepidermal barrier disruption noted.'
   },
@@ -101,7 +101,7 @@ export const initialClinicalTrials = [
       { label: 'Epidermal Hydration', value: '+140%', instrument: 'Corneometer® CM 825' },
       { label: 'Sensitivity Index Reduction', value: '91%', instrument: 'Clinical Erythema Score' }
     ],
-    beforeImage: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
     afterImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
     notes: 'Applied twice daily to chemically sensitized facial epidermis. Significant filaggrin protein upregulation observed.'
   }

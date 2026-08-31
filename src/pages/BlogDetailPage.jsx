@@ -95,6 +95,10 @@ export default function BlogDetailPage() {
           <img
             src={blog.coverImage}
             alt={blog.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1200&q=80';
+            }}
             style={{ width: '100%', maxHeight: '460px', objectFit: 'cover' }}
           />
         </div>

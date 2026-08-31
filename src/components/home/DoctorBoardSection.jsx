@@ -61,12 +61,21 @@ export default function DoctorBoardSection() {
                 e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
               }}
             >
-              <div style={{ position: 'relative', height: '240px', overflow: 'hidden' }}>
+              <div style={{ position: 'relative', height: '260px', overflow: 'hidden', backgroundColor: '#F1F5F9' }}>
                 <img
-                  src={doc.photo}
+                  src={doc.image || doc.photo || 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80'}
                   alt={doc.name}
                   loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80';
+                  }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'top center'
+                  }}
                 />
                 <div style={{
                   position: 'absolute',
@@ -90,8 +99,8 @@ export default function DoctorBoardSection() {
 
               <div style={{ padding: '1.5rem' }}>
                 <h3 style={{
-                  fontSize: '1.2rem',
-                  fontWeight: '600',
+                  fontSize: '1.15rem',
+                  fontWeight: '700',
                   color: 'var(--text-primary)',
                   marginBottom: '0.25rem',
                   fontFamily: 'var(--font-serif)'
@@ -99,22 +108,26 @@ export default function DoctorBoardSection() {
                   {doc.name}
                 </h3>
 
-                <div style={{ fontSize: '0.78rem', color: '#6C5B8B', fontWeight: '700', marginBottom: '0.5rem' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--teal-800)', fontWeight: '700', marginBottom: '0.4rem' }}>
                   {doc.role}
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                  {doc.credentials} • {doc.institution}
-                </div>
+                {(doc.affiliation || doc.hospital || doc.institution || doc.specialty) && (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
+                    {doc.affiliation || doc.hospital || doc.institution || doc.specialty}
+                  </div>
+                )}
 
-                <p style={{
-                  fontSize: '0.82rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: '1.55',
-                  fontStyle: 'italic'
-                }}>
-                  "{doc.quote}"
-                </p>
+                {(doc.bio || doc.quote) && (
+                  <p style={{
+                    fontSize: '0.82rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: '1.55',
+                    margin: 0
+                  }}>
+                    {doc.bio || `"${doc.quote}"`}
+                  </p>
+                )}
               </div>
             </div>
           ))}

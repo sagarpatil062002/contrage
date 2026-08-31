@@ -30,8 +30,8 @@ export default function TrustStrip() {
       <div className="container">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+          gap: '1.25rem',
           alignItems: 'center'
         }}>
           {badges.map((p, i) => (

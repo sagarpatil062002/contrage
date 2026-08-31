@@ -29,88 +29,100 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const categories = [
-    'Serums & Treatments',
-    'Cleansers',
+    'Serums & Boosters',
+    'Cleansers & Toners',
     'Moisturizers & Creams',
     'Sun Protection',
-    'Exfoliants & Toners',
     'Eye Care'
   ];
 
   return (
-    <header style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 40,
-      backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.94)' : 'rgba(247, 245, 247, 0.88)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(23, 33, 58, 0.08)',
-      transition: 'all 0.3s ease',
-      boxShadow: scrolled ? '0 4px 20px -2px rgba(23, 33, 58, 0.04)' : 'none'
-    }}>
-      <div className="container-wide" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '4.75rem'
-        }}>
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+        backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.96)' : 'rgba(247, 245, 247, 0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(23, 33, 58, 0.08)',
+        transition: 'all 0.3s ease',
+        boxShadow: scrolled ? '0 4px 20px -2px rgba(23, 33, 58, 0.04)' : 'none',
+        width: '100%'
+      }}
+    >
+      <div className="container-wide" style={{ paddingLeft: 'clamp(0.75rem, 3vw, 2rem)', paddingRight: 'clamp(0.75rem, 3vw, 2rem)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: 'clamp(4rem, 8vw, 4.75rem)',
+            gap: '0.5rem'
+          }}
+        >
           {/* Left: Mobile Menu Toggle & Brand Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(0.4rem, 2vw, 1.25rem)', minWidth: 0 }}>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="mobile-only-btn"
-              aria-label="Toggle navigation menu"
+              className="mobile-nav-toggle"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               style={{
-                display: 'none',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '0.5rem',
-                color: 'var(--text-primary)'
+                padding: '0.4rem',
+                color: 'var(--text-primary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-xs)',
+                flexShrink: 0
               }}
             >
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
-            <Link to="/" style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '1.65rem',
-                fontWeight: '800',
-                letterSpacing: '0.06em',
-                color: 'var(--text-primary)',
-                lineHeight: '1'
-              }}>
+            <Link to="/" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, textDecoration: 'none' }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(1.15rem, 3.6vw, 1.65rem)',
+                  fontWeight: '800',
+                  letterSpacing: '0.06em',
+                  color: 'var(--text-primary)',
+                  lineHeight: '1.05',
+                  whiteSpace: 'nowrap'
+                }}
+              >
                 CONTRÂGE
               </span>
-              <span style={{
-                fontSize: '0.6rem',
-                fontWeight: '700',
-                letterSpacing: '0.18em',
-                color: 'var(--accent-blue-dark)',
-                textTransform: 'uppercase',
-                marginTop: '3px'
-              }}>
+              <span
+                className="brand-subtitle"
+                style={{
+                  fontSize: 'clamp(0.46rem, 1.3vw, 0.6rem)',
+                  fontWeight: '700',
+                  letterSpacing: '0.12em',
+                  color: 'var(--accent-blue-dark)',
+                  textTransform: 'uppercase',
+                  marginTop: '2px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
                 YOUR PARTNER IN SKIN IMPROVEMENT
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(1rem, 2vw, 2rem)' }}>
             {/* Shop All Dropdown */}
             <div
               style={{ position: 'relative' }}
@@ -134,20 +146,22 @@ export default function Navbar() {
               </Link>
 
               {shopDropdownOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '-1rem',
-                  width: '230px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                  backdropFilter: 'blur(16px)',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 15px 35px -5px rgba(23, 33, 58, 0.1)',
-                  border: '1px solid rgba(23, 33, 58, 0.08)',
-                  padding: '0.75rem',
-                  zIndex: 100,
-                  animation: 'fadeIn 0.2s ease-out'
-                }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '-1rem',
+                    width: '230px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    backdropFilter: 'blur(16px)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: '0 15px 35px -5px rgba(23, 33, 58, 0.1)',
+                    border: '1px solid rgba(23, 33, 58, 0.08)',
+                    padding: '0.75rem',
+                    zIndex: 100,
+                    animation: 'fadeIn 0.2s ease-out'
+                  }}
+                >
                   <Link
                     to="/shop"
                     style={{
@@ -214,20 +228,22 @@ export default function Navbar() {
               </Link>
 
               {concernsDropdownOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '-1.5rem',
-                  width: '260px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                  backdropFilter: 'blur(16px)',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 15px 35px -5px rgba(23, 33, 58, 0.1)',
-                  border: '1px solid rgba(23, 33, 58, 0.08)',
-                  padding: '0.75rem',
-                  zIndex: 100,
-                  animation: 'fadeIn 0.2s ease-out'
-                }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '-1.5rem',
+                    width: '260px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    backdropFilter: 'blur(16px)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: '0 15px 35px -5px rgba(23, 33, 58, 0.1)',
+                    border: '1px solid rgba(23, 33, 58, 0.08)',
+                    padding: '0.75rem',
+                    zIndex: 100,
+                    animation: 'fadeIn 0.2s ease-out'
+                  }}
+                >
                   <Link
                     to="/concerns"
                     style={{
@@ -336,8 +352,15 @@ export default function Navbar() {
             </NavLink>
           </nav>
 
-          {/* Right Action Icons & Admin Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Right Action Icons & Admin CRM Button */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'clamp(0.25rem, 1.2vw, 0.75rem)',
+              flexShrink: 0
+            }}
+          >
             {/* Search Trigger */}
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -350,18 +373,22 @@ export default function Navbar() {
                 color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 borderRadius: '50%',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s',
+                minWidth: '34px',
+                minHeight: '34px'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-lavender)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-lavender)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <Search size={19} />
+              <Search size={18} />
             </button>
 
             {/* Wishlist */}
             <Link
               to="/account?tab=wishlist"
+              className="hide-on-mobile"
               aria-label="Wishlist"
               style={{
                 position: 'relative',
@@ -369,30 +396,35 @@ export default function Navbar() {
                 color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 borderRadius: '50%',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s',
+                minWidth: '34px',
+                minHeight: '34px'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-lavender)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-lavender)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <Heart size={19} />
+              <Heart size={18} />
               {wishlist.length > 0 && (
-                <span style={{
-                  position: 'absolute',
-                  top: '1px',
-                  right: '1px',
-                  backgroundColor: 'var(--accent-navy)',
-                  color: '#FFFFFF',
-                  fontSize: '0.65rem',
-                  fontWeight: '700',
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  lineHeight: '1'
-                }}>
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '2px',
+                    backgroundColor: 'var(--accent-navy)',
+                    color: '#FFFFFF',
+                    fontSize: '0.62rem',
+                    fontWeight: '700',
+                    width: '15px',
+                    height: '15px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: '1'
+                  }}
+                >
                   {wishlist.length}
                 </span>
               )}
@@ -401,39 +433,44 @@ export default function Navbar() {
             {/* Customer Account */}
             <Link
               to="/account"
+              className="hide-on-mobile"
               aria-label="Customer Account"
               style={{
                 padding: '0.4rem',
                 color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 borderRadius: '50%',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s',
+                minWidth: '34px',
+                minHeight: '34px'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-lavender)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-lavender)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <User size={19} />
+              <User size={18} />
             </Link>
 
             {/* Cart Drawer Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              aria-label="Open cart"
+              aria-label={`Open cart with ${cartCount} items`}
               style={{
-                background: 'var(--accent-navy)',
+                backgroundColor: 'var(--accent-navy)',
                 color: '#FFFFFF',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '0.45rem 0.9rem',
+                padding: '0.4rem clamp(0.55rem, 1.2vw, 0.85rem)',
                 borderRadius: 'var(--radius-full)',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
-                fontWeight: '600',
-                fontSize: '0.82rem',
+                gap: '0.35rem',
+                fontWeight: '700',
+                fontSize: '0.78rem',
                 boxShadow: '0 2px 8px rgba(23, 33, 58, 0.15)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#0F1626';
@@ -444,27 +481,30 @@ export default function Navbar() {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <ShoppingBag size={16} />
+              <ShoppingBag size={15} />
               <span>{cartCount}</span>
             </button>
 
-            {/* Admin CRM Portal Switch */}
+            {/* Admin CRM Portal Pill */}
             <Link
               to="/admin"
+              className="admin-crm-btn hide-on-mobile"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.35rem',
-                backgroundColor: 'var(--bg-lavender)',
+                gap: '0.3rem',
+                backgroundColor: '#EDEAF4',
                 color: 'var(--text-primary)',
-                padding: '0.45rem 0.85rem',
+                padding: '0.4rem clamp(0.5rem, 1vw, 0.75rem)',
                 borderRadius: 'var(--radius-full)',
-                fontSize: '0.78rem',
-                fontWeight: '800',
-                letterSpacing: '0.04em',
+                fontSize: '0.74rem',
+                fontWeight: '700',
+                letterSpacing: '0.02em',
                 border: '1px solid rgba(216, 210, 231, 0.9)',
                 boxShadow: '0 2px 6px rgba(23, 33, 58, 0.04)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#17213A';
@@ -472,29 +512,33 @@ export default function Navbar() {
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--bg-lavender)';
+                e.currentTarget.style.backgroundColor = '#EDEAF4';
                 e.currentTarget.style.color = 'var(--text-primary)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <Layers size={14} /> Admin CRM
+              <Layers size={13} />
+              <span className="admin-crm-text">Admin CRM</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Mobile Slide-Out Menu */}
+      {/* Mobile Slide-Out Navigation Drawer */}
       {mobileMenuOpen && (
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          borderTop: '1px solid rgba(23, 33, 58, 0.08)',
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          maxHeight: 'calc(100vh - 5rem)',
-          overflowY: 'auto'
-        }}>
+        <div
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderTop: '1px solid rgba(23, 33, 58, 0.08)',
+            padding: '1.25rem clamp(1rem, 4vw, 1.5rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.85rem',
+            maxHeight: 'calc(100vh - 5rem)',
+            overflowY: 'auto',
+            animation: 'fadeIn 0.25s ease-out'
+          }}
+        >
           <Link
             to="/#skin-quiz"
             onClick={() => setMobileMenuOpen(false)}
@@ -508,25 +552,29 @@ export default function Navbar() {
               fontWeight: '700',
               padding: '0.75rem',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid rgba(216, 210, 231, 0.8)'
+              border: '1px solid rgba(216, 210, 231, 0.8)',
+              fontSize: '0.85rem'
             }}
           >
             <Sparkles size={16} /> Take Skin Diagnostic Quiz
           </Link>
 
-          <div style={{ fontWeight: '700', fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Shop by Category</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+          <div style={{ fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.25rem' }}>
+            Shop by Category
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
             {categories.map(cat => (
               <Link
                 key={cat}
                 to={`/shop?category=${encodeURIComponent(cat)}`}
                 onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  padding: '0.5rem',
+                  padding: '0.5rem 0.65rem',
                   fontSize: '0.82rem',
                   backgroundColor: 'var(--bg-primary)',
                   borderRadius: 'var(--radius-xs)',
-                  color: 'var(--text-primary)'
+                  color: 'var(--text-primary)',
+                  border: '1px solid rgba(15, 23, 42, 0.04)'
                 }}
               >
                 {cat}
@@ -534,19 +582,22 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div style={{ fontWeight: '700', fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '0.5rem' }}>Skin Concerns</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+          <div style={{ fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.5rem' }}>
+            Skin Concerns
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
             {concerns.map(c => (
               <Link
                 key={c.id}
                 to={`/concerns/${c.slug}`}
                 onClick={() => setMobileMenuOpen(false)}
                 style={{
-                  padding: '0.5rem',
+                  padding: '0.5rem 0.65rem',
                   fontSize: '0.82rem',
                   backgroundColor: 'var(--bg-primary)',
                   borderRadius: 'var(--radius-xs)',
-                  color: 'var(--text-primary)'
+                  color: 'var(--text-primary)',
+                  border: '1px solid rgba(15, 23, 42, 0.04)'
                 }}
               >
                 {c.name}
@@ -554,23 +605,29 @@ export default function Navbar() {
             ))}
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid rgba(23, 33, 58, 0.08)', margin: '0.5rem 0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid rgba(23, 33, 58, 0.08)', margin: '0.4rem 0' }} />
 
-          <Link to="/ingredients" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>Ingredients</Link>
-          <Link to="/research" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>Research</Link>
-          <Link to="/blog" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>Journal</Link>
-          <Link to="/testimonials" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>Testimonials</Link>
-          <Link to="/about" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>About Us</Link>
-          <Link to="/contact" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '600' }}>Contact</Link>
-          <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--accent-navy)' }}>Admin CMS &rarr;</Link>
+          <Link to="/ingredients" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>Ingredients</Link>
+          <Link to="/research" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>Research</Link>
+          <Link to="/blog" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>Journal</Link>
+          <Link to="/testimonials" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>Testimonials</Link>
+          <Link to="/about" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>About Us</Link>
+          <Link to="/contact" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '600' }}>Contact</Link>
+          <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--accent-navy)' }}>Admin CRM &rarr;</Link>
         </div>
       )}
 
-      {/* Responsive helper */}
+      {/* Navbar Responsive Styles */}
       <style>{`
         @media (max-width: 1024px) {
           .desktop-nav { display: none !important; }
-          .mobile-only-btn { display: inline-flex !important; }
+        }
+        @media (min-width: 1025px) {
+          .mobile-nav-toggle { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .admin-crm-text { display: none !important; }
+          .admin-crm-btn { padding: 0.4rem !important; border-radius: 50% !important; }
         }
       `}</style>
     </header>

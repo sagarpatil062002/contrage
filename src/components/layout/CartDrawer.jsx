@@ -70,7 +70,7 @@ export default function CartDrawer() {
       {/* Slide-out Drawer Panel */}
       <div style={{
         width: '100%',
-        maxWidth: '440px',
+        maxWidth: 'min(440px, 100vw)',
         height: '100%',
         backgroundColor: '#FFFFFF',
         boxShadow: '-8px 0 32px rgba(23, 33, 58, 0.12)',
@@ -191,6 +191,10 @@ export default function CartDrawer() {
                 <img
                   src={item.product.heroImage}
                   alt={item.product.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80';
+                  }}
                   style={{ width: '70px', height: '70px', borderRadius: 'var(--radius-xs)', objectFit: 'cover', border: '1px solid rgba(23, 33, 58, 0.08)' }}
                 />
 
