@@ -28,7 +28,9 @@ export default function CartDrawer() {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
-    freeShippingThreshold
+    freeShippingThreshold,
+    user,
+    openMobileOtpModal
   } = useStore();
 
   const [couponCode, setCouponCode] = useState('');
@@ -335,8 +337,15 @@ export default function CartDrawer() {
             {/* Action Buttons */}
             <button
               onClick={() => {
-                setIsCartOpen(false);
-                navigate('/checkout');
+                if (user?.isLoggedIn && user?.phone) {
+                  setIsCartOpen(false);
+                  navigate('/checkout');
+                } else {
+                  setIsCartOpen(false);
+                  openMobileOtpModal(() => {
+                    navigate('/checkout');
+                  });
+                }
               }}
               className="btn btn-primary"
               style={{ width: '100%', padding: '0.85rem', marginBottom: '0.5rem' }}

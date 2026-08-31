@@ -98,8 +98,20 @@ export const StoreProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [isMobileOtpOpen, setIsMobileOtpOpen] = useState(false);
+  const [mobileOtpCallback, setMobileOtpCallback] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const openMobileOtpModal = useCallback((callback = null) => {
+    setMobileOtpCallback(() => callback);
+    setIsMobileOtpOpen(true);
+  }, []);
+
+  const closeMobileOtpModal = useCallback(() => {
+    setIsMobileOtpOpen(false);
+    setMobileOtpCallback(null);
+  }, []);
 
   // Toast Notification Helper
   const showToast = useCallback((message, type = 'success') => {
@@ -393,6 +405,51 @@ export const StoreProvider = ({ children }) => {
     } catch (error) {
       return { success: false, message: error.message, orders: [] };
     }
+  };
+
+  const adminLogin = async (credentials) => {
+    try {
+      const res = await api.auth.adminLogin(credentials);
+      return {
+        success: true,
+        data: res?.data,
+        message: res?.message
+      };
+    } catch (error) {
+      showToast(error.message || 'Admin authentication failed.', 'error');
+      return { success: false, message: error.message };
+    }
+  };
+
+  const adminVerify2FA = async (payload) => {
+    try {
+      const res = await api.auth.adminVerify2FA(payload);
+      if (res?.data?.token) {
+        localStorage.setItem('contrage_token', res.data.token);
+        setToken(res.data.token);
+        setUser({ ...res.data.user, isLoggedIn: true });
+        showToast(`Admin Session Authorized: Welcome ${res.data.user.name}`, 'success');
+        return { success: true, user: res.data.user };
+      }
+      return { success: false, message: 'Invalid 2FA code.' };
+    } catch (error) {
+      showToast(error.message || 'Two-Factor Authentication failed.', 'error');
+      return { success: false, message: error.message };
+    }
+  };
+
+  const adminLogout = () => {
+    localStorage.removeItem('contrage_token');
+    setToken(null);
+    setUser({
+      isLoggedIn: false,
+      name: '',
+      email: '',
+      phone: '',
+      role: 'GUEST',
+      addresses: []
+    });
+    showToast('Admin session terminated. Portal locked.', 'info');
   };
 
   const logout = () => {
@@ -1243,6 +1300,9 @@ export const StoreProvider = ({ children }) => {
     setIsSearchOpen,
     quickViewProduct,
     setQuickViewProduct,
+    isMobileOtpOpen,
+    openMobileOtpModal,
+    closeMobileOtpModal,
     toastMessage,
     showToast,
 
@@ -1270,13 +1330,16 @@ export const StoreProvider = ({ children }) => {
     updateDermatologistInquiryStatus,
     deleteDermatologistInquiry,
 
-    // Auth Handlers (The Derma Co Mobile OTP + Standard)
+    // Auth Handlers (The Derma Co Mobile OTP + Standard + High-Security Admin 2FA)
     sendMobileOtp,
     verifyMobileOtp,
     fetchOrdersByPhone,
     login,
     register,
     logout,
+    adminLogin,
+    adminVerify2FA,
+    adminLogout,
 
     // CMS Handlers
     updateSiteContent,

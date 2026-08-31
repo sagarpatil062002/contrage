@@ -28,7 +28,7 @@ import {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, wishlist, toggleWishlist, addReview, setIsCartOpen, showToast } = useStore();
+  const { products, addToCart, wishlist, toggleWishlist, addReview, setIsCartOpen, showToast, user, openMobileOtpModal } = useStore();
 
   const product = products.find(p => p.id === id || p.slug === id) || products[0];
 
@@ -79,7 +79,13 @@ export default function ProductDetailPage() {
   const handleBuyNow = () => {
     if (isOutOfStock) return;
     addToCart(product, quantity, selectedSize);
-    navigate('/checkout');
+    if (user?.isLoggedIn && user?.phone) {
+      navigate('/checkout');
+    } else {
+      openMobileOtpModal(() => {
+        navigate('/checkout');
+      });
+    }
   };
 
   const handleReviewSubmit = (e) => {

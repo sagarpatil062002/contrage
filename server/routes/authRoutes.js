@@ -4,6 +4,8 @@ import {
   verifyMobileOtp,
   registerUser,
   loginUser,
+  adminLogin,
+  adminVerify2FA,
   getMe,
   updateProfile,
   addAddress,
@@ -22,6 +24,10 @@ router.post('/verify-otp', verifyMobileOtp);
 // Email & Password Auth
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+
+// High-Security Clinical Admin Portal Auth
+router.post('/admin-login', adminLogin);
+router.post('/admin-verify-2fa', adminVerify2FA);
 
 // Protected Account Routes
 router.get('/me', protect, getMe);

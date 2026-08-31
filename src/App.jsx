@@ -8,6 +8,7 @@ import QuickSearchModal from './components/layout/QuickSearchModal';
 import QuickViewModal from './components/layout/QuickViewModal';
 import Toast from './components/common/Toast';
 import MarketingLeadModal from './components/common/MarketingLeadModal';
+import MobileOtpModal from './components/common/MobileOtpModal';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -61,6 +62,7 @@ export default function App() {
       <CartDrawer />
       <QuickSearchModal />
       <QuickViewModal />
+      <MobileOtpModal />
       {!isAdmin && <MarketingLeadModal />}
       <Toast />
 

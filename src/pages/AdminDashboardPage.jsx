@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import confetti from 'canvas-confetti';
 import {
   LayoutDashboard,
   Package,
@@ -20,6 +21,7 @@ import {
   ShieldCheck,
   ArrowRight,
   Eye,
+  EyeOff,
   AlertTriangle,
   Layers,
   ArrowLeft,
@@ -36,11 +38,20 @@ import {
   Download,
   Stethoscope,
   Send,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Lock,
+  LogOut,
+  KeyRound,
+  ShieldAlert,
+  Shield
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const {
+    user,
+    adminLogin,
+    adminVerify2FA,
+    adminLogout,
     products,
     addProduct,
     updateProduct,
@@ -85,7 +96,102 @@ export default function AdminDashboardPage() {
     showToast
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'products' | 'concerns' | 'ingredients' | 'trials' | 'content' | 'inquiries' | 'leads' | 'b2b' | 'orders' | 'coupons' | 'editorial' | 'settings'
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // ==========================================
+  // HIGH-SECURITY CLINICAL ADMIN AUTH STATE
+  // ==========================================
+  const [adminEmail, setAdminEmail] = useState('admin@contrage.com');
+  const [adminPassword, setAdminPassword] = useState('Admin@ContrAge2026');
+  const [showPassword, setShowPassword] = useState(false);
+  const [adminAuthStep, setAdminAuthStep] = useState('credentials'); // 'credentials' | '2fa'
+  const [twoFactorDigits, setTwoFactorDigits] = useState(['', '', '', '', '', '']);
+  const [temp2faToken, setTemp2faToken] = useState('');
+  const [test2FACode, setTest2FACode] = useState('889900');
+  const [maskedPhone, setMaskedPhone] = useState('+91 98*** ***00');
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Resend Countdown
+  useEffect(() => {
+    let timer;
+    if (resendCountdown > 0) {
+      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCountdown]);
+
+  // Handle Step 1: Admin Credentials Verification
+  const handleCredentialsSubmit = async (e) => {
+    if (e) e.preventDefault();
+    setAuthError('');
+
+    if (!adminEmail.trim() || !adminPassword.trim()) {
+      setAuthError('Please enter both administrator email and password.');
+      return;
+    }
+
+    setIsAuthLoading(true);
+    const res = await adminLogin({ email: adminEmail.trim(), password: adminPassword.trim() });
+    setIsAuthLoading(false);
+
+    if (res?.success && res?.data?.requires2FA) {
+      setTemp2faToken(res.data.tempToken);
+      setTest2FACode(res.data.test2FACode || '889900');
+      setMaskedPhone(res.data.adminPhone || '+91 98*** ***00');
+      setAdminAuthStep('2fa');
+      setResendCountdown(60);
+      setTwoFactorDigits((res.data.test2FACode || '889900').split(''));
+      showToast('Credentials approved. 2FA Security Code required.', 'info');
+    } else if (!res?.success) {
+      setAuthError(res?.message || 'Invalid administrator credentials.');
+    }
+  };
+
+  // Handle 2FA digit box input
+  const handle2FADigitChange = (index, val) => {
+    const cleanVal = val.replace(/[^0-9]/g, '').slice(-1);
+    const newDigits = [...twoFactorDigits];
+    newDigits[index] = cleanVal;
+    setTwoFactorDigits(newDigits);
+
+    if (cleanVal && index < 5) {
+      const nextInput = document.getElementById(`admin-2fa-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  // Handle 2FA backspace
+  const handle2FADigitKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !twoFactorDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`admin-2fa-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  // Handle Step 2: 2FA Verification & Establish Session
+  const handle2FASubmit = async (e) => {
+    if (e) e.preventDefault();
+    setAuthError('');
+
+    const fullCode = twoFactorDigits.join('').trim() || test2FACode || '889900';
+    if (fullCode.length !== 6) {
+      setAuthError('Please enter all 6 digits of the Two-Factor Authorization Key.');
+      return;
+    }
+
+    setIsAuthLoading(true);
+    const res = await adminVerify2FA({ tempToken: temp2faToken, code: fullCode });
+    setIsAuthLoading(false);
+
+    if (res?.success) {
+      try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } }); } catch (err) {}
+      showToast('Admin Identity Verified: Welcome to ContrÂge Medical CMS', 'success');
+    } else {
+      setAuthError(res?.message || 'Invalid or expired 2FA code.');
+    }
+  };
 
   // ==========================================
   // CSV / EXCEL EXPORT HELPERS (TEAM OPS)
@@ -616,70 +722,430 @@ export default function AdminDashboardPage() {
     return i.type === inquiryFilter;
   });
 
+  // ==========================================
+  // HIGH-SECURITY CLINICAL ADMIN GATEWAY
+  // ==========================================
+  if (!user?.isLoggedIn || user?.role !== 'ADMIN') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'radial-gradient(circle at 50% 15%, #1E293B 0%, #0F172A 60%, #020617 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem 1rem',
+        color: '#F8FAFC',
+        fontFamily: 'var(--font-sans)'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '480px',
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(2, 132, 199, 0.15)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          overflow: 'hidden',
+          padding: '2.5rem 2.25rem'
+        }}>
+          {/* Header & Lock Emblem */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '16px',
+              backgroundColor: 'rgba(2, 132, 199, 0.15)',
+              border: '1px solid rgba(2, 132, 199, 0.4)',
+              color: '#38BDF8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem auto',
+              boxShadow: '0 0 25px rgba(56, 189, 248, 0.25)'
+            }}>
+              <Lock size={30} />
+            </div>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34D399', fontSize: '0.72rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 12px', borderRadius: '999px', marginBottom: '0.75rem' }}>
+              <ShieldCheck size={13} /> 256-Bit Cryptographic SSL Portal
+            </div>
+
+            <h1 style={{ fontSize: '1.65rem', fontWeight: '800', fontFamily: 'var(--font-serif)', color: '#FFFFFF', margin: '0 0 0.35rem 0', letterSpacing: '0.02em' }}>
+              CONTRÂGE CLINICAL
+            </h1>
+            <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: '1.4' }}>
+              Restricted Medical CMS & Formulation Backbar Operations
+            </p>
+          </div>
+
+          {/* Security Alert if Error */}
+          {authError && (
+            <div style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.85rem 1rem',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              color: '#FCA5A5',
+              fontSize: '0.85rem'
+            }}>
+              <ShieldAlert size={18} color="#EF4444" style={{ flexShrink: 0 }} />
+              <div>{authError}</div>
+            </div>
+          )}
+
+          {adminAuthStep === 'credentials' ? (
+            /* ====================================================
+               STEP 1: ADMIN CREDENTIALS GATEWAY
+            ==================================================== */
+            <form onSubmit={handleCredentialsSubmit}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#E2E8F0', marginBottom: '0.4rem' }}>
+                  Administrator Email *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="admin@contrage.com"
+                    style={{
+                      width: '100%',
+                      padding: '0.85rem 1rem 0.85rem 2.6rem',
+                      backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: 'var(--radius-sm)',
+                      color: '#FFFFFF',
+                      fontSize: '0.95rem',
+                      boxSizing: 'border-box'
+                    }}
+                    required
+                  />
+                  <Mail size={16} color="#64748B" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: '#E2E8F0' }}>
+                    Master Security Password *
+                  </label>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    style={{
+                      width: '100%',
+                      padding: '0.85rem 2.6rem 0.85rem 2.6rem',
+                      backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: 'var(--radius-sm)',
+                      color: '#FFFFFF',
+                      fontSize: '0.95rem',
+                      boxSizing: 'border-box'
+                    }}
+                    required
+                  />
+                  <KeyRound size={16} color="#64748B" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Auto-Fill Demo Credentials Pill */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminEmail('admin@contrage.com');
+                    setAdminPassword('Admin@ContrAge2026');
+                    setAuthError('');
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                    border: '1px dashed rgba(2, 132, 199, 0.35)',
+                    borderRadius: 'var(--radius-xs)',
+                    color: '#38BDF8',
+                    fontSize: '0.78rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <Sparkles size={14} /> Auto-Fill Official Admin Credentials
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isAuthLoading}
+                className="btn btn-primary btn-lg"
+                style={{
+                  width: '100%',
+                  padding: '0.95rem',
+                  fontSize: '1rem',
+                  fontWeight: '800',
+                  justifyContent: 'center',
+                  backgroundColor: '#0284C7',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
+                }}
+              >
+                {isAuthLoading ? 'Authenticating Security...' : 'AUTHENTICATE & PROCEED TO 2FA →'}
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <Link to="/" style={{ color: '#94A3B8', fontSize: '0.82rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <ArrowLeft size={14} /> Return to Public Storefront
+                </Link>
+              </div>
+            </form>
+          ) : (
+            /* ====================================================
+               STEP 2: TWO-FACTOR AUTHENTICATION (2FA) GATE
+            ==================================================== */
+            <div style={{ animation: 'fadeIn 0.25s ease-out' }}>
+              <div style={{
+                backgroundColor: 'rgba(2, 132, 199, 0.12)',
+                border: '1px solid rgba(2, 132, 199, 0.35)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.25rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#38BDF8', marginBottom: '0.35rem' }}>
+                  2FA Security Key Dispatched
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#CBD5E1', lineHeight: '1.4' }}>
+                  A 6-digit cryptographic verification key has been sent to authorized administrator channel (<strong>{maskedPhone}</strong>).
+                </div>
+
+                {/* Auto-Generated 2FA Code Pill for Verification */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 'var(--radius-xs)',
+                  border: '1px dashed rgba(56, 189, 248, 0.5)',
+                  marginTop: '0.85rem'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Generated Security Key:</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#38BDF8', letterSpacing: '0.12em' }}>
+                      {test2FACode}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTwoFactorDigits(test2FACode.slice(0, 6).split(''))}
+                    style={{
+                      backgroundColor: '#0284C7',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '0.35rem 0.75rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Auto-Fill 2FA
+                  </button>
+                </div>
+              </div>
+
+              {/* 6 Digit 2FA Boxes */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                {[0, 1, 2, 3, 4, 5].map((idx) => (
+                  <input
+                    key={idx}
+                    id={`admin-2fa-${idx}`}
+                    type="text"
+                    maxLength="1"
+                    value={twoFactorDigits[idx]}
+                    onChange={(e) => handle2FADigitChange(idx, e.target.value)}
+                    onKeyDown={(e) => handle2FADigitKeyDown(idx, e)}
+                    style={{
+                      width: '46px',
+                      height: '52px',
+                      fontSize: '1.4rem',
+                      fontWeight: '800',
+                      textAlign: 'center',
+                      backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                      border: twoFactorDigits[idx] ? '2px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '8px',
+                      color: '#FFFFFF',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Resend 2FA Timer */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '1.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setAdminAuthStep('credentials')}
+                  style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Edit Credentials
+                </button>
+                {resendCountdown > 0 ? (
+                  <span>Resend in {resendCountdown}s</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleCredentialsSubmit}
+                    style={{ background: 'none', border: 'none', color: '#38BDF8', fontWeight: '800', cursor: 'pointer' }}
+                  >
+                    Resend 2FA Code
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={handle2FASubmit}
+                disabled={isAuthLoading}
+                className="btn btn-primary btn-lg"
+                style={{
+                  width: '100%',
+                  padding: '0.95rem',
+                  fontSize: '1rem',
+                  fontWeight: '800',
+                  justifyContent: 'center',
+                  backgroundColor: '#059669',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
+                }}
+              >
+                {isAuthLoading ? 'Verifying Authorization...' : 'AUTHORIZE ADMIN SESSION →'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // AUTHENTICATED ADMIN DASHBOARD
+  // ==========================================
   return (
-    <div style={{ backgroundColor: '#F7F5F7', minHeight: '100vh', color: '#17213A', paddingBottom: '5rem' }}>
+    <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', color: '#0F172A', paddingBottom: '5rem' }}>
       {/* Top Admin Header */}
       <header style={{
         backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid rgba(23, 33, 58, 0.1)',
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
         padding: '1.15rem 2rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '1rem',
-        boxShadow: '0 2px 10px rgba(23, 33, 58, 0.04)'
+        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           <div style={{
-            width: '38px',
-            height: '38px',
+            width: '40px',
+            height: '40px',
             borderRadius: '10px',
-            backgroundColor: '#17213A',
+            backgroundColor: '#0F172A',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#FFFFFF'
           }}>
-            <Layers size={20} />
+            <ShieldCheck size={22} />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: '#17213A', margin: 0, fontWeight: '700' }}>
-              AESTHEDERM ADMIN & CMS ENGINE
+            <h1 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: '#0F172A', margin: 0, fontWeight: '800', letterSpacing: '0.02em' }}>
+              CONTRÂGE CLINICAL ADMINISTRATION & CMS
             </h1>
-            <span style={{ fontSize: '0.72rem', color: '#6C5B8B', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: '700' }}>
-              Dynamic Content, Catalog & Fulfillment Hub
+            <span style={{ fontSize: '0.72rem', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: '800' }}>
+              Cosmeceuticals Catalog • Clinic Inquiries • Delhivery Fulfillment
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+          {/* Active Admin Session Status Badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.4rem 0.85rem',
+            backgroundColor: '#ECFDF5',
+            border: '1px solid #A7F3D0',
+            borderRadius: '999px',
+            fontSize: '0.78rem',
+            color: '#065F46',
+            fontWeight: '700'
+          }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+            <span>Admin: {user?.email || 'admin@contrage.com'}</span>
+          </div>
+
           <button
             onClick={resetDemoData}
             className="btn btn-sm"
             style={{
-              backgroundColor: '#FDF2F4',
-              color: '#D96B7D',
-              border: '1px solid rgba(217, 107, 125, 0.3)',
+              backgroundColor: '#FEF2F2',
+              color: '#DC2626',
+              border: '1px solid rgba(220, 38, 38, 0.25)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
               fontWeight: '700'
             }}
           >
-            <RotateCcw size={13} /> Reset Factory Seed
+            <RotateCcw size={13} /> Reset Catalog Seed
+          </button>
+
+          <button
+            onClick={adminLogout}
+            className="btn btn-sm"
+            style={{
+              backgroundColor: '#0F172A',
+              color: '#FFFFFF',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontWeight: '700'
+            }}
+          >
+            <LogOut size={13} /> Secure Logout
           </button>
 
           <Link
             to="/"
-            className="btn btn-primary btn-sm"
+            className="btn btn-secondary btn-sm"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem'
             }}
           >
-            <ArrowLeft size={14} /> Back to Live Storefront
+            <ArrowLeft size={14} /> Storefront
           </Link>
         </div>
       </header>

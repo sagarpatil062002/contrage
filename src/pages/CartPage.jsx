@@ -26,7 +26,9 @@ export default function CartPage() {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
-    freeShippingThreshold
+    freeShippingThreshold,
+    user,
+    openMobileOtpModal
   } = useStore();
 
   const [couponCode, setCouponCode] = useState('');
@@ -325,7 +327,15 @@ export default function CartPage() {
             </div>
 
             <button
-              onClick={() => navigate('/checkout')}
+              onClick={() => {
+                if (user?.isLoggedIn && user?.phone) {
+                  navigate('/checkout');
+                } else {
+                  openMobileOtpModal(() => {
+                    navigate('/checkout');
+                  });
+                }
+              }}
               className="btn btn-primary btn-lg"
               style={{ width: '100%', padding: '0.85rem', marginBottom: '0.75rem' }}
             >
