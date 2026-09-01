@@ -860,7 +860,8 @@ export default function AdminDashboardPage() {
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           overflow: 'hidden',
-          padding: '2.5rem 2.25rem'
+          padding: 'clamp(1.5rem, 5vw, 2.25rem) clamp(1rem, 4vw, 2rem)',
+          boxSizing: 'border-box'
         }}>
           {/* Header & Lock Emblem */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -1009,19 +1010,33 @@ export default function AdminDashboardPage() {
               <button
                 type="submit"
                 disabled={isAuthLoading}
-                className="btn btn-primary btn-lg"
+                className="btn btn-primary btn-lg admin-auth-submit-btn"
                 style={{
                   width: '100%',
-                  padding: '0.95rem',
-                  fontSize: '1rem',
+                  padding: '0.88rem 1rem',
+                  fontSize: '0.92rem',
                   fontWeight: '800',
+                  letterSpacing: '0.02em',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '0.45rem',
                   backgroundColor: '#0284C7',
                   border: 'none',
-                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
+                  borderRadius: 'var(--radius-sm)',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)',
+                  whiteSpace: 'nowrap',
+                  boxSizing: 'border-box'
                 }}
               >
-                {isAuthLoading ? 'Authenticating Security...' : 'AUTHENTICATE & PROCEED TO 2FA →'}
+                {isAuthLoading ? (
+                  <span>Authenticating Security...</span>
+                ) : (
+                  <>
+                    <span>Authenticate & Proceed to 2FA</span>
+                    <ArrowRight size={16} style={{ flexShrink: 0 }} />
+                  </>
+                )}
               </button>
 
               <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
@@ -1138,19 +1153,33 @@ export default function AdminDashboardPage() {
                 type="button"
                 onClick={handle2FASubmit}
                 disabled={isAuthLoading}
-                className="btn btn-primary btn-lg"
+                className="btn btn-primary btn-lg admin-auth-submit-btn"
                 style={{
                   width: '100%',
-                  padding: '0.95rem',
-                  fontSize: '1rem',
+                  padding: '0.88rem 1rem',
+                  fontSize: '0.92rem',
                   fontWeight: '800',
+                  letterSpacing: '0.02em',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '0.45rem',
                   backgroundColor: '#059669',
                   border: 'none',
-                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
+                  borderRadius: 'var(--radius-sm)',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)',
+                  whiteSpace: 'nowrap',
+                  boxSizing: 'border-box'
                 }}
               >
-                {isAuthLoading ? 'Verifying Authorization...' : 'AUTHORIZE ADMIN SESSION →'}
+                {isAuthLoading ? (
+                  <span>Verifying Authorization...</span>
+                ) : (
+                  <>
+                    <span>Authorize Admin Session</span>
+                    <ArrowRight size={16} style={{ flexShrink: 0 }} />
+                  </>
+                )}
               </button>
             </div>
           )}
