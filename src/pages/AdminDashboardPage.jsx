@@ -1072,18 +1072,8 @@ export default function AdminDashboardPage() {
   return (
     <div style={{ backgroundColor: '#F8FAFC', minHeight: '100vh', color: '#0F172A', paddingBottom: '5rem' }}>
       {/* Top Admin Header */}
-      <header className="admin-header" style={{
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
-        padding: '1.15rem 2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+      <header className="admin-header">
+        <div className="admin-header-title-group">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="admin-header-hamburger"
@@ -1107,76 +1097,53 @@ export default function AdminDashboardPage() {
             <ShieldCheck size={22} />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: '#0F172A', margin: 0, fontWeight: '800', letterSpacing: '0.02em' }}>
+            <h1 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-serif)', color: '#0F172A', margin: 0, fontWeight: '800', letterSpacing: '0.02em' }}>
               CONTRÂGE CLINICAL ADMINISTRATION & CMS
             </h1>
-            <span style={{ fontSize: '0.72rem', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: '800' }}>
+            <span className="admin-header-subtitle" style={{ fontSize: '0.72rem', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: '800' }}>
               Cosmeceuticals Catalog • Clinic Inquiries • Delhivery Fulfillment
             </span>
           </div>
         </div>
 
-        <div className="admin-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+        <div className="admin-header-actions">
           {/* Active Admin Session Status Badge */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.4rem 0.85rem',
-            backgroundColor: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            borderRadius: '999px',
-            fontSize: '0.78rem',
-            color: '#065F46',
-            fontWeight: '700'
-          }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+          <div className="admin-user-badge">
+            <span className="admin-user-pulse" />
             <span>Admin: {user?.email || 'admin@contrage.com'}</span>
           </div>
 
-          <button
-            onClick={resetDemoData}
-            className="btn btn-sm"
-            style={{
-              backgroundColor: '#FEF2F2',
-              color: '#DC2626',
-              border: '1px solid rgba(220, 38, 38, 0.25)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontWeight: '700'
-            }}
-          >
-            <RotateCcw size={13} /> <span>Reset Catalog Seed</span>
-          </button>
+          <div className="admin-buttons-grid">
+            <button
+              onClick={resetDemoData}
+              className="btn btn-sm admin-btn-reset"
+              title="Reset catalog demo data to defaults"
+            >
+              <RotateCcw size={13} style={{ flexShrink: 0 }} />
+              <span className="btn-label-desktop">Reset Catalog Seed</span>
+              <span className="btn-label-mobile">Reset Seed</span>
+            </button>
 
-          <button
-            onClick={adminLogout}
-            className="btn btn-sm"
-            style={{
-              backgroundColor: '#0F172A',
-              color: '#FFFFFF',
-              border: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontWeight: '700'
-            }}
-          >
-            <LogOut size={13} /> <span>Secure Logout</span>
-          </button>
+            <button
+              onClick={adminLogout}
+              className="btn btn-sm admin-btn-logout"
+              title="Securely log out of administration portal"
+            >
+              <LogOut size={13} style={{ flexShrink: 0 }} />
+              <span className="btn-label-desktop">Secure Logout</span>
+              <span className="btn-label-mobile">Logout</span>
+            </button>
 
-          <Link
-            to="/"
-            className="btn btn-secondary btn-sm"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}
-          >
-            <ArrowLeft size={14} /> <span>Storefront</span>
-          </Link>
+            <Link
+              to="/"
+              className="btn btn-secondary btn-sm admin-btn-store"
+              title="Return to public customer storefront"
+            >
+              <ArrowLeft size={14} style={{ flexShrink: 0 }} />
+              <span className="btn-label-desktop">Storefront</span>
+              <span className="btn-label-mobile">Store</span>
+            </Link>
+          </div>
         </div>
       </header>
 
