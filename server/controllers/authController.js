@@ -316,11 +316,16 @@ export const toggleWishlist = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return sendError(res, 'User not found.', 404);
 
-    const exists = user.wishlist.includes(productId);
+    if (!Array.isArray(user.wishlist)) {
+      user.wishlist = [];
+    }
+
+    const prodIdStr = String(productId);
+    const exists = user.wishlist.some(id => String(id) === prodIdStr);
     if (exists) {
-      user.wishlist = user.wishlist.filter(id => id !== productId);
+      user.wishlist = user.wishlist.filter(id => String(id) !== prodIdStr);
     } else {
-      user.wishlist.push(productId);
+      user.wishlist.push(prodIdStr);
     }
 
     await user.save();

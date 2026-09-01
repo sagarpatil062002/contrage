@@ -21,7 +21,7 @@ export default function QuickViewModal() {
   if (!quickViewProduct) return null;
 
   const currentSize = selectedSize || (quickViewProduct.sizes ? quickViewProduct.sizes[0] : 'Standard');
-  const wish = isWishlisted(quickViewProduct.id);
+  const wish = isWishlisted ? isWishlisted(quickViewProduct) : false;
 
   const handleAddToCart = () => {
     addToCart(quickViewProduct, qty, currentSize);

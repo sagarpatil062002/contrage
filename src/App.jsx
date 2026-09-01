@@ -95,6 +95,7 @@ export default function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/wishlist" element={<AccountPage />} />
           <Route path="/legal/:type" element={<LegalPage />} />
           
           {/* Admin CMS Route */}

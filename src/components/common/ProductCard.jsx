@@ -5,11 +5,11 @@ import StarRating from './StarRating';
 import { Heart, Eye, Plus, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function ProductCard({ product }) {
-  const { wishlist, toggleWishlist, addToCart, setQuickViewProduct } = useStore();
+  const { wishlist, toggleWishlist, addToCart, setQuickViewProduct, isWishlisted: checkWishlisted } = useStore();
 
   if (!product) return null;
 
-  const isWishlisted = wishlist.includes(product.id);
+  const isWishlisted = checkWishlisted ? checkWishlisted(product) : (wishlist || []).includes(product.id);
   const activeMolecule = product.activeIngredients?.[0];
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 15;

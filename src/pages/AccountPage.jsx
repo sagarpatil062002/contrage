@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import ProductCard from '../components/common/ProductCard';
@@ -45,8 +45,15 @@ export default function AccountPage() {
     fetchOrdersByPhone
   } = useStore();
 
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || (user?.isLoggedIn ? 'orders' : 'auth'));
+  const isWishlistRoute = location.pathname === '/wishlist';
+  const [activeTab, setActiveTab] = useState(() => {
+    if (isWishlistRoute) return 'wishlist';
+    const tab = searchParams.get('tab');
+    if (tab) return tab;
+    return user?.isLoggedIn ? 'orders' : 'auth';
+  });
 
   // Auth Modes: 'mobile_otp' | 'email_password'
   const [authMethod, setAuthMethod] = useState('mobile_otp');
@@ -79,9 +86,13 @@ export default function AccountPage() {
   const [newPincode, setNewPincode] = useState('');
 
   useEffect(() => {
+    if (location.pathname === '/wishlist') {
+      setActiveTab('wishlist');
+      return;
+    }
     const tab = searchParams.get('tab');
     if (tab) setActiveTab(tab);
-  }, [searchParams]);
+  }, [searchParams, location.pathname]);
 
   // Resend OTP Countdown
   useEffect(() => {
@@ -92,7 +103,17 @@ export default function AccountPage() {
     return () => clearInterval(interval);
   }, [otpTimer]);
 
-  const wishlistedProducts = products.filter(p => wishlist.includes(p.id));
+  const wishlistedProducts = (products || []).filter(p => {
+    if (!p) return false;
+    const pId = p.id ? String(p.id) : '';
+    const pMongoId = p._id ? String(p._id) : '';
+    const pSlug = p.slug ? String(p.slug) : '';
+    return (wishlist || []).some(item => {
+      if (!item) return false;
+      const itemId = typeof item === 'object' ? (item.id || item._id || item.slug) : String(item);
+      return (pId && itemId === pId) || (pMongoId && itemId === pMongoId) || (pSlug && itemId === pSlug);
+    });
+  });
 
   // Send Mobile OTP
   const handleSendOtp = async (e) => {
@@ -395,6 +416,26 @@ export default function AccountPage() {
                 }}
               >
                 <LogIn size={18} color={activeTab === 'auth' ? '#0284C7' : '#64748B'} /> Sign In / Quick OTP Login
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('wishlist'); setSearchParams({ tab: 'wishlist' }); }}
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'wishlist' ? '3px solid #0284C7' : '3px solid transparent',
+                  color: activeTab === 'wishlist' ? '#0F172A' : '#64748B',
+                  fontWeight: activeTab === 'wishlist' ? '800' : '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Heart size={18} color={activeTab === 'wishlist' ? '#E11D48' : '#64748B'} /> Wishlist ({wishlist.length})
               </button>
 
               <button
@@ -948,8 +989,37 @@ export default function AccountPage() {
         )}
 
         {/* TAB 5: WISHLIST */}
-        {user?.isLoggedIn && activeTab === 'wishlist' && (
+        {activeTab === 'wishlist' && (
           <div>
+            {!user?.isLoggedIn && wishlist.length > 0 && (
+              <div style={{
+                backgroundColor: '#EFF6FF',
+                border: '1px solid #BFDBFE',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.85rem 1.25rem',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.75rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <Sparkles size={18} color="#2563EB" />
+                  <span style={{ fontSize: '0.88rem', color: '#1E40AF', fontWeight: '500' }}>
+                    <strong>Guest Wishlist:</strong> Items are saved in your current browser session. Sign In to sync your wishlist across all devices.
+                  </span>
+                </div>
+                <button
+                  onClick={() => { setActiveTab('auth'); setSearchParams({ tab: 'auth' }); }}
+                  className="btn btn-primary btn-xs"
+                  style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', whiteSpace: 'nowrap' }}
+                >
+                  Sign In / Register &rarr;
+                </button>
+              </div>
+            )}
+
             {wishlistedProducts.length === 0 ? (
               <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15, 23, 42, 0.08)', padding: '3.5rem 2rem', textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
                 <Heart size={48} color="#E11D48" style={{ margin: '0 auto 1rem auto' }} />
@@ -966,7 +1036,7 @@ export default function AccountPage() {
             ) : (
               <div className="grid-4">
                 {wishlistedProducts.map(p => (
-                  <ProductCard key={p.id} product={p} />
+                  <ProductCard key={p.id || p._id} product={p} />
                 ))}
               </div>
             )}

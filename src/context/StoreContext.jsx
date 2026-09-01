@@ -218,7 +218,15 @@ export const StoreProvider = ({ children }) => {
           const meRes = await api.auth.getMe();
           if (meRes?.data) {
             setUser({ ...meRes.data, isLoggedIn: true });
-            if (meRes.data.wishlist) setWishlist(meRes.data.wishlist);
+            if (meRes.data.wishlist && Array.isArray(meRes.data.wishlist)) {
+              let local = [];
+              try {
+                const saved = localStorage.getItem('contrage_wishlist');
+                local = saved ? JSON.parse(saved) : [];
+              } catch (e) {}
+              const merged = Array.from(new Set([...meRes.data.wishlist, ...local]));
+              setWishlist(merged);
+            }
             if (meRes.data.quizResult) setQuizResult(meRes.data.quizResult);
           }
         } catch (e) {
@@ -297,7 +305,21 @@ export const StoreProvider = ({ children }) => {
         localStorage.setItem('contrage_token', res.data.token);
         setToken(res.data.token);
         setUser({ ...res.data.user, isLoggedIn: true });
-        if (res.data.user.wishlist) setWishlist(res.data.user.wishlist);
+
+        // Merge guest wishlist with user account wishlist
+        const serverWishlist = res.data.user?.wishlist || [];
+        const localWishlist = wishlist || [];
+        const mergedWishlist = Array.from(new Set([...serverWishlist, ...localWishlist]));
+        setWishlist(mergedWishlist);
+
+        // Sync any local-only items to backend
+        if (localWishlist.length > 0) {
+          for (const pid of localWishlist) {
+            if (!serverWishlist.includes(pid)) {
+              try { await api.auth.toggleWishlist(pid); } catch (e) {}
+            }
+          }
+        }
 
         // Merge guest cart with database cart
         if (cart.length > 0) {
@@ -338,6 +360,20 @@ export const StoreProvider = ({ children }) => {
         localStorage.setItem('contrage_token', res.data.token);
         setToken(res.data.token);
         setUser({ ...res.data.user, isLoggedIn: true });
+
+        // Merge guest wishlist
+        const serverWishlist = res.data.user?.wishlist || [];
+        const localWishlist = wishlist || [];
+        const mergedWishlist = Array.from(new Set([...serverWishlist, ...localWishlist]));
+        setWishlist(mergedWishlist);
+
+        if (localWishlist.length > 0) {
+          for (const pid of localWishlist) {
+            if (!serverWishlist.includes(pid)) {
+              try { await api.auth.toggleWishlist(pid); } catch (e) {}
+            }
+          }
+        }
 
         // Merge guest cart
         if (cart.length > 0) {
@@ -381,7 +417,20 @@ export const StoreProvider = ({ children }) => {
         localStorage.setItem('contrage_token', res.data.token);
         setToken(res.data.token);
         setUser({ ...res.data.user, isLoggedIn: true });
-        if (res.data.user.wishlist) setWishlist(res.data.user.wishlist);
+
+        // Merge guest wishlist
+        const serverWishlist = res.data.user?.wishlist || [];
+        const localWishlist = wishlist || [];
+        const mergedWishlist = Array.from(new Set([...serverWishlist, ...localWishlist]));
+        setWishlist(mergedWishlist);
+
+        if (localWishlist.length > 0) {
+          for (const pid of localWishlist) {
+            if (!serverWishlist.includes(pid)) {
+              try { await api.auth.toggleWishlist(pid); } catch (e) {}
+            }
+          }
+        }
 
         // Fetch user orders by phone or account
         try {
@@ -741,26 +790,65 @@ export const StoreProvider = ({ children }) => {
   // ==========================================
   // WISHLIST OPERATIONS
   // ==========================================
-  const toggleWishlist = async (productId) => {
+  const isWishlisted = useCallback((productOrId) => {
+    if (!productOrId || !Array.isArray(wishlist) || wishlist.length === 0) return false;
+    if (typeof productOrId === 'object') {
+      const pId = productOrId.id ? String(productOrId.id) : '';
+      const pMongoId = productOrId._id ? String(productOrId._id) : '';
+      const pSlug = productOrId.slug ? String(productOrId.slug) : '';
+      return wishlist.some(item => {
+        if (!item) return false;
+        const itemId = typeof item === 'object' ? (item.id || item._id || item.slug) : String(item);
+        return (pId && itemId === pId) || (pMongoId && itemId === pMongoId) || (pSlug && itemId === pSlug);
+      });
+    }
+    const idStr = String(productOrId);
+    return wishlist.some(item => {
+      if (!item) return false;
+      const itemId = typeof item === 'object' ? (item.id || item._id || item.slug) : String(item);
+      return itemId === idStr;
+    });
+  }, [wishlist]);
+
+  const toggleWishlist = useCallback(async (productOrId) => {
+    if (!productOrId) return;
+    const productId = typeof productOrId === 'object'
+      ? (productOrId.id || productOrId._id || productOrId.slug)
+      : String(productOrId);
+
+    if (!productId) return;
+
     setWishlist(prev => {
-      const exists = prev.includes(productId);
+      const list = Array.isArray(prev) ? prev : [];
+      const exists = list.some(item => {
+        const id = typeof item === 'object' ? (item.id || item._id || item.slug) : String(item);
+        return id === productId;
+      });
+
       if (exists) {
         showToast('Removed from wishlist.', 'info');
-        return prev.filter(id => id !== productId);
+        return list.filter(item => {
+          const id = typeof item === 'object' ? (item.id || item._id || item.slug) : String(item);
+          return id !== productId;
+        });
       } else {
         showToast('Saved to your clinical wishlist.');
-        return [...prev, productId];
+        return [...list, productId];
       }
     });
 
-    if (token) {
+    const currentToken = localStorage.getItem('contrage_token');
+    if (currentToken) {
       try {
-        await api.auth.toggleWishlist(productId);
-      } catch (err) {}
+        const res = await api.auth.toggleWishlist(productId);
+        if (res?.data && Array.isArray(res.data)) {
+          setWishlist(res.data);
+        }
+      } catch (err) {
+        console.warn('Backend wishlist toggle sync error:', err);
+      }
     }
-  };
-
-  const isWishlisted = (productId) => wishlist.includes(productId);
+  }, [showToast]);
 
   // ==========================================
   // ORDER PLACEMENT (Database Backed)

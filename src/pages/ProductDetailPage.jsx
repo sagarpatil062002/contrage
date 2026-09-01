@@ -11,9 +11,9 @@ import RelatedProducts from '../components/product/RelatedProducts';
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, wishlist, toggleWishlist, addReview, setIsCartOpen, showToast, user, openMobileOtpModal } = useStore();
+  const { products, addToCart, wishlist, toggleWishlist, isWishlisted: checkWishlisted, addReview, setIsCartOpen, showToast, user, openMobileOtpModal } = useStore();
 
-  const product = products.find(p => p.id === id || p.slug === id) || products[0];
+  const product = products.find(p => p.id === id || p.slug === id || (p._id && String(p._id) === id)) || products[0];
 
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'Standard');
   const [quantity, setQuantity] = useState(1);
@@ -39,7 +39,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const isWishlisted = wishlist.includes(product.id);
+  const isWishlisted = checkWishlisted ? checkWishlisted(product) : (wishlist || []).includes(product.id);
   const images = (product.gallery && product.gallery.length > 0) ? product.gallery : [product.heroImage];
   const isOutOfStock = product.stock <= 0;
 
