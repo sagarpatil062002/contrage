@@ -1119,6 +1119,20 @@ select option {
   .admin-search-wrapper .form-control {
     width: 100% !important;
   }
+
+  .admin-auth-submit-btn {
+    font-size: 0.86rem !important;
+    padding: 0.82rem 0.65rem !important;
+    gap: 0.4rem !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-auth-submit-btn {
+    font-size: 0.78rem !important;
+    padding: 0.78rem 0.45rem !important;
+    gap: 0.3rem !important;
+  }
 }
 
 @media (max-width: 768px) {
