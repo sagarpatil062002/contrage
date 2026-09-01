@@ -19,7 +19,10 @@ async function request(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorMsg = data.message || `API Error: ${response.status} ${response.statusText}`;
-      throw new Error(errorMsg);
+      const error = new Error(errorMsg);
+      error.status = response.status;
+      error.data = data;
+      throw error;
     }
 
     return data;

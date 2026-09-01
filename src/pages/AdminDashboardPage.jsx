@@ -102,19 +102,50 @@ export default function AdminDashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ==========================================
-  // HIGH-SECURITY CLINICAL ADMIN AUTH STATE
+  // HIGH-SECURITY CLINICAL ADMIN AUTH STATE & SESSION
   // ==========================================
+  const getStored2FASession = () => {
+    try {
+      const raw = sessionStorage.getItem('contrage_admin_pending_2fa');
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      if (session && session.tempToken && session.expiresAt && Date.now() < session.expiresAt) {
+        return session;
+      }
+      sessionStorage.removeItem('contrage_admin_pending_2fa');
+    } catch (e) {}
+    return null;
+  };
+
+  const initial2FA = getStored2FASession();
   const [adminEmail, setAdminEmail] = useState('admin@contrage.com');
   const [adminPassword, setAdminPassword] = useState('Admin@ContrAge2026');
   const [showPassword, setShowPassword] = useState(false);
-  const [adminAuthStep, setAdminAuthStep] = useState('credentials'); // 'credentials' | '2fa'
-  const [twoFactorDigits, setTwoFactorDigits] = useState(['', '', '', '', '', '']);
-  const [temp2faToken, setTemp2faToken] = useState('');
-  const [test2FACode, setTest2FACode] = useState('889900');
-  const [maskedPhone, setMaskedPhone] = useState('+91 98*** ***00');
-  const [resendCountdown, setResendCountdown] = useState(0);
+  const [adminAuthStep, setAdminAuthStep] = useState(initial2FA ? '2fa' : 'credentials'); // 'credentials' | '2fa'
+  const [twoFactorDigits, setTwoFactorDigits] = useState(initial2FA?.test2FACode ? initial2FA.test2FACode.slice(0, 6).split('') : ['', '', '', '', '', '']);
+  const [temp2faToken, setTemp2faToken] = useState(initial2FA ? initial2FA.tempToken : '');
+  const [test2FACode, setTest2FACode] = useState(initial2FA ? initial2FA.test2FACode : '889900');
+  const [maskedPhone, setMaskedPhone] = useState(initial2FA ? initial2FA.maskedPhone : '+91 98*** ***00');
+  const [resendCountdown, setResendCountdown] = useState(initial2FA ? Math.max(0, Math.floor((initial2FA.expiresAt - Date.now()) / 1000)) : 0);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+
+  // Synchronize auth state: whenever user is unauthenticated, ensure no stale 2FA unless active pending session
+  useEffect(() => {
+    if (!user?.isLoggedIn || user?.role !== 'ADMIN') {
+      const activeSession = getStored2FASession();
+      if (activeSession) {
+        setAdminAuthStep('2fa');
+        setTemp2faToken(activeSession.tempToken);
+        setTest2FACode(activeSession.test2FACode || '889900');
+        setMaskedPhone(activeSession.maskedPhone || '+91 98*** ***00');
+      } else {
+        setAdminAuthStep('credentials');
+        setTemp2faToken('');
+        setTwoFactorDigits(['', '', '', '', '', '']);
+      }
+    }
+  }, [user?.isLoggedIn, user?.role]);
 
   // Resend Countdown
   useEffect(() => {
@@ -140,6 +171,17 @@ export default function AdminDashboardPage() {
     setIsAuthLoading(false);
 
     if (res?.success && res?.data?.requires2FA) {
+      const expiresAt = Date.now() + (res.data.expiresInSeconds || 300) * 1000;
+      const sessionData = {
+        tempToken: res.data.tempToken,
+        test2FACode: res.data.test2FACode || '889900',
+        maskedPhone: res.data.adminPhone || '+91 98*** ***00',
+        expiresAt
+      };
+      try {
+        sessionStorage.setItem('contrage_admin_pending_2fa', JSON.stringify(sessionData));
+      } catch (err) {}
+
       setTemp2faToken(res.data.tempToken);
       setTest2FACode(res.data.test2FACode || '889900');
       setMaskedPhone(res.data.adminPhone || '+91 98*** ***00');
@@ -149,6 +191,9 @@ export default function AdminDashboardPage() {
       showToast('Credentials approved. 2FA Security Code required.', 'info');
     } else if (!res?.success) {
       setAuthError(res?.message || 'Invalid administrator credentials.');
+      setAdminAuthStep('credentials');
+      setTemp2faToken('');
+      try { sessionStorage.removeItem('contrage_admin_pending_2fa'); } catch (err) {}
     }
   };
 
@@ -178,6 +223,13 @@ export default function AdminDashboardPage() {
     if (e) e.preventDefault();
     setAuthError('');
 
+    if (!temp2faToken) {
+      setAuthError('No active 2FA authorization session found. Please enter your credentials.');
+      setAdminAuthStep('credentials');
+      try { sessionStorage.removeItem('contrage_admin_pending_2fa'); } catch (err) {}
+      return;
+    }
+
     const fullCode = twoFactorDigits.join('').trim() || test2FACode || '889900';
     if (fullCode.length !== 6) {
       setAuthError('Please enter all 6 digits of the Two-Factor Authorization Key.');
@@ -189,11 +241,53 @@ export default function AdminDashboardPage() {
     setIsAuthLoading(false);
 
     if (res?.success) {
+      try { sessionStorage.removeItem('contrage_admin_pending_2fa'); } catch (err) {}
+      setAdminAuthStep('credentials');
+      setTemp2faToken('');
+      setTwoFactorDigits(['', '', '', '', '', '']);
+      setAuthError('');
       try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } }); } catch (err) {}
       showToast('Admin Identity Verified: Welcome to ContrÂge Medical CMS', 'success');
     } else {
       setAuthError(res?.message || 'Invalid or expired 2FA code.');
+      // Handle 401 Unauthorized or expired token by returning to credentials step
+      if (res?.status === 401 || !temp2faToken) {
+        try { sessionStorage.removeItem('contrage_admin_pending_2fa'); } catch (err) {}
+        setTemp2faToken('');
+        setTwoFactorDigits(['', '', '', '', '', '']);
+        setAdminAuthStep('credentials');
+      }
     }
+  };
+
+  // Handle Edit Credentials / Back to Step 1
+  const handleBackToCredentials = () => {
+    try { sessionStorage.removeItem('contrage_admin_pending_2fa'); } catch (err) {}
+    setAdminAuthStep('credentials');
+    setTemp2faToken('');
+    setTwoFactorDigits(['', '', '', '', '', '']);
+    setAuthError('');
+    setResendCountdown(0);
+  };
+
+  // Handle Full Admin Logout
+  const handleAdminLogout = () => {
+    try {
+      sessionStorage.removeItem('contrage_admin_pending_2fa');
+      localStorage.removeItem('contrage_token');
+      localStorage.removeItem('contrage_user');
+      localStorage.removeItem('aesthederm_token');
+    } catch (err) {}
+    setAdminAuthStep('credentials');
+    setTemp2faToken('');
+    setTwoFactorDigits(['', '', '', '', '', '']);
+    setTest2FACode('889900');
+    setMaskedPhone('+91 98*** ***00');
+    setAuthError('');
+    setResendCountdown(0);
+    setAdminPassword('');
+    setShowPassword(false);
+    adminLogout();
   };
 
   // ==========================================
@@ -1022,7 +1116,7 @@ export default function AdminDashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '1.5rem' }}>
                 <button
                   type="button"
-                  onClick={() => setAdminAuthStep('credentials')}
+                  onClick={handleBackToCredentials}
                   style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', textDecoration: 'underline' }}
                 >
                   Edit Credentials
@@ -1125,7 +1219,7 @@ export default function AdminDashboardPage() {
             </button>
 
             <button
-              onClick={adminLogout}
+              onClick={handleAdminLogout}
               className="btn btn-sm admin-btn-logout"
               title="Securely log out of administration portal"
             >

@@ -440,8 +440,10 @@ export const StoreProvider = ({ children }) => {
         message: res?.message
       };
     } catch (error) {
-      // Standalone / Mobile / Vercel Preview Resilience
+      // Standalone / Mobile / Vercel Preview Resilience (only on pure network failure)
+      const isNetworkFail = !error.status && (error.message?.includes('fetch') || error.message?.includes('NetworkError'));
       if (
+        isNetworkFail &&
         credentials?.email?.toLowerCase().trim() === 'admin@contrage.com' &&
         credentials?.password === 'Admin@ContrAge2026'
       ) {
@@ -459,7 +461,7 @@ export const StoreProvider = ({ children }) => {
         };
       }
       showToast(error.message || 'Admin authentication failed.', 'error');
-      return { success: false, message: error.message };
+      return { success: false, status: error.status || 401, message: error.message };
     }
   };
 
@@ -468,15 +470,17 @@ export const StoreProvider = ({ children }) => {
       const res = await api.auth.adminVerify2FA(payload);
       if (res?.data?.token) {
         localStorage.setItem('contrage_token', res.data.token);
+        localStorage.setItem('contrage_user', JSON.stringify(res.data.user));
         setToken(res.data.token);
         setUser({ ...res.data.user, isLoggedIn: true });
         showToast(`Admin Session Authorized: Welcome ${res.data.user.name}`, 'success');
         return { success: true, user: res.data.user };
       }
-      return { success: false, message: 'Invalid 2FA code.' };
+      return { success: false, status: 400, message: 'Invalid 2FA code.' };
     } catch (error) {
-      // Standalone / Mobile / Vercel Preview Resilience
-      if (payload?.code && (payload.code === '889900' || payload.code.length === 6)) {
+      // Standalone / Mobile / Vercel Preview Resilience (only on pure network failure)
+      const isNetworkFail = !error.status && (error.message?.includes('fetch') || error.message?.includes('NetworkError'));
+      if (isNetworkFail && payload?.code && (payload.code === '889900' || payload.code.length === 6)) {
         const fallbackAdmin = {
           _id: 'admin_6a957001c5a9db',
           name: 'Clinical Admin',
@@ -494,12 +498,17 @@ export const StoreProvider = ({ children }) => {
         return { success: true, user: fallbackAdmin };
       }
       showToast(error.message || 'Two-Factor Authentication failed.', 'error');
-      return { success: false, message: error.message };
+      return { success: false, status: error.status || 401, message: error.message };
     }
   };
 
   const adminLogout = () => {
     localStorage.removeItem('contrage_token');
+    localStorage.removeItem('contrage_user');
+    localStorage.removeItem('aesthederm_token');
+    try {
+      sessionStorage.removeItem('contrage_admin_pending_2fa');
+    } catch (e) {}
     setToken(null);
     setUser({
       isLoggedIn: false,
